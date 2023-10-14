@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+
+        // Settings for the compiler when using Node 18 (as per https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping)
+        "lib": ["ES2023"],
+        "module": "CommonJS",
+        "target": "ES2022",
+
+        // My compiler options
+        "outDir": "./dist",
+        "strict": true
+    }
+  }
+  

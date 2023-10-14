@@ -1,0 +1,13 @@
+{
+  "name": "teller",
+  "version": "0.0.0",
+  "description": "Teller - the game",
+  "author": "GaucheDroite",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsc -w"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}
