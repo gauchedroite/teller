@@ -1,10 +1,8 @@
-// @ts-nocheck
-"use strict"
-
 import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, IMessageTo, Kind, AKind, IGameData } from "./igame-data.js"
+import { IOptions } from "./igame.js";
 
 
-class GameData {
+export class GameData {
 
     select_Game = () => {
         var game = this.game;
@@ -12,8 +10,8 @@ class GameData {
         var scns = this.scenes;
         var acts = this.actors;
         var moms = this.moments;
-        var gdata = <IGameData> { 
-            game: game || <IGameMeta>{ id:0, name: null, initialstate: null, text: null }, 
+        var gdata = <IGameData> <unknown> {
+            game: game || <IGameMeta> <unknown> { id: 0, name: null, initialstate: null, text: null },
             situations: sits,
             scenes: scns,
             actors: acts,
@@ -75,7 +73,7 @@ class GameData {
             if (sit.id > id) id = sit.id;
         }
         id++;
-        var sit: ISituation = { id: id, gameid: gameid, name: null, when: null, text: null, sids: [], aids: [], aid: null };
+        var sit: ISituation = { id: id, gameid: gameid, name: "", when: "", text: "", sids: [], aids: [], aid: -1 };
         sits.push(sit);
         this.situations = sits;
         //
@@ -141,6 +139,7 @@ class GameData {
             if (sits[i].id == id)
                 return i;
         }
+        return -1;
     }
 
     getSituationOfMessageTo = (sits: Array<ISituation>, msg: IMessageTo) => {
@@ -158,7 +157,7 @@ class GameData {
             if (scn.id > id) id = scn.id;
         }
         id++;
-        var scn: IScene = { id: id, sitid: sitid, name: null, text: null, mids: [] };
+        var scn: IScene = { id: id, sitid: sitid, name: "", text: "", mids: [] };
         scns.push(scn);
         this.scenes = scns;
         //
@@ -216,6 +215,7 @@ class GameData {
             if (scns[i].id == id)
                 return i;
         }
+        return -1;
     }
 
     getScenesOf = (sit: ISituation): Array<IScene> => {
@@ -244,7 +244,7 @@ class GameData {
         }
         id++;
         var kind: AKind =  (akind == undefined ? AKind.NPC : akind);
-        var act: IActor = { id: id, sitid: sitid, kind: kind, name: null, text: null, mids: [] };
+        var act: IActor = { id: id, sitid: sitid, kind: kind, name: "", text: "", mids: [] };
         acts.push(act);
         this.actors = acts;
         //
@@ -305,6 +305,7 @@ class GameData {
             if (acts[i].id == id)
                 return i;
         }
+        return -1;
     }
 
     getActorsOf = (sit: ISituation): Array<IActor> => {
@@ -332,7 +333,7 @@ class GameData {
             if (mom.id > id) id = mom.id;
         }
         id++;
-        var mom: IMoment = { kind: Kind.Moment, id: id, parentid: scnid, when: null, text: null };
+        var mom: IMoment = { kind: Kind.Moment, id: id, parentid: scnid, when: "", text: "" };
         moms.push(mom);
         this.moments = moms;
         //
@@ -406,6 +407,7 @@ class GameData {
             if (moms[i].id == id)
                 return i;
         }
+        return -1;
     }
 
     getMomentsOf = (scn: IScene): Array<IMoment> => {
@@ -433,7 +435,7 @@ class GameData {
             if (mom.id > id) id = mom.id;
         }
         id++;
-        var act: IAction = { kind: Kind.Action, id: id, parentid: scnid, when: null, text: null, name: null };
+        var act: IAction = { kind: Kind.Action, id: id, parentid: scnid, when: "", text: "", name: "" };
         moms.push(act);
         this.moments = moms;
         //
@@ -492,7 +494,7 @@ class GameData {
             if (mom.id > id) id = mom.id;
         }
         id++;
-        var msg: IMessageTo = { kind: Kind.MessageTo, id: id, parentid: actid, when: null, text: null, name: null, to: null };
+        var msg: IMessageTo = { kind: Kind.MessageTo, id: id, parentid: actid, when: "", text: "", name: "", to: -1 };
         moms.push(msg);
         this.moments = moms;
         //
@@ -575,7 +577,7 @@ class GameData {
             if (mom.id > id) id = mom.id;
         }
         id++;
-        var msg: IMessageFrom = { kind: Kind.MessageFrom, id: id, parentid: actid, when: null, text: null };
+        var msg: IMessageFrom = { kind: Kind.MessageFrom, id: id, parentid: actid, when: "", text: "" };
         moms.push(msg);
         this.moments = moms;
         //
@@ -628,7 +630,7 @@ class GameData {
     // game
     //
     get game() {
-        return <IGameMeta> JSON.parse(localStorage.getItem("game"));
+        return <IGameMeta> JSON.parse(localStorage.getItem("game") ?? "{}");
     }
 
     set game(game: IGameMeta) {
@@ -639,7 +641,7 @@ class GameData {
     // situations
     //
     get situations() : Array<ISituation> {
-        return JSON.parse(localStorage.getItem("situations")) || [];
+        return JSON.parse(localStorage.getItem("situations") ?? "[]");
     }
 
     set situations(sits: Array<ISituation>) {
@@ -650,7 +652,7 @@ class GameData {
     // scenes
     //
     get scenes() : Array<IScene> {
-        return JSON.parse(localStorage.getItem("scenes")) || [];
+        return JSON.parse(localStorage.getItem("scenes") ?? "[]")
     }
 
     set scenes(moms: Array<IScene>) {
@@ -661,7 +663,7 @@ class GameData {
     // actors
     //
     get actors() : Array<IActor> {
-        return JSON.parse(localStorage.getItem("actors")) || [];
+        return JSON.parse(localStorage.getItem("actors") ?? "[]")
     }
 
     set actors(moms: Array<IActor>) {
@@ -672,7 +674,7 @@ class GameData {
     // moments
     //
     get moments() : Array<IMoment> {
-        return JSON.parse(localStorage.getItem("moments")) || [];
+        return JSON.parse(localStorage.getItem("moments") ?? "[]")
     }
 
     set moments(moms: Array<IMoment>) {
@@ -683,7 +685,7 @@ class GameData {
     // state
     //
     get state() : any {
-        return JSON.parse(localStorage.getItem("state"));
+        return JSON.parse(localStorage.getItem("state") ?? "{}");
     }
 
     set state(moms: any) {
@@ -698,7 +700,7 @@ class GameData {
     // history
     //
     get history() : Array<number> {
-        return JSON.parse(localStorage.getItem("history"));
+        return JSON.parse(localStorage.getItem("history") ?? "[]")
     }
 
     set history(mids: Array<number>) {
@@ -713,7 +715,7 @@ class GameData {
     // options
     //
     get options() : IOptions {
-        return JSON.parse(localStorage.getItem("options"));
+        return JSON.parse(localStorage.getItem("options") ?? "{}")
     }
 
     set options(options: IOptions) {
@@ -724,7 +726,7 @@ class GameData {
     // continue location
     //
     getContinueLocation(source: string) : any {
-        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations"));
+        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations") ?? "[]")
         if (locs == null) return null;
         let key = (source == undefined ? "root" : source);
         let loc = null;
@@ -737,7 +739,7 @@ class GameData {
     }
 
     setContinueLocation(source: string, loc: any) {
-        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations"));
+        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations") ?? "[]")
         let key = (source == undefined ? "root" : source);
         if (locs == undefined) 
             locs = new Array<any>();
@@ -759,7 +761,7 @@ class GameData {
     // continue state
     //
     get continueState() : any {
-        return JSON.parse(localStorage.getItem("continueState"));
+        return JSON.parse(localStorage.getItem("continueState") ?? "{}")
     }
 
     set continueState(state: any) {

@@ -3,9 +3,9 @@
 import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"
-import { IGameData, IAction } from "./igame-data.js"
-import gdata from "./game-data.js"
-import GameHelper from "./game-helper.js"
+import { IGameData, IAction } from "../game/igame-data.js"
+import gdata from "../game/game-data.js"
+import GameHelper from "../game/game-helper.js"
 
 export const NS = "Game_editor";
 
