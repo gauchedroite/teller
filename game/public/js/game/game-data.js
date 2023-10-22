@@ -1,3 +1,4 @@
+import { isObjectEmpty } from "../utils.js";
 import { Kind, AKind } from "./igame-data.js";
 export class GameData {
     constructor() {
@@ -628,7 +629,8 @@ export class GameData {
     //
     get state() {
         var _a;
-        return JSON.parse((_a = localStorage.getItem("state")) !== null && _a !== void 0 ? _a : "{}");
+        const _state_ = JSON.parse((_a = localStorage.getItem("state")) !== null && _a !== void 0 ? _a : "{}");
+        return isObjectEmpty(_state_) ? null : _state_;
     }
     set state(moms) {
         localStorage.setItem("state", JSON.stringify(moms));
@@ -638,6 +640,8 @@ export class GameData {
     //
     get history() {
         var _a;
+        //const _history_ = JSON.parse(localStorage.getItem("history") ?? "{}")
+        //return isObjectEmpty(_history_) ? null : _history_
         return JSON.parse((_a = localStorage.getItem("history")) !== null && _a !== void 0 ? _a : "[]");
     }
     set history(mids) {
@@ -656,12 +660,12 @@ export class GameData {
     //
     // continue location
     //
-    getContinueLocation(source) {
+    getContinueLocation() {
         var _a;
-        let locs = JSON.parse((_a = localStorage.getItem("continueLocations")) !== null && _a !== void 0 ? _a : "[]");
-        if (locs == null)
+        let locs = JSON.parse((_a = localStorage.getItem("continueLocations")) !== null && _a !== void 0 ? _a : "{}");
+        if (isObjectEmpty(locs))
             return null;
-        let key = (source == undefined ? "root" : source);
+        let key = "root";
         let loc = null;
         locs.forEach((item) => {
             if (item.source == key) {
@@ -670,11 +674,11 @@ export class GameData {
         });
         return loc;
     }
-    setContinueLocation(source, loc) {
+    setContinueLocation(loc) {
         var _a;
-        let locs = JSON.parse((_a = localStorage.getItem("continueLocations")) !== null && _a !== void 0 ? _a : "[]");
-        let key = (source == undefined ? "root" : source);
-        if (locs == undefined)
+        let locs = JSON.parse((_a = localStorage.getItem("continueLocations")) !== null && _a !== void 0 ? _a : "{}");
+        let key = "root";
+        if (isObjectEmpty(locs))
             locs = new Array();
         let found = false;
         locs.forEach((item) => {
@@ -694,7 +698,8 @@ export class GameData {
     //
     get continueState() {
         var _a;
-        return JSON.parse((_a = localStorage.getItem("continueState")) !== null && _a !== void 0 ? _a : "{}");
+        const _state_ = JSON.parse((_a = localStorage.getItem("continueState")) !== null && _a !== void 0 ? _a : "{}");
+        return isObjectEmpty(_state_) ? null : _state_;
     }
     set continueState(state) {
         localStorage.setItem("continueState", JSON.stringify(state));

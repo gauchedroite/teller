@@ -24,4 +24,7 @@ export function log(...data) {
     const timeOnly = new Date().toISOString().substring(11).replace("Z", " --");
     console.log(timeOnly, ...data);
 }
+export function isObjectEmpty(objectName) {
+    return Object.keys(objectName).length === 0;
+}
 //# sourceMappingURL=utils.js.map

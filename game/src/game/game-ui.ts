@@ -1,7 +1,7 @@
-import { IUI, IChoice, ChoiceKind } from "./iui";
-import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "./igame";
-import { IBackground } from "./igame";
-import { IGameInstance } from "./iinstance";
+import { IUI, IChoice, ChoiceKind } from "./iui.js";
+import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "./igame.js";
+import { IBackground } from "./igame.js";
+import { IGameInstance } from "./iinstance.js";
 
 declare const FastClick: any;
 
@@ -12,31 +12,8 @@ export class UI implements IUI {
     previousSceneUrl: string | undefined;
 
     constructor () {
-    }
-
-    initialize = (fire: (payload: any) => void) => {
         FastClick.attach(document.body);
-
-        document.querySelector(".goto-menu")!.addEventListener("click", (e) => {
-            e.stopPropagation();
-            setTimeout(() => { fire("goto-menu"); }, 0);
-        });
-
-        const onresize = () => {
-            this.portrait = window.innerWidth < window.innerHeight;
-            document.body.classList.remove("portrait", "landscape");
-            document.body.classList.add(this.portrait ? "portrait" : "landscape");
-        };
-        window.onresize = onresize;
-        onresize();
-
-        document.querySelector(".title")!.addEventListener("click", (e) => {
-            if (document.body.classList.contains("hide-story"))
-                document.body.classList.remove("hide-story");
-            else
-                document.body.classList.add("hide-story");
-        });
-    };
+    }
 
     doAction = (payload: any) => {
         if (payload == "show-ui") {
@@ -381,6 +358,8 @@ export class UI implements IUI {
     };
 
     private changeBackground = (assetName: string, metadata: IMetadata | undefined, callback: () => void) => {
+        callback();
+        /*
         if (assetName == undefined) return callback();
         if (window.getComputedStyle(document.querySelector(".bg")!).display == "none") return callback();
 
@@ -412,6 +391,7 @@ export class UI implements IUI {
         if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
         bg.appendChild(one);
         one.setAttribute("src", sceneUrl);
+        */
     };
 
     private changeWideBackground = (assetName: string, metadata: IMetadata, callback: () => void) => {

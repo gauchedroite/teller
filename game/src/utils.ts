@@ -32,3 +32,7 @@ export function log(...data: any[]) {
     const timeOnly = new Date().toISOString().substring(11).replace ("Z", " --")
     console.log(timeOnly, ...data)
 }
+
+export function isObjectEmpty (objectName: any) {
+    return Object.keys(objectName).length === 0
+}

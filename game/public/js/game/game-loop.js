@@ -1,51 +1,42 @@
-import { GameData } from "./game-data";
-import { Kind } from "./igame-data";
-import { ChoiceKind } from "./iui";
-import { ChunkKind, Op, OpAction } from "./igame";
+import { GameData } from "./game-data.js";
+import { Kind } from "./igame-data.js";
+import { ChoiceKind } from "./iui.js";
+import { ChunkKind, Op } from "./igame.js";
+import { isObjectEmpty } from "../utils.js";
 export class Game {
-    constructor(ui, isRoot = false) {
+    constructor(ui) {
         this.currentMoment = null;
         this.currentScene = null;
         this.forbiddenSceneId = null;
         this.chunks = [];
         this.cix = 0;
-        this.initialize = (source, parent) => {
-            this.source = source;
-            this.parent = parent;
-            this.ui.initialize(this.handleUIEvents);
-        };
         this.startGame = () => {
-            if (this.isRoot) {
-                if (this.gdata.moments.length == 0) {
-                    Game.getDataFile("game/app.json", (text) => {
-                        if (text != undefined && text.length > 0)
-                            this.gdata.load_Game(text);
-                        this.startNewGame();
-                    });
-                }
-                else {
-                    this.continueExistingGame();
-                }
+            if (true /*continueExistingGame() needs to be tested*/ || this.gdata.moments.length == 0) {
+                Game.getDataFile("data/state.json", (text) => {
+                    if (text != undefined && text.length > 0)
+                        this.gdata.load_Game(text);
+                    this.startNewGame();
+                });
+            }
+            else {
+                this.continueExistingGame();
             }
         };
         this.resumeGame = () => {
-            if (this.isRoot) { }
         };
         this.clearAllGameData = () => {
-            if (this.isRoot) {
-                var options = this.gdata.options;
-                if (options.skipFileLoad) {
-                    this.gdata.clearContinueData();
-                    this.gdata.clearHistory();
-                    this.gdata.clearState();
-                    //
-                    this.startNewGame();
-                }
-                else {
-                    this.gdata.clearStorage();
-                }
-                this.gdata.options = options;
+            var options = this.gdata.options;
+            if (options.skipFileLoad) {
+                this.gdata.clearContinueData();
+                this.gdata.clearHistory();
+                this.gdata.clearState();
+                //
+                this.startNewGame();
             }
+            else {
+                this.gdata.clearStorage();
+            }
+            this.gdata.options = options;
         };
         this.tick = () => {
             if (this.started == false) {
@@ -66,7 +57,7 @@ export class Game {
             this.gdata.history = []; //init the list of showed moments
             this.gdata.clearContinueData();
             let options = this.gdata.options;
-            if (options == undefined)
+            if (isObjectEmpty(options))
                 options = {
                     skipFileLoad: false,
                     syncEditor: false,
@@ -76,9 +67,7 @@ export class Game {
             let state = { intro: true };
             state[this.gdata.game.initialstate] = true;
             this.gdata.state = state;
-            this.gameMan.raiseActionEvent(OpAction.GAME_START);
             this.data = this.gdata.select_Game();
-            this.gameMan.raiseActionEvent(OpAction.SHOWING_CHOICES);
             this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
             if (this.currentMoment != null) {
                 setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
@@ -108,15 +97,12 @@ export class Game {
                     this.saveContinueData();
                     this.ui.clearBlurb();
                     this.ui.initScene(Game.parseScene(this.currentScene), () => {
-                        this.gameMan.raiseActionEvent(OpAction.SHOWING_MOMENT, { source: this.source, moment: this.currentMoment });
                         setTimeout(() => { this.update(Op.BLURB); }, 0);
                     });
-                    if (this.isRoot) {
-                        for (let game of this.gameWindows) {
-                            let showUi = game.tick();
-                            if (showUi)
-                                this.ui.doAction("show-ui");
-                        }
+                    for (let game of this.gameWindows) {
+                        let showUi = game.tick();
+                        if (showUi)
+                            this.ui.doAction("show-ui");
                     }
                 }
                 else if (op == Op.BLURB) {
@@ -164,7 +150,6 @@ export class Game {
                     }
                 }
                 else if (op == Op.BUILD_CHOICES) {
-                    this.gameMan.raiseActionEvent(OpAction.SHOWING_CHOICES);
                     let moments = this.getAllPossibleMoments();
                     let messages = this.getAllPossibleMessages();
                     let choices = this.buildChoices(moments, messages);
@@ -196,27 +181,20 @@ export class Game {
         };
         this.handleUIEvents = (payload) => {
             if (payload == "goto-menu") {
-                this.gameMan.showMenu();
+                //this.gameMan.showMenu(); 
             }
             else if (payload == "open-drawer" || payload == "close-drawer") {
                 this.doUIAction(payload);
-                this.parent.doUIAction(payload);
             }
         };
         this.setOtherUIs = (enable) => {
             let action = (enable ? "enable-ui" : "disable-ui");
-            if (this.isRoot) {
-                for (let game of this.gameWindows) {
-                    game.doUIAction(action);
-                }
-            }
-            else {
-                this.parent.doUIAction(action);
-                //TODO: set other uis too!
+            for (let game of this.gameWindows) {
+                game.doUIAction(action);
             }
         };
         this.saveContinueData = () => {
-            this.gdata.setContinueLocation(this.source, {
+            this.gdata.setContinueLocation({
                 momentId: (this.currentMoment != undefined ? this.currentMoment.id : undefined),
                 sceneId: (this.currentScene != undefined ? this.currentScene.id : undefined),
                 forbiddenSceneId: this.forbiddenSceneId
@@ -227,7 +205,7 @@ export class Game {
             };
         };
         this.restoreContinueData = () => {
-            let cstate = this.gdata.getContinueLocation(this.source);
+            let cstate = this.gdata.getContinueLocation();
             if (cstate != undefined) {
                 this.currentMoment = (cstate.momentId != undefined ? this.gdata.getMoment(this.gdata.moments, cstate.momentId) : null);
                 this.currentScene = (cstate.sceneId != undefined ? this.gdata.getScene(this.gdata.scenes, cstate.sceneId) : null);
@@ -242,7 +220,7 @@ export class Game {
         this.refreshGameAndAlert = (text, callback) => {
             let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
             if (skipFileLoad == false) {
-                Game.getDataFile("game/app.json", (text) => {
+                Game.getDataFile("data/state.json", (text) => {
                     if (text != undefined && text.length > 0)
                         this.gdata.load_Game(text);
                     skipFileLoad = true;
@@ -427,14 +405,8 @@ export class Game {
             var when = situation.when || "";
             if (when == "")
                 return false;
-            if (this.isRoot) {
-                if (situation.text != undefined)
-                    return false;
-            }
-            else {
-                if (situation.text != this.source)
-                    return false;
-            }
+            if (situation.text != undefined)
+                return false;
             return Game.isValidCondition(this.gdata.state, when);
         };
         this.getSceneOf = (moment) => {
@@ -694,32 +666,22 @@ export class Game {
         window.GameInstance = this;
         this.gdata = new GameData();
         this.ui = ui;
-        this.isRoot = isRoot;
         this.sitWindows = new Array();
         this.gameWindows = new Array();
         this.started = false;
     }
-    get gameMan() {
-        if (this.parent == undefined)
-            return window.parent.GameManInstance;
-        return this.parent.gameMan;
-    }
     instantiateNewWindows(callback) {
-        if (this.isRoot) {
-            let newSitWindows = this.getSitWindows();
-            if (newSitWindows.length > 0) {
-                for (let i = 0; i < newSitWindows.length; i++) {
-                    let source = newSitWindows[i];
-                    this.ui.addChildWindow(source, (childGame) => {
-                        this.gameWindows.push(childGame);
-                        childGame.initialize(source, this);
-                        //TODO: Wait for ALL child windows before exiting!!
-                        callback();
-                    });
-                }
-            }
-            else {
-                callback();
+        callback();
+        return;
+        let newSitWindows = this.getSitWindows();
+        if (newSitWindows.length > 0) {
+            for (let i = 0; i < newSitWindows.length; i++) {
+                let source = newSitWindows[i];
+                this.ui.addChildWindow(source, (childGame) => {
+                    this.gameWindows.push(childGame);
+                    //TODO: Wait for ALL child windows before exiting!!
+                    callback();
+                });
             }
         }
         else {

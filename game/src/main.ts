@@ -23,6 +23,4 @@ export const startup = async () => {
     // GameMain.startup() needs to be loaded last because it has the "#/" catchall route
     GameMain.startup();
 
-
-    router.gotoCurrent();
 }

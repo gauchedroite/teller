@@ -18,7 +18,6 @@ export interface IChoice {
 }
 
 export interface IUI {
-    initialize: (fire: (payload: any) => void) => void,
     alert: (text: string, canclose: () => boolean, onalert: () => void) => void,
     showChoices: (sceneChoices: Array<IChoice>, onchoice: (chosen: IChoice) => void) => void,
     hideChoices: (callback: () => void) => void,

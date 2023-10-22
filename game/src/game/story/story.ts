@@ -12,12 +12,76 @@ let storyStarted = false
 let buttonClicked = false
 
 
+
+const ui = new UI()
+const game = new Game(ui)
+
+
+
 const myLayout = () => {
     return `
-<div style="width:100vw; height:100vh; background-color:whitesmoke;">
+<div style="width:100vw; xheight:100vh; background-color:whitesmoke;">
     <a href="#/">Home</a><br>
 
-    <button onclick="${NS}.onButtonClick()">Continue</button>
+    <button type="button" onclick="${NS}.onButtonClick()">OK ></button>
+</div>
+<br><br>
+<div class="game-body" style="display:none;">
+<div class="wbg">
+    <div class="wbg-inner">
+        <iframe></iframe>
+    </div>
+</div>
+</div>
+
+<div class="game-story">
+<div class="bg" style="display:none;">
+    <div class="bg-inner">
+        <iframe></iframe>
+    </div>
+    <div class="game">
+        <iframe></iframe>
+    </div>
+</div>
+
+<div class="story">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="goto-menu">
+                <i class="icon ion-navicon-round"></i> 
+            </div>
+            <div class="title">
+                <div class="title-inner"></div>
+            </div>
+        </div>
+    </div>
+    <div class="story-inner">
+        <div class="content">
+            <article></article>
+        </div>
+        <div class="choice-panel">
+        </div>
+        <div class="modal">
+            <div class="modal-inner">
+                <span></span>
+                <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+            </div>
+        </div>
+        <div class="heading">
+            <div class="heading-inner"></div>
+        </div>
+    </div>
+</div>
+
+<div class="story-window hidden">
+</div>
+
+<div class="preloader">
+    <div class="loader-ring">
+        <div class="loader-ring-light"></div>
+        <div class="loader-ring-track"></div>
+    </div>
+</div>
 </div>
 `
 }
@@ -26,6 +90,7 @@ const myLayout = () => {
 
 export const fetch = (args: string[] | undefined) => {
     App.prepareRender(NS, "Story")
+    game.startGame()
     App.render()
 }
 
@@ -59,14 +124,7 @@ const waitUserInput = async () => {
 }
 
 const startStoryLoopAsync = async () => {
-    console.log("Waiting")
-    await waitUserInput()
-    console.log("Waiting done")
+    //console.log("Waiting")
+    //await waitUserInput()
+    //console.log("Waiting done")
 }
-
-
-
-
-const ui = new UI()
-const game = new Game(ui, true)
-//game.initialize()

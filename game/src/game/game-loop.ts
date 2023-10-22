@@ -1,14 +1,14 @@
-import { IGameInstance, IGameManInstance } from "./iinstance";
-import { GameData } from "./game-data";
-import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "./igame-data";
-import { ChoiceKind, IChoice, IUI } from "./iui";
-import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op, OpAction } from "./igame";
+import { IGameInstance } from "./iinstance.js";
+import { GameData } from "./game-data.js";
+import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "./igame-data.js";
+import { ChoiceKind, IChoice, IUI } from "./iui.js";
+import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op, OpAction } from "./igame.js";
+import { isObjectEmpty } from "../utils.js";
 
 
 export class Game implements IGameInstance {
     gdata: GameData;
     ui: IUI;
-    isRoot: boolean;
     data!: IGameData;
     currentMoment: IMoment | null = null;
     currentScene: IScene | null = null;
@@ -17,61 +17,47 @@ export class Game implements IGameInstance {
     cix: number = 0;
     sitWindows: Array<string>;
     gameWindows: Array<IGameInstance>;
-    source!: string;
-    parent!: IGameInstance;
     started: boolean;
 
-    constructor(ui: IUI, isRoot: boolean = false) {
+    constructor(ui: IUI) {
         (<any>window).GameInstance = this;
 
         this.gdata = new GameData();
         this.ui = ui
-        this.isRoot = isRoot;
 
         this.sitWindows = new Array<string>();
         this.gameWindows = new Array<IGameInstance>();
         this.started = false;
     }
 
-    initialize = (source: string, parent: IGameInstance) => {
-        this.source = source;
-        this.parent = parent;
-        this.ui.initialize(this.handleUIEvents);
-    };
-
     startGame = () => {
-        if (this.isRoot) {
-            if (this.gdata.moments.length == 0) {
-                Game.getDataFile("game/app.json", (text: string) => {
-                    if (text != undefined && text.length > 0) this.gdata.load_Game(text);
-                    this.startNewGame();
-                });
-            }
-            else {
-                this.continueExistingGame();
-            }
+        if (true/*continueExistingGame() needs to be tested*/ || this.gdata.moments.length == 0) {
+            Game.getDataFile("data/state.json", (text: string) => {
+                if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+                this.startNewGame();
+            });
+        }
+        else {
+            this.continueExistingGame();
         }
     };
 
     resumeGame = () => {
-        if (this.isRoot) { }
     };
 
     clearAllGameData = () => {
-        if (this.isRoot) {
-            var options = this.gdata.options;
-            if (options.skipFileLoad) {
-                this.gdata.clearContinueData();
-                this.gdata.clearHistory();
-                this.gdata.clearState();
-                //
-                this.startNewGame();
-            }
-            else {
-                this.gdata.clearStorage();
-            }
-            this.gdata.options = options;
+        var options = this.gdata.options;
+        if (options.skipFileLoad) {
+            this.gdata.clearContinueData();
+            this.gdata.clearHistory();
+            this.gdata.clearState();
+            //
+            this.startNewGame();
         }
+        else {
+            this.gdata.clearStorage();
+        }
+        this.gdata.options = options;
     };
 
     tick = () => {
@@ -91,18 +77,12 @@ export class Game implements IGameInstance {
         this.ui.doAction(payload);
     };
 
-    private get gameMan() : IGameManInstance {
-        if (this.parent == undefined)
-            return (<any>window.parent).GameManInstance;
-        return (<any>this.parent).gameMan;
-    }
-
     private startNewGame = () => {
         this.gdata.history = [];    //init the list of showed moments
         this.gdata.clearContinueData();
 
         let options = this.gdata.options;
-        if (options == undefined) options = <IOptions>{ 
+        if (isObjectEmpty(options)) options = <IOptions>{ 
             skipFileLoad: false,
             syncEditor: false,
             fastStory: false
@@ -113,10 +93,7 @@ export class Game implements IGameInstance {
         (state as any)[this.gdata.game.initialstate] = true;
         this.gdata.state = state;
 
-        this.gameMan.raiseActionEvent(OpAction.GAME_START);
-
         this.data = this.gdata.select_Game();
-        this.gameMan.raiseActionEvent(OpAction.SHOWING_CHOICES);
         this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
         if (this.currentMoment != null) {
             setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
@@ -150,15 +127,12 @@ export class Game implements IGameInstance {
                 
                 this.ui.clearBlurb();
                 this.ui.initScene(Game.parseScene(this.currentScene!), () => {
-                    this.gameMan.raiseActionEvent(OpAction.SHOWING_MOMENT, { source: this.source, moment: this.currentMoment });
                     setTimeout(() => { this.update(Op.BLURB); }, 0);
                 });
 
-                if (this.isRoot) {
-                    for (let game of this.gameWindows) {
-                        let showUi = game.tick();
-                        if (showUi) this.ui.doAction("show-ui");
-                    }
+                for (let game of this.gameWindows) {
+                    let showUi = game.tick();
+                    if (showUi) this.ui.doAction("show-ui");
                 }
             }
             else if (op == Op.BLURB) {
@@ -211,7 +185,6 @@ export class Game implements IGameInstance {
                 }
             }
             else if (op == Op.BUILD_CHOICES) {
-                this.gameMan.raiseActionEvent(OpAction.SHOWING_CHOICES);
                 let moments = this.getAllPossibleMoments();
                 let messages = this.getAllPossibleMessages();
                 let choices = this.buildChoices(moments, messages);
@@ -244,53 +217,42 @@ export class Game implements IGameInstance {
     };
 
     private instantiateNewWindows(callback: () => void) {
-        if (this.isRoot) {
-            let newSitWindows = this.getSitWindows();
-            if (newSitWindows.length > 0) {
-                for (let i = 0; i < newSitWindows.length; i++) {
-                    let source = newSitWindows[i];
-                    this.ui.addChildWindow(source, (childGame: IGameInstance) => {
-                        this.gameWindows.push(childGame);
-                        childGame.initialize(source, this);
-                        //TODO: Wait for ALL child windows before exiting!!
-                        callback()
-                    });
-                }
-            }
-            else {
-                callback()
+        callback()
+        return
+        let newSitWindows = this.getSitWindows();
+        if (newSitWindows.length > 0) {
+            for (let i = 0; i < newSitWindows.length; i++) {
+                let source = newSitWindows[i];
+                this.ui.addChildWindow(source, (childGame: IGameInstance) => {
+                    this.gameWindows.push(childGame);
+                    //TODO: Wait for ALL child windows before exiting!!
+                    callback()
+                });
             }
         }
         else {
-            callback();
+            callback()
         }
     };
 
     private handleUIEvents = (payload: any) => {
         if (payload == "goto-menu") {
-            this.gameMan.showMenu(); 
+            //this.gameMan.showMenu(); 
         }
         else if (payload == "open-drawer" || payload == "close-drawer") {
             this.doUIAction(payload);
-            this.parent!.doUIAction(payload);
         }
     };
 
     private setOtherUIs = (enable: boolean) => {
         let action = (enable ? "enable-ui" : "disable-ui");
-        if (this.isRoot) {
-            for (let game of this.gameWindows) {
-                game.doUIAction(action);
-            }
-        }
-        else {
-            this.parent!.doUIAction(action);
-            //TODO: set other uis too!
+        for (let game of this.gameWindows) {
+            game.doUIAction(action);
         }
     };
 
     private saveContinueData = () => {
-        this.gdata.setContinueLocation(this.source, {
+        this.gdata.setContinueLocation({
             momentId: (this.currentMoment != undefined ? this.currentMoment.id : undefined),
             sceneId: (this.currentScene != undefined ? this.currentScene.id : undefined),
             forbiddenSceneId: this.forbiddenSceneId
@@ -302,7 +264,7 @@ export class Game implements IGameInstance {
     };
 
     private restoreContinueData = () => {
-        let cstate = this.gdata.getContinueLocation(this.source);
+        let cstate = this.gdata.getContinueLocation();
         if (cstate != undefined) {
             this.currentMoment = (cstate.momentId != undefined ? this.gdata.getMoment(this.gdata.moments, cstate.momentId) : null);
             this.currentScene = (cstate.sceneId != undefined ? this.gdata.getScene(this.gdata.scenes, cstate.sceneId) : null);
@@ -318,7 +280,7 @@ export class Game implements IGameInstance {
     private refreshGameAndAlert = (text: string, callback: () => void) => {
         let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
         if (skipFileLoad == false) {
-            Game.getDataFile("game/app.json", (text: string) => {
+            Game.getDataFile("data/state.json", (text: string) => {
                 if (text != undefined && text.length > 0) this.gdata.load_Game(text);
                 skipFileLoad = true;
             });
@@ -523,12 +485,7 @@ export class Game implements IGameInstance {
     private isValidSituation = (situation: ISituation): boolean => {
         var when = situation.when || "";
         if (when == "") return false;
-        if (this.isRoot) {
-            if (situation.text != undefined) return false;
-        }
-        else {
-            if (situation.text != this.source) return false;
-        }
+        if (situation.text != undefined) return false;
         return Game.isValidCondition(this.gdata.state, when);
     }
 

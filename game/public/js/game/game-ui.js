@@ -1,28 +1,8 @@
-import { ChoiceKind } from "./iui";
-import { ChunkKind } from "./igame";
+import { ChoiceKind } from "./iui.js";
+import { ChunkKind } from "./igame.js";
 export class UI {
     constructor() {
         this.portrait = false;
-        this.initialize = (fire) => {
-            FastClick.attach(document.body);
-            document.querySelector(".goto-menu").addEventListener("click", (e) => {
-                e.stopPropagation();
-                setTimeout(() => { fire("goto-menu"); }, 0);
-            });
-            const onresize = () => {
-                this.portrait = window.innerWidth < window.innerHeight;
-                document.body.classList.remove("portrait", "landscape");
-                document.body.classList.add(this.portrait ? "portrait" : "landscape");
-            };
-            window.onresize = onresize;
-            onresize();
-            document.querySelector(".title").addEventListener("click", (e) => {
-                if (document.body.classList.contains("hide-story"))
-                    document.body.classList.remove("hide-story");
-                else
-                    document.body.classList.add("hide-story");
-            });
-        };
         this.doAction = (payload) => {
             if (payload == "show-ui") {
                 let storyWindow = document.querySelector(".story-window");
@@ -348,37 +328,40 @@ export class UI {
             }
         };
         this.changeBackground = (assetName, metadata, callback) => {
-            if (assetName == undefined)
-                return callback();
-            if (window.getComputedStyle(document.querySelector(".bg")).display == "none")
-                return callback();
-            let bg = document.querySelector(".bg-inner");
-            let zero = bg.firstElementChild;
+            callback();
+            /*
+            if (assetName == undefined) return callback();
+            if (window.getComputedStyle(document.querySelector(".bg")!).display == "none") return callback();
+    
+            let bg = <HTMLDivElement>document.querySelector(".bg-inner");
+            let zero = <HTMLIFrameElement>bg.firstElementChild;
+    
             assetName = encodeURIComponent(assetName);
-            if (assetName.indexOf(".") == -1)
-                assetName += ".jpg";
+            if (assetName.indexOf(".") == -1) assetName += ".jpg";
+    
             let sceneUrl = `game/teller-image.html?${assetName}`;
-            if (assetName.endsWith(".html"))
-                sceneUrl = `game/${assetName}`;
-            if (zero.src.endsWith(sceneUrl))
-                return callback();
+            if (assetName.endsWith(".html")) sceneUrl = `game/${assetName}`;
+                
+            if (zero.src.endsWith(sceneUrl)) return callback();
+    
             document.body.classList.add("change-bg");
-            window.eventHubAction = (result) => {
+    
+            (<any>window).eventHubAction = (result: any) => {
                 if (result.asset == assetName && result.content == "ready") {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         document.body.classList.remove("change-bg");
                         bg.removeChild(zero);
                         callback();
                     }, 250);
                 }
             };
+    
             let one = document.createElement("iframe");
-            if (metadata != undefined && metadata.class != undefined)
-                one.setAttribute("class", metadata.class);
-            if (metadata != undefined && metadata.style != undefined)
-                one.setAttribute("style", metadata.style);
+            if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
+            if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
             bg.appendChild(one);
             one.setAttribute("src", sceneUrl);
+            */
         };
         this.changeWideBackground = (assetName, metadata, callback) => {
             if (assetName == undefined)
@@ -523,6 +506,7 @@ export class UI {
                     setTimeout(scroll, 10);
             }, 10);
         };
+        FastClick.attach(document.body);
     }
 }
 //# sourceMappingURL=game-ui.js.map
