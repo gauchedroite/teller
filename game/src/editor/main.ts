@@ -1,6 +1,4 @@
-﻿"use strict"
-
-import * as router from "../core/router.js"
+﻿import * as router from "../core/router.js"
 import * as editor from "./editor.js"
 
 
@@ -14,9 +12,7 @@ export const startup = () => {
 
 export const render = () => {
     return `
-<div>
     ${editor.render()}
-</div>
 `
 }
 

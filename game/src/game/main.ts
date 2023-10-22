@@ -1,26 +1,33 @@
 "use strict"
 
 import * as router from "../core/router.js"
-import * as game from "./game.js"
+import * as home from "./home/home.js"
+import * as story from "./story/story.js"
 
 
-(window as any)[game.NS] = game;
+(window as any)[home.NS] = home;
+(window as any)[story.NS] = story;
 
 
 
 export const startup = () => {
-    router.addRoute("^#/?(.*)$", params => game.fetch(params));
+    router.addRoute("^#/story/?(.*)$", params => story.fetch(params));
+
+    // Must be the last route because it's a catchall
+    router.addRoute("^#/?(.*)$", params => home.fetch(params));
 }
 
 export const render = () => {
     return `
 <div>
-    ${game.render()}
+${home.render()}
+${story.render()}
 </div>
 `
 }
 
 export const postRender = () => {
-    game.postRender();
+    home.postRender();
+    story.postRender();
 }
 

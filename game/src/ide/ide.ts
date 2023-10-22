@@ -10,9 +10,11 @@ export const NS = "Game_ide"
 
 const myLayout = () => {
     return `
+<div style="width:100%; height:100%;">
     <a href="#/">Game</a><br>
     <a href="#/editor">Editor</a><br>
     IDE
+</div>
 `
 }
 

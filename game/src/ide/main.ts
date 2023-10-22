@@ -14,9 +14,7 @@ export const startup = () => {
 
 export const render = () => {
     return `
-<div>
     ${ide.render()}
-</div>
 `
 }
 

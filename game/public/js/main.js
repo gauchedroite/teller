@@ -1,4 +1,3 @@
-"use strict";
 import * as App from "./core/app.js";
 import * as router from "./core/router.js";
 import * as Layout from "./layout.js";
