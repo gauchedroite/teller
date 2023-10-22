@@ -15,27 +15,6 @@ export class UI implements IUI {
         FastClick.attach(document.body);
     }
 
-    doAction = (payload: any) => {
-        if (payload == "show-ui") {
-            let storyWindow = document.querySelector(".story-window")!;
-            storyWindow.classList.remove("hidden");
-        }
-        else if (payload == "close-drawer") {
-            let storyWindow = document.querySelector(".story-window")!;
-            storyWindow.classList.add("closed");
-        }
-        else if (payload == "open-drawer") {
-            let storyWindow = document.querySelector(".story-window")!;
-            storyWindow.classList.remove("closed");
-        }
-        else if (payload == "disable-ui") {
-            document.body.classList.add("disabled");
-        }
-        else if (payload == "enable-ui") {
-            document.body.classList.remove("disabled");
-        }
-    };
-
     alert = (text: string, canclose: () => boolean, onalert: () => void) => {
         document.body.classList.add("showing-alert");
 

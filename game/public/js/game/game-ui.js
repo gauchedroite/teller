@@ -3,26 +3,6 @@ import { ChunkKind } from "./igame.js";
 export class UI {
     constructor() {
         this.portrait = false;
-        this.doAction = (payload) => {
-            if (payload == "show-ui") {
-                let storyWindow = document.querySelector(".story-window");
-                storyWindow.classList.remove("hidden");
-            }
-            else if (payload == "close-drawer") {
-                let storyWindow = document.querySelector(".story-window");
-                storyWindow.classList.add("closed");
-            }
-            else if (payload == "open-drawer") {
-                let storyWindow = document.querySelector(".story-window");
-                storyWindow.classList.remove("closed");
-            }
-            else if (payload == "disable-ui") {
-                document.body.classList.add("disabled");
-            }
-            else if (payload == "enable-ui") {
-                document.body.classList.remove("disabled");
-            }
-        };
         this.alert = (text, canclose, onalert) => {
             document.body.classList.add("showing-alert");
             let storyInner = document.querySelector(".story-inner");

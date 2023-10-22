@@ -73,10 +73,6 @@ export class Game implements IGameInstance {
         return false;
     };
 
-    doUIAction = (payload: any) => {
-        this.ui.doAction(payload);
-    };
-
     private startNewGame = () => {
         this.gdata.history = [];    //init the list of showed moments
         this.gdata.clearContinueData();
@@ -132,7 +128,6 @@ export class Game implements IGameInstance {
 
                 for (let game of this.gameWindows) {
                     let showUi = game.tick();
-                    if (showUi) this.ui.doAction("show-ui");
                 }
             }
             else if (op == Op.BLURB) {
@@ -190,10 +185,8 @@ export class Game implements IGameInstance {
                 let choices = this.buildChoices(moments, messages);
                 this.updateTimedState();
                 if (choices.length > 0) {
-                    this.setOtherUIs(false);
                     this.ui.showChoices(choices, (chosen: IChoice) => {
                         this.ui.hideChoices(() => {
-                            this.setOtherUIs(true);
                             this.currentMoment = this.getChosenMoment(chosen);
                             this.update(Op.START_BLURBING);
                         });
@@ -232,22 +225,6 @@ export class Game implements IGameInstance {
         }
         else {
             callback()
-        }
-    };
-
-    private handleUIEvents = (payload: any) => {
-        if (payload == "goto-menu") {
-            //this.gameMan.showMenu(); 
-        }
-        else if (payload == "open-drawer" || payload == "close-drawer") {
-            this.doUIAction(payload);
-        }
-    };
-
-    private setOtherUIs = (enable: boolean) => {
-        let action = (enable ? "enable-ui" : "disable-ui");
-        for (let game of this.gameWindows) {
-            game.doUIAction(action);
         }
     };
 

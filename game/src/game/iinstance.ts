@@ -6,7 +6,6 @@ export interface IGameInstance {
     resumeGame: () => void
     clearAllGameData: () => void
     tick: () => boolean
-    doUIAction: (payload: any) => void
 }
 
 export interface IEditorInstance {
