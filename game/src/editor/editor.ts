@@ -1,5 +1,4 @@
-﻿"use strict"
-
+﻿
 import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"

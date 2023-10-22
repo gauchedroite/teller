@@ -1,0 +1,10 @@
+
+#game-home {
+
+    font-family: -apple-system, SF UI Text, Helvetica Neue, Helvetica, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+    line-height: 1.4;
+
+    *::-webkit-scrollbar { display: none; }
+}

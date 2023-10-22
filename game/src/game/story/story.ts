@@ -24,12 +24,14 @@ const myLayout = () => {
     <a href="#/">Home</a><br>
 
     <button type="button" onclick="${NS}.onButtonClick()">OK ></button>
+
+    <br><br>
 </div>
-<br><br>
+
 <div class="game-body" style="display:none;">
 <div class="wbg">
     <div class="wbg-inner">
-        <iframe></iframe>
+        <iframe title="cheval"></iframe>
     </div>
 </div>
 </div>
@@ -37,10 +39,10 @@ const myLayout = () => {
 <div class="game-story">
 <div class="bg" style="display:none;">
     <div class="bg-inner">
-        <iframe></iframe>
+        <iframe title="cheval"></iframe>
     </div>
     <div class="game">
-        <iframe></iframe>
+        <iframe title="cheval"></iframe>
     </div>
 </div>
 
