@@ -1,9 +1,9 @@
-import { IGameInstance } from "./iinstance.js";
-import { GameData } from "./game-data.js";
-import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "./igame-data.js";
-import { ChoiceKind, IChoice, IUI } from "./iui.js";
-import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op, OpAction } from "./igame.js";
-import { isObjectEmpty, waitforMsecAsync } from "../utils.js";
+import { IGameInstance } from "../iinstance.js";
+import { GameData } from "../game-data.js";
+import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "../igame-data.js";
+import { ChoiceKind, IChoice, IUI } from "../iui.js";
+import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op, OpAction } from "../igame.js";
+import { isObjectEmpty, waitforMsecAsync } from "../../utils.js";
 
 
 export class Game implements IGameInstance {

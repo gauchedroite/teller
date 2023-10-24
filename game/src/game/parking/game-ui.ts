@@ -1,7 +1,7 @@
-import { IUI, IChoice, ChoiceKind } from "./iui.js";
-import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "./igame.js";
-import { IBackground } from "./igame.js";
-import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../utils.js";
+import { IUI, IChoice, ChoiceKind } from "../iui.js";
+import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "../igame.js";
+import { IBackground } from "../igame.js";
+import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
 
 declare const FastClick: any;
 
