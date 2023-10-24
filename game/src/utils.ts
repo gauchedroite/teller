@@ -25,17 +25,18 @@ export async function waitforMsecAsync(msec: number) {
     return new Promise(resolve => setTimeout(resolve, msec));
 }
 
-export async function waitforClickAsync(content: Element) {
+export async function waitforClickAsync(content: Element, msec: number = 20, ontick?: () => any) {
     let clicked = false;
 
-    const onclick = () => {
+    content.addEventListener("click", function onclick() {
         content.removeEventListener("click", onclick);
         clicked = true;
-    };
-    content.addEventListener("click", onclick);
+    });
 
-    while (!clicked)
-        await waitforMsecAsync(20)
+    while (!clicked) {
+        await waitforMsecAsync(msec)
+        if (ontick != undefined) ontick()
+    }
 }
 
 export async function waitforValueAsync(getValue: () => unknown) {

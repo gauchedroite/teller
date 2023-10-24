@@ -16,15 +16,17 @@ export function clamp12(roll) {
 export async function waitforMsecAsync(msec) {
     return new Promise(resolve => setTimeout(resolve, msec));
 }
-export async function waitforClickAsync(content) {
+export async function waitforClickAsync(content, msec = 20, ontick) {
     let clicked = false;
-    const onclick = () => {
+    content.addEventListener("click", function onclick() {
         content.removeEventListener("click", onclick);
         clicked = true;
-    };
-    content.addEventListener("click", onclick);
-    while (!clicked)
-        await waitforMsecAsync(20);
+    });
+    while (!clicked) {
+        await waitforMsecAsync(msec);
+        if (ontick != undefined)
+            ontick();
+    }
 }
 export async function waitforValueAsync(getValue) {
     while (true) {

@@ -153,8 +153,8 @@ export class UI {
                 section.style.opacity = "0";
                 article.appendChild(section);
                 this.scrollContent(article.parentElement);
+                section.style.transition = "all 0.915s ease";
                 section.style.opacity = "1";
-                section.style.transition = "all 0.15s ease";
                 if (chunk.kind == ChunkKind.dialog) {
                     let dialog = chunk;
                     if (dialog.metadata != undefined && dialog.metadata.image != undefined) {
@@ -175,20 +175,14 @@ export class UI {
                     await waitforClickAsync(content);
                 }
                 else {
+                    await waitforMsecAsync(100);
                     let ispan = 0;
-                    await waitforClickAsync(content);
-                    // let ispan = 0;
-                    // waitForClick(() => {
-                    //     clearTimeout(showTimer);
-                    //     while (ispan < spans.length)
-                    //         spans[ispan++].removeAttribute("style");
-                    //     return callback();
-                    // });
-                    // var showTimer = setTimeout(function show() {
-                    //     spans[ispan++].removeAttribute("style");
-                    //     if (ispan < spans.length) 
-                    //         showTimer = setTimeout(show, 25);
-                    // }, 100);
+                    await waitforClickAsync(content, 25, () => {
+                        if (ispan < spans.length)
+                            spans[ispan++].removeAttribute("style");
+                    });
+                    while (ispan < spans.length)
+                        spans[ispan++].removeAttribute("style");
                 }
             }
             else if (chunk.kind == ChunkKind.heading) {
@@ -199,12 +193,11 @@ export class UI {
                 document.body.classList.add("showing-heading");
                 if (hchunk.metadata != undefined && hchunk.metadata.class != undefined)
                     heading.classList.add(hchunk.metadata.class);
-                // heading.addEventListener("click", function onclick() {
-                //     heading.removeEventListener("click", onclick);
-                //     document.body.classList.remove("showing-heading");
-                //     if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class);
-                //     setTimeout(() => { callback(); }, 500);
-                // });
+                await waitforClickAsync(heading);
+                document.body.classList.remove("showing-heading");
+                if (hchunk.metadata != undefined && hchunk.metadata.class != undefined)
+                    heading.classList.remove(hchunk.metadata.class);
+                await waitforMsecAsync(500);
             }
             else if (chunk.kind == ChunkKind.doo) {
                 let doo = chunk;
@@ -253,19 +246,6 @@ export class UI {
         this.clearBlurb = () => {
             var article = document.querySelector("article");
             article.innerHTML = "";
-        };
-        this.addChildWindow = (source, callback) => {
-            let storyWindow = document.querySelector(".story-window");
-            let iframe = document.createElement("iframe");
-            iframe.setAttribute("src", source);
-            storyWindow.appendChild(iframe);
-            setTimeout(function retry() {
-                let doc = iframe.contentWindow;
-                if (doc.GameInstance == undefined)
-                    setTimeout(retry, 50);
-                else
-                    callback(doc.GameInstance);
-            }, 0);
         };
         this.setTitle = (title) => {
             let inner = document.querySelector(".title-inner");

@@ -1,7 +1,6 @@
 import { IUI, IChoice, ChoiceKind } from "./iui.js";
 import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "./igame.js";
 import { IBackground } from "./igame.js";
-import { IGameInstance } from "./iinstance.js";
 import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../utils.js";
 
 declare const FastClick: any;
@@ -186,8 +185,8 @@ export class UI implements IUI {
             section.style.opacity = "0";
             article.appendChild(section);
             this.scrollContent(article.parentElement!);
+            section.style.transition = "all 0.915s ease";
             section.style.opacity = "1";
-            section.style.transition = "all 0.15s ease";
 
             if (chunk.kind == ChunkKind.dialog) {
                 let dialog = <IDialog>chunk;
@@ -210,21 +209,16 @@ export class UI implements IUI {
                 await waitforClickAsync(content);
             }
             else {
-                let ispan = 0;
-                await waitforClickAsync(content);
+                await waitforMsecAsync(100)
 
-                // let ispan = 0;
-                // waitForClick(() => {
-                //     clearTimeout(showTimer);
-                //     while (ispan < spans.length)
-                //         spans[ispan++].removeAttribute("style");
-                //     return callback();
-                // });
-                // var showTimer = setTimeout(function show() {
-                //     spans[ispan++].removeAttribute("style");
-                //     if (ispan < spans.length) 
-                //         showTimer = setTimeout(show, 25);
-                // }, 100);
+                let ispan = 0;
+                await waitforClickAsync(content, 25, () => {
+                    if (ispan < spans.length) 
+                        spans[ispan++].removeAttribute("style");
+                });
+
+                while (ispan < spans.length)
+                    spans[ispan++].removeAttribute("style");
             }
         }
         else if (chunk.kind == ChunkKind.heading) {
@@ -235,12 +229,10 @@ export class UI implements IUI {
             document.body.classList.add("showing-heading");
             if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.add(hchunk.metadata.class);
 
-            // heading.addEventListener("click", function onclick() {
-            //     heading.removeEventListener("click", onclick);
-            //     document.body.classList.remove("showing-heading");
-            //     if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class);
-            //     setTimeout(() => { callback(); }, 500);
-            // });
+            await waitforClickAsync(heading)
+            document.body.classList.remove("showing-heading")
+            if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class)
+            await waitforMsecAsync(500)
         }
         else if (chunk.kind == ChunkKind.doo) {
             let doo = <IDo>chunk;
@@ -290,20 +282,6 @@ export class UI implements IUI {
     clearBlurb = () => {
         var article = <HTMLDivElement>document.querySelector("article");
         article.innerHTML = "";
-    };
-
-    addChildWindow = (source: string, callback: (game: IGameInstance) => void) => {
-        let storyWindow = document.querySelector(".story-window")!;
-        let iframe = document.createElement("iframe");
-        iframe.setAttribute("src", source);
-        storyWindow.appendChild(iframe);
-        setTimeout(function retry() {
-            let doc = <any>iframe.contentWindow;
-            if (doc.GameInstance == undefined)
-                setTimeout(retry, 50);
-            else
-                callback(doc.GameInstance);
-        }, 0);
     };
 
 

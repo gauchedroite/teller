@@ -72,9 +72,14 @@ export class Game {
             this.data = this.gdata.select_Game();
             while (true) {
                 if (op == Op.START_BLURBING && !this.started) {
-                    this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
                     if (this.currentMoment != null) {
                         this.started = true;
+                    }
+                    else {
+                        this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
+                        if (this.currentMoment != null) {
+                            this.started = true;
+                        }
                     }
                 }
                 else if (op == Op.START_BLURBING && this.currentMoment != null) {
@@ -628,25 +633,6 @@ export class Game {
         this.gameWindows = new Array();
         this.started = false;
     }
-    instantiateNewWindows(callback) {
-        callback();
-        return;
-        let newSitWindows = this.getSitWindows();
-        if (newSitWindows.length > 0) {
-            for (let i = 0; i < newSitWindows.length; i++) {
-                let source = newSitWindows[i];
-                this.ui.addChildWindow(source, (childGame) => {
-                    this.gameWindows.push(childGame);
-                    //TODO: Wait for ALL child windows before exiting!!
-                    callback();
-                });
-            }
-        }
-        else {
-            callback();
-        }
-    }
-    ;
 }
 _a = Game;
 Game.selectOne = (moments) => {

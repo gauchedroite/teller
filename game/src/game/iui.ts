@@ -25,5 +25,4 @@ export interface IUI {
     addBlurbAsync: (chunk: IMomentData) => Promise<any>,
     addBlurbFast: (chunk: IMomentData) => void,
     clearBlurb: () => void
-    addChildWindow: (value: string, callback: (game: IGameInstance) => void) => void
 }
