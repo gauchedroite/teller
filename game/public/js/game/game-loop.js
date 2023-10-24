@@ -1,8 +1,9 @@
+var _a;
 import { GameData } from "./game-data.js";
 import { Kind } from "./igame-data.js";
 import { ChoiceKind } from "./iui.js";
 import { ChunkKind, Op } from "./igame.js";
-import { isObjectEmpty } from "../utils.js";
+import { isObjectEmpty, waitforMsecAsync } from "../utils.js";
 export class Game {
     constructor(ui) {
         this.currentMoment = null;
@@ -10,16 +11,15 @@ export class Game {
         this.forbiddenSceneId = null;
         this.chunks = [];
         this.cix = 0;
-        this.startGame = () => {
+        this.startGameAsync = async () => {
             if (true /*continueExistingGame() needs to be tested*/ || this.gdata.moments.length == 0) {
-                Game.getDataFile("data/state.json", (text) => {
-                    if (text != undefined && text.length > 0)
-                        this.gdata.load_Game(text);
-                    this.startNewGame();
-                });
+                const text = await Game.getDataFileAsync("data/state.json");
+                if (text != undefined && text.length > 0)
+                    this.gdata.load_Game(text);
+                return this.startNewGameAsync();
             }
             else {
-                this.continueExistingGame();
+                return this.continueExistingGameAsync();
             }
         };
         this.resumeGame = () => {
@@ -31,26 +31,14 @@ export class Game {
                 this.gdata.clearHistory();
                 this.gdata.clearState();
                 //
-                this.startNewGame();
+                this.startNewGameAsync();
             }
             else {
                 this.gdata.clearStorage();
             }
             this.gdata.options = options;
         };
-        this.tick = () => {
-            if (this.started == false) {
-                this.data = this.gdata.select_Game();
-                this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
-                if (this.currentMoment != null) {
-                    this.started = true;
-                    setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
-                    return true;
-                }
-            }
-            return false;
-        };
-        this.startNewGame = () => {
+        this.startNewGameAsync = async () => {
             this.gdata.history = []; //init the list of showed moments
             this.gdata.clearContinueData();
             let options = this.gdata.options;
@@ -67,24 +55,29 @@ export class Game {
             this.data = this.gdata.select_Game();
             this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
             if (this.currentMoment != null) {
-                setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
+                await this.updateAsync(Op.START_BLURBING);
             }
             else {
-                this.refreshGameAndAlert("AUCUN POINT DE DEPART POUR LE JEU", () => {
-                    this.update(Op.BUILD_CHOICES);
-                });
+                await this.refreshGameAndAlertAsync("AUCUN POINT DE DEPART POUR LE JEU");
+                await this.updateAsync(Op.BUILD_CHOICES);
             }
         };
-        this.continueExistingGame = () => {
+        this.continueExistingGameAsync = async () => {
             this.restoreContinueData();
             this.data = this.gdata.select_Game();
-            this.ui.initScene(Game.parseScene(this.currentScene), () => {
-                this.update(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES);
-            });
+            await this.ui.initSceneAsync(Game.parseScene(this.currentScene));
+            await this.updateAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES);
         };
-        this.update = (op) => {
-            const doUpdate = () => {
-                if (op == Op.START_BLURBING && this.currentMoment != null) {
+        this.updateAsync = async (op) => {
+            this.data = this.gdata.select_Game();
+            while (true) {
+                if (op == Op.START_BLURBING && !this.started) {
+                    this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
+                    if (this.currentMoment != null) {
+                        this.started = true;
+                    }
+                }
+                else if (op == Op.START_BLURBING && this.currentMoment != null) {
                     this.chunks = this.parseMoment(this.currentMoment);
                     this.cix = 0;
                     let kind = this.currentMoment.kind;
@@ -93,12 +86,8 @@ export class Game {
                     }
                     this.saveContinueData();
                     this.ui.clearBlurb();
-                    this.ui.initScene(Game.parseScene(this.currentScene), () => {
-                        setTimeout(() => { this.update(Op.BLURB); }, 0);
-                    });
-                    for (let game of this.gameWindows) {
-                        let showUi = game.tick();
-                    }
+                    await this.ui.initSceneAsync(Game.parseScene(this.currentScene));
+                    op = Op.BLURB;
                 }
                 else if (op == Op.BLURB) {
                     if (this.cix < this.chunks.length) {
@@ -107,29 +96,28 @@ export class Game {
                         let notLast = this.cix < this.chunks.length;
                         let goFast = this.gdata.options.fastStory && notLast;
                         if (goFast) {
-                            this.ui.addBlurbFast(chunk, () => { setTimeout(() => { this.update(Op.BLURB); }, 50); });
+                            this.ui.addBlurbFast(chunk);
+                            await waitforMsecAsync(50);
+                            op = Op.BLURB;
                         }
                         else {
                             if (chunk.kind == ChunkKind.minigame) {
                                 let minigame = chunk;
-                                this.ui.addBlurb(chunk, (result) => {
-                                    let command = (result.win == true ? minigame.winCommand : minigame.loseCommand);
-                                    let moment = { id: -1, text: command, parentid: this.currentScene.id };
-                                    this.executeMoment(moment);
-                                    let text = (result.win == true ? minigame.winText : minigame.loseText);
-                                    let resultChunk = { kind: ChunkKind.gameresult, text: text };
-                                    this.chunks.splice(this.cix, 0, resultChunk);
-                                    setTimeout(() => { this.update(Op.BLURB); }, 500);
-                                });
+                                const result = await this.ui.addBlurbAsync(chunk);
+                                let command = (result.win == true ? minigame.winCommand : minigame.loseCommand);
+                                let moment = { id: -1, text: command, parentid: this.currentScene.id };
+                                this.executeMoment(moment);
+                                let text = (result.win == true ? minigame.winText : minigame.loseText);
+                                let resultChunk = { kind: ChunkKind.gameresult, text: text };
+                                this.chunks.splice(this.cix, 0, resultChunk);
+                                await waitforMsecAsync(500);
+                                op = Op.BLURB;
                             }
                             else {
-                                const showBlurb = () => {
-                                    this.ui.addBlurb(chunk, () => { setTimeout(() => { this.update(Op.BLURB); }, 50); });
-                                };
                                 if (first)
-                                    setTimeout(() => { showBlurb(); }, 500);
-                                else
-                                    showBlurb();
+                                    await waitforMsecAsync(500);
+                                await this.ui.addBlurbAsync(chunk);
+                                await waitforMsecAsync(50);
                             }
                         }
                     }
@@ -141,7 +129,7 @@ export class Game {
                         }
                         this.currentMoment = this.gdata.getMoment(this.gdata.moments, this.currentMoment.id); //we might have edited the moment
                         this.executeMoment(this.currentMoment);
-                        this.update(Op.BUILD_CHOICES);
+                        op = Op.BUILD_CHOICES;
                     }
                 }
                 else if (op == Op.BUILD_CHOICES) {
@@ -150,27 +138,21 @@ export class Game {
                     let choices = this.buildChoices(moments, messages);
                     this.updateTimedState();
                     if (choices.length > 0) {
-                        this.ui.showChoices(choices, (chosen) => {
-                            this.ui.hideChoices(() => {
-                                this.currentMoment = this.getChosenMoment(chosen);
-                                this.update(Op.START_BLURBING);
-                            });
-                        });
+                        const chosen = await this.ui.showChoicesAsync(choices);
+                        await this.ui.hideChoicesAsync();
+                        this.currentMoment = this.getChosenMoment(chosen);
+                        op = Op.START_BLURBING;
                     }
                     else {
-                        this.refreshGameAndAlert("Il ne se passe plus rien pour le moment.", () => {
-                            this.update(Op.BUILD_CHOICES);
-                        });
+                        await this.refreshGameAndAlertAsync("Il ne se passe plus rien pour le moment.");
+                        op = Op.BUILD_CHOICES;
                     }
                 }
                 else {
-                    this.refreshGameAndAlert("!!! DEAD END !!!", () => {
-                        this.update(Op.BUILD_CHOICES);
-                    });
+                    this.refreshGameAndAlertAsync("!!! DEAD END !!!");
+                    op = Op.BUILD_CHOICES;
                 }
-            };
-            this.data = this.gdata.select_Game();
-            this.instantiateNewWindows(doUpdate);
+            }
         };
         this.saveContinueData = () => {
             this.gdata.setContinueLocation({
@@ -196,18 +178,15 @@ export class Game {
                 this.gdata.history = state.history;
             }
         };
-        this.refreshGameAndAlert = (text, callback) => {
+        this.refreshGameAndAlertAsync = async (text) => {
             let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
             if (skipFileLoad == false) {
-                Game.getDataFile("data/state.json", (text) => {
-                    if (text != undefined && text.length > 0)
-                        this.gdata.load_Game(text);
-                    skipFileLoad = true;
-                });
+                const text = await Game.getDataFileAsync("data/state.json");
+                if (text != undefined && text.length > 0)
+                    this.gdata.load_Game(text);
+                skipFileLoad = true;
             }
-            this.ui.alert(text, () => { return skipFileLoad; }, () => {
-                callback();
-            });
+            return this.ui.alertAsync(text, skipFileLoad);
         };
         this.getAllPossibleMoments = () => {
             var data = this.data;
@@ -669,6 +648,7 @@ export class Game {
     }
     ;
 }
+_a = Game;
 Game.selectOne = (moments) => {
     if (moments.length == 0)
         return null;
@@ -726,13 +706,8 @@ Game.parseMetadata = (text) => {
     }
     return metadata;
 };
-Game.getDataFile = (url, callback) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == 200)
-            callback(xhr.responseText);
-    };
-    xhr.send();
+Game.getDataFileAsync = async (url) => {
+    const response = await fetch(url);
+    return response.text();
 };
 //# sourceMappingURL=game-loop.js.map

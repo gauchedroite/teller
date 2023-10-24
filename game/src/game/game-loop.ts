@@ -3,7 +3,7 @@ import { GameData } from "./game-data.js";
 import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "./igame-data.js";
 import { ChoiceKind, IChoice, IUI } from "./iui.js";
 import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op, OpAction } from "./igame.js";
-import { isObjectEmpty } from "../utils.js";
+import { isObjectEmpty, waitforMsecAsync } from "../utils.js";
 
 
 export class Game implements IGameInstance {
@@ -30,15 +30,14 @@ export class Game implements IGameInstance {
         this.started = false;
     }
 
-    startGame = () => {
+    startGameAsync = async () => {
         if (true/*continueExistingGame() needs to be tested*/ || this.gdata.moments.length == 0) {
-            Game.getDataFile("data/state.json", (text: string) => {
-                if (text != undefined && text.length > 0) this.gdata.load_Game(text);
-                this.startNewGame();
-            });
+            const text = await Game.getDataFileAsync("data/state.json");
+            if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+            return this.startNewGameAsync();
         }
         else {
-            this.continueExistingGame();
+            return this.continueExistingGameAsync();
         }
     };
 
@@ -52,7 +51,7 @@ export class Game implements IGameInstance {
             this.gdata.clearHistory();
             this.gdata.clearState();
             //
-            this.startNewGame();
+            this.startNewGameAsync();
         }
         else {
             this.gdata.clearStorage();
@@ -60,20 +59,7 @@ export class Game implements IGameInstance {
         this.gdata.options = options;
     };
 
-    tick = () => {
-        if (this.started == false) {
-            this.data = this.gdata.select_Game();
-            this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
-            if (this.currentMoment != null) {
-                this.started = true;
-                setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    private startNewGame = () => {
+    private startNewGameAsync = async () => {
         this.gdata.history = [];    //init the list of showed moments
         this.gdata.clearContinueData();
 
@@ -92,26 +78,32 @@ export class Game implements IGameInstance {
         this.data = this.gdata.select_Game();
         this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
         if (this.currentMoment != null) {
-            setTimeout(() => { this.update(Op.START_BLURBING); }, 0);
+            await this.updateAsync(Op.START_BLURBING);
         }
         else {
-            this.refreshGameAndAlert("AUCUN POINT DE DEPART POUR LE JEU", () => {
-                this.update(Op.BUILD_CHOICES);
-            });
+            await this.refreshGameAndAlertAsync("AUCUN POINT DE DEPART POUR LE JEU");
+            await this.updateAsync(Op.BUILD_CHOICES)
         }
     };
 
-    private continueExistingGame = () => {
+    private continueExistingGameAsync = async () => {
         this.restoreContinueData();
         this.data = this.gdata.select_Game();
-        this.ui.initScene(Game.parseScene(this.currentScene!), () => {
-            this.update(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES);
-        });
+        await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
+        await this.updateAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES)
     };
 
-    private update = (op: Op): void => {
-        const doUpdate = () => {
-            if (op == Op.START_BLURBING && this.currentMoment != null) {
+    private updateAsync = async (op: Op): Promise<void> => {
+        this.data = this.gdata.select_Game();
+
+        while (true) {
+            if (op == Op.START_BLURBING && !this.started) {
+                this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
+                if (this.currentMoment != null) {
+                    this.started = true;
+                }
+            }
+            else if (op == Op.START_BLURBING && this.currentMoment != null) {
                 this.chunks = this.parseMoment(this.currentMoment);
                 this.cix = 0;
 
@@ -122,13 +114,8 @@ export class Game implements IGameInstance {
                 this.saveContinueData();
                 
                 this.ui.clearBlurb();
-                this.ui.initScene(Game.parseScene(this.currentScene!), () => {
-                    setTimeout(() => { this.update(Op.BLURB); }, 0);
-                });
-
-                for (let game of this.gameWindows) {
-                    let showUi = game.tick();
-                }
+                await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
+                op = Op.BLURB;
             }
             else if (op == Op.BLURB) {
                 if (this.cix < this.chunks.length) {
@@ -138,31 +125,29 @@ export class Game implements IGameInstance {
                     let notLast = this.cix < this.chunks.length;
                     let goFast = this.gdata.options.fastStory && notLast;
                     if (goFast) {
-                        this.ui.addBlurbFast(chunk, () => { setTimeout(() => { this.update(Op.BLURB); }, 50); });
+                        this.ui.addBlurbFast(chunk);
+                        await waitforMsecAsync(50);
+                        op = Op.BLURB;
                     }
                     else {
                         if (chunk.kind == ChunkKind.minigame) {
                             let minigame = <IMiniGame>chunk;
-                            this.ui.addBlurb(chunk, (result: any) => {
-                                let command = (result.win == true ? minigame.winCommand : minigame.loseCommand);
-                                let moment = <IMoment> { id: -1, text: command, parentid: this.currentScene!.id };
-                                this.executeMoment(moment);
+                            const result = await this.ui.addBlurbAsync(chunk) as any;
+                            let command = (result.win == true ? minigame.winCommand : minigame.loseCommand);
+                            let moment = <IMoment> { id: -1, text: command, parentid: this.currentScene!.id };
+                            this.executeMoment(moment);
 
-                                let text = (result.win == true ? minigame.winText : minigame.loseText);
-                                let resultChunk = <IGameResult> { kind: ChunkKind.gameresult, text: text }; 
-                                this.chunks.splice(this.cix, 0, resultChunk);
+                            let text = (result.win == true ? minigame.winText : minigame.loseText);
+                            let resultChunk = <IGameResult> { kind: ChunkKind.gameresult, text: text }; 
+                            this.chunks.splice(this.cix, 0, resultChunk);
 
-                                setTimeout(() => { this.update(Op.BLURB); }, 500);
-                            });
+                            await waitforMsecAsync(500)
+                            op = Op.BLURB
                         }
                         else {
-                            const showBlurb = () => {
-                                this.ui.addBlurb(chunk, () => { setTimeout(() => { this.update(Op.BLURB); }, 50); });
-                            };
-                            if (first)
-                                setTimeout(() => { showBlurb(); }, 500);
-                            else
-                                showBlurb();
+                            if (first) await waitforMsecAsync(500)
+                            await this.ui.addBlurbAsync(chunk)
+                            await waitforMsecAsync(50)                         
                         }
                     }
                 }
@@ -176,7 +161,7 @@ export class Game implements IGameInstance {
                     this.currentMoment = this.gdata.getMoment(this.gdata.moments, this.currentMoment!.id); //we might have edited the moment
                     this.executeMoment(this.currentMoment!);
 
-                    this.update(Op.BUILD_CHOICES);
+                    op = Op.BUILD_CHOICES;
                 }
             }
             else if (op == Op.BUILD_CHOICES) {
@@ -185,28 +170,21 @@ export class Game implements IGameInstance {
                 let choices = this.buildChoices(moments, messages);
                 this.updateTimedState();
                 if (choices.length > 0) {
-                    this.ui.showChoices(choices, (chosen: IChoice) => {
-                        this.ui.hideChoices(() => {
-                            this.currentMoment = this.getChosenMoment(chosen);
-                            this.update(Op.START_BLURBING);
-                        });
-                    });
+                    const chosen = await this.ui.showChoicesAsync(choices)
+                    await this.ui.hideChoicesAsync()
+                    this.currentMoment = this.getChosenMoment(chosen);
+                    op = Op.START_BLURBING
                 }
                 else {
-                    this.refreshGameAndAlert("Il ne se passe plus rien pour le moment.", () => {
-                        this.update(Op.BUILD_CHOICES);
-                    });
+                    await this.refreshGameAndAlertAsync("Il ne se passe plus rien pour le moment.");
+                    op = Op.BUILD_CHOICES
                 }
             }
             else {
-                this.refreshGameAndAlert("!!! DEAD END !!!", () => {
-                    this.update(Op.BUILD_CHOICES);
-                });
+                this.refreshGameAndAlertAsync("!!! DEAD END !!!");
+                op = Op.BUILD_CHOICES
             }
-        };
-
-        this.data = this.gdata.select_Game();
-        this.instantiateNewWindows(doUpdate);
+        }
     };
 
     private instantiateNewWindows(callback: () => void) {
@@ -254,17 +232,14 @@ export class Game implements IGameInstance {
         }
     };
 
-    private refreshGameAndAlert = (text: string, callback: () => void) => {
+    private refreshGameAndAlertAsync = async (text: string) => {
         let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
         if (skipFileLoad == false) {
-            Game.getDataFile("data/state.json", (text: string) => {
-                if (text != undefined && text.length > 0) this.gdata.load_Game(text);
-                skipFileLoad = true;
-            });
+            const text = await Game.getDataFileAsync("data/state.json")
+            if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+            skipFileLoad = true;
         }
-        this.ui.alert(text, () => { return skipFileLoad; }, () => {
-            callback();
-        }); 
+        return this.ui.alertAsync(text, skipFileLoad); 
     };
 
     private getAllPossibleMoments = (): Array<IMoment> => {
@@ -716,7 +691,7 @@ export class Game implements IGameInstance {
         }
     };
 
-    static parseScene = (scene: IScene) => {
+    private static parseScene = (scene: IScene) => {
         var data = <ISceneData>{};
         data.title = scene.name;
         data.image = scene.text;
@@ -777,13 +752,8 @@ export class Game implements IGameInstance {
         return newSitWindows;
     };
 
-    private static getDataFile = (url: string, callback: (text: string) => void) => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200)
-                callback(xhr.responseText);
-        }
-        xhr.send();
+    private static getDataFileAsync = async (url: string) => {
+        const response = await fetch(url)
+        return response.text()
     };
 }

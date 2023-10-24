@@ -19,9 +19,35 @@ export function clamp12(roll: number) {
     return Math.min(Math.max(roll, 1), 12)
 }
 
-export async function waitAsync(msec: number) {
+
+
+export async function waitforMsecAsync(msec: number) {
     return new Promise(resolve => setTimeout(resolve, msec));
 }
+
+export async function waitforClickAsync(content: Element) {
+    let clicked = false;
+
+    const onclick = () => {
+        content.removeEventListener("click", onclick);
+        clicked = true;
+    };
+    content.addEventListener("click", onclick);
+
+    while (!clicked)
+        await waitforMsecAsync(20)
+}
+
+export async function waitforValueAsync(getValue: () => unknown) {
+    while (true) {
+        const value = getValue()
+        if (value != undefined)
+            break
+        await waitforMsecAsync(20)
+    }
+}
+
+
 
 export function emitEvent(name: string, detail?: any) {
     const event = new CustomEvent(name, { detail });

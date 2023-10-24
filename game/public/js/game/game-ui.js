@@ -1,9 +1,10 @@
 import { ChoiceKind } from "./iui.js";
 import { ChunkKind } from "./igame.js";
+import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../utils.js";
 export class UI {
     constructor() {
         this.portrait = false;
-        this.alert = (text, canclose, onalert) => {
+        this.alertAsync = async (text, ready) => {
             document.body.classList.add("showing-alert");
             let storyInner = document.querySelector(".story-inner");
             let inner = document.querySelector(".modal-inner");
@@ -20,35 +21,20 @@ export class UI {
             };
             let minimizer = inner.querySelector(".minimizer");
             minimizer.addEventListener("click", waitToMinimize);
-            const waitForClick = (done) => {
-                const onclick = () => {
-                    modal.removeEventListener("click", onclick);
-                    return done();
-                };
-                modal.addEventListener("click", onclick);
-            };
-            waitForClick(() => {
-                panel.innerHTML = `<div class="bounce1"></div><div class="bounce2"></div>`;
-                const waitForClose = () => {
-                    var ready = canclose();
-                    if (ready) {
-                        minimizer.removeEventListener("click", waitToMinimize);
-                        modal.classList.remove("show");
-                        modal.classList.remove("disable");
-                        setTimeout(() => {
-                            document.body.classList.remove("showing-alert");
-                            setTimeout(onalert, 0);
-                        }, 250);
-                    }
-                    else {
-                        modal.classList.add("disable");
-                        setTimeout(waitForClose, 100);
-                    }
-                };
-                waitForClose();
-            });
+            await waitforClickAsync(modal);
+            panel.innerHTML = `<div class="bounce1"></div><div class="bounce2"></div>`;
+            if (ready) {
+                minimizer.removeEventListener("click", waitToMinimize);
+                modal.classList.remove("show");
+                modal.classList.remove("disable");
+                await waitforMsecAsync(250);
+                document.body.classList.remove("showing-alert");
+            }
+            else {
+                modal.classList.add("disable");
+            }
         };
-        this.showChoices = (sceneChoices, onchoice) => {
+        this.showChoicesAsync = async (sceneChoices) => {
             let panel = document.querySelector(".choice-panel");
             panel.innerHTML = "";
             let ul = document.createElement("ul");
@@ -89,32 +75,28 @@ export class UI {
             this.scrollContent(article.parentElement);
             let me = this;
             let lis = document.querySelectorAll(".choice-panel li");
-            const onChoice = (e) => {
-                for (var i = 0; i < lis.length; i++) {
-                    lis[i].removeEventListener("click", onChoice);
-                }
-                var target = e.target;
-                var li = target;
-                while (true) {
-                    if (li.nodeName == "LI")
-                        break;
-                    li = li.parentElement;
-                }
-                li.classList.add("selected");
-                setTimeout(() => {
-                    onchoice({
-                        kind: parseInt(li.getAttribute("data-kind")),
-                        id: parseInt(li.getAttribute("data-id")),
-                        text: ""
-                    });
-                }, 500);
-            };
+            let indexClicked = undefined;
+            const onChoice = (i) => () => { indexClicked = i; };
             for (var i = 0; i < lis.length; i++) {
-                lis[i].addEventListener("click", onChoice);
+                lis[i].addEventListener("click", onChoice(i));
                 lis[i].classList.remove("hidden");
             }
+            await waitforValueAsync(() => indexClicked);
+            var li;
+            for (var i = 0; i < lis.length; i++) {
+                lis[i].removeEventListener("click", onChoice(i));
+                if (i == indexClicked)
+                    li = lis[i];
+            }
+            li.classList.add("selected");
+            await waitforMsecAsync(500);
+            return {
+                kind: parseInt(li.getAttribute("data-kind")),
+                id: parseInt(li.getAttribute("data-id")),
+                text: ""
+            };
         };
-        this.hideChoices = (callback) => {
+        this.hideChoicesAsync = async () => {
             document.body.classList.remove("showing-choices");
             // make sure the first blurb will be visible
             var content = document.querySelector(".content");
@@ -126,34 +108,27 @@ export class UI {
             var article = document.querySelector("article");
             article.style.marginBottom = "0";
             article.setAttribute("style", "");
-            setTimeout(callback, 250 /*matches .choice-panel transition*/);
+            await waitforMsecAsync(250);
         };
-        this.initScene = (data, callback) => {
+        this.initSceneAsync = async (data) => {
             this.setTitle(data.title);
             if (data.image == undefined)
-                return callback();
-            this.changeBackground(data.image, undefined, callback);
+                return Promise.resolve();
+            return this.changeBackgroundAsync(data.image, undefined);
         };
-        this.addBlurb = (chunk, callback) => {
+        this.addBlurbAsync = async (chunk) => {
             let html = this.markupChunk(chunk);
             let content = document.querySelector(".content");
             let article = document.querySelector("article");
             let div = document.createElement("div");
             div.innerHTML = html;
             let section = div.firstChild;
-            const waitForClick = (done) => {
-                const onclick = () => {
-                    content.removeEventListener("click", onclick);
-                    return done();
-                };
-                content.addEventListener("click", onclick);
-            };
             if (chunk.kind == ChunkKind.background) {
                 let bg = chunk;
                 if (bg.wide)
-                    this.changeWideBackground(bg.asset, bg.metadata, callback);
+                    this.changeWideBackground(bg.asset, bg.metadata);
                 else
-                    this.changeBackground(bg.asset, bg.metadata, callback);
+                    return this.changeBackgroundAsync(bg.asset, bg.metadata);
             }
             else if (chunk.kind == ChunkKind.inline) {
                 let inline = chunk;
@@ -168,13 +143,11 @@ export class UI {
                     assetName += ".jpg";
                 assetName = `game/assets/${assetName}`;
                 let image = new Image();
-                image.onload = () => {
-                    let img = section.firstElementChild;
-                    img.style.backgroundImage = `url(${assetName})`;
-                    img.classList.add("ready");
-                    return callback();
-                };
                 image.src = assetName;
+                await image.decode();
+                let img = section.firstElementChild;
+                img.style.backgroundImage = `url(${assetName})`;
+                img.classList.add("ready");
             }
             else if (chunk.kind == ChunkKind.text || chunk.kind == ChunkKind.dialog || chunk.kind == ChunkKind.gameresult) {
                 section.style.opacity = "0";
@@ -190,30 +163,32 @@ export class UI {
                             assetName += ".jpg";
                         let head = section.getElementsByClassName("head")[0];
                         let image = new Image();
-                        image.onload = function () {
-                            head.style.backgroundImage = "url(" + assetName + ")";
-                            head.classList.add("show");
-                        };
-                        setTimeout(() => { image.src = assetName; }, 100);
+                        await waitforMsecAsync(100);
+                        image.src = assetName;
+                        await image.decode();
+                        head.style.backgroundImage = "url(" + assetName + ")";
+                        head.classList.add("show");
                     }
                 }
                 let spans = section.querySelectorAll("span");
                 if (spans.length == 0) {
-                    waitForClick(callback);
+                    await waitforClickAsync(content);
                 }
                 else {
                     let ispan = 0;
-                    waitForClick(() => {
-                        clearTimeout(showTimer);
-                        while (ispan < spans.length)
-                            spans[ispan++].removeAttribute("style");
-                        return callback();
-                    });
-                    var showTimer = setTimeout(function show() {
-                        spans[ispan++].removeAttribute("style");
-                        if (ispan < spans.length)
-                            showTimer = setTimeout(show, 25);
-                    }, 100);
+                    await waitforClickAsync(content);
+                    // let ispan = 0;
+                    // waitForClick(() => {
+                    //     clearTimeout(showTimer);
+                    //     while (ispan < spans.length)
+                    //         spans[ispan++].removeAttribute("style");
+                    //     return callback();
+                    // });
+                    // var showTimer = setTimeout(function show() {
+                    //     spans[ispan++].removeAttribute("style");
+                    //     if (ispan < spans.length) 
+                    //         showTimer = setTimeout(show, 25);
+                    // }, 100);
                 }
             }
             else if (chunk.kind == ChunkKind.heading) {
@@ -224,13 +199,12 @@ export class UI {
                 document.body.classList.add("showing-heading");
                 if (hchunk.metadata != undefined && hchunk.metadata.class != undefined)
                     heading.classList.add(hchunk.metadata.class);
-                heading.addEventListener("click", function onclick() {
-                    heading.removeEventListener("click", onclick);
-                    document.body.classList.remove("showing-heading");
-                    if (hchunk.metadata != undefined && hchunk.metadata.class != undefined)
-                        heading.classList.remove(hchunk.metadata.class);
-                    setTimeout(() => { callback(); }, 500);
-                });
+                // heading.addEventListener("click", function onclick() {
+                //     heading.removeEventListener("click", onclick);
+                //     document.body.classList.remove("showing-heading");
+                //     if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class);
+                //     setTimeout(() => { callback(); }, 500);
+                // });
             }
             else if (chunk.kind == ChunkKind.doo) {
                 let doo = chunk;
@@ -241,19 +215,17 @@ export class UI {
                     text: doo.text,
                     metadata: doo.metadata
                 });
-                this.showChoices(choices, (chosen) => {
-                    this.hideChoices(callback);
-                });
+                await this.showChoicesAsync(choices);
+                return this.hideChoicesAsync();
             }
             else if (chunk.kind == ChunkKind.minigame) {
-                this.runMinigame(chunk, callback);
+                return this.runMinigameAsync(chunk);
             }
             else if (chunk.kind == ChunkKind.waitclick) {
-                waitForClick(callback);
+                return waitforClickAsync(content);
             }
             else if (chunk.kind == ChunkKind.title) {
                 this.setTitle(chunk.text);
-                callback();
             }
             else if (chunk.kind == ChunkKind.style) {
                 let style = chunk;
@@ -262,13 +234,12 @@ export class UI {
                     article.classList.add(style.metadata.class);
                 if (style.metadata != undefined && style.metadata.style != undefined)
                     article.setAttribute("style", style.metadata.style);
-                callback();
             }
             else {
-                callback();
+                return;
             }
         };
-        this.addBlurbFast = (chunk, callback) => {
+        this.addBlurbFast = (chunk) => {
             var html = this.markupChunk(chunk)
                 .replace(/ style\="visibility:hidden"/g, "")
                 .replace(/<span>/g, "")
@@ -278,7 +249,6 @@ export class UI {
             div.innerHTML = html;
             var section = div.firstChild;
             article.appendChild(section);
-            callback();
         };
         this.clearBlurb = () => {
             var article = document.querySelector("article");
@@ -307,8 +277,8 @@ export class UI {
                 inner.classList.add("out");
             }
         };
-        this.changeBackground = (assetName, metadata, callback) => {
-            callback();
+        this.changeBackgroundAsync = (assetName, metadata) => {
+            return Promise.resolve();
             /*
             if (assetName == undefined) return callback();
             if (window.getComputedStyle(document.querySelector(".bg")!).display == "none") return callback();
@@ -343,11 +313,11 @@ export class UI {
             one.setAttribute("src", sceneUrl);
             */
         };
-        this.changeWideBackground = (assetName, metadata, callback) => {
+        this.changeWideBackground = (assetName, metadata) => {
             if (assetName == undefined)
-                return callback();
+                return;
             if (window.getComputedStyle(document.querySelector(".wbg")).display == "none")
-                return callback();
+                return;
             let bg = document.querySelector(".wbg-inner");
             let zero = bg.firstElementChild;
             assetName = encodeURIComponent(assetName);
@@ -357,15 +327,15 @@ export class UI {
             if (assetName.endsWith(".html"))
                 sceneUrl = `game/${assetName}`;
             if (zero.src.endsWith(sceneUrl))
-                return callback();
+                return;
             document.body.classList.add("change-wbg");
-            window.eventHubAction = (result) => {
-                if (result.asset == assetName && result.content == "ready") {
-                    document.body.classList.remove("change-wbg");
-                    bg.removeChild(zero);
-                    callback();
-                }
-            };
+            // (<any>window).eventHubAction = (result: any) => {
+            //     if (result.asset == assetName && result.content == "ready") {
+            //         document.body.classList.remove("change-wbg");
+            //         bg.removeChild(zero);
+            //         callback();
+            //     }
+            // };
             let one = document.createElement("iframe");
             if (metadata != undefined && metadata.class != undefined)
                 one.setAttribute("class", metadata.class);
@@ -374,20 +344,26 @@ export class UI {
             bg.appendChild(one);
             one.setAttribute("src", sceneUrl);
         };
-        this.runMinigame = (chunk, callback) => {
-            let minigame = chunk;
+        this.runMinigameAsync = async (chunk) => {
+            return Promise.resolve(true);
+            /*
+            let minigame = <IMiniGame>chunk;
             let gameReady = false;
             let choiceMade = false;
-            const fireMinigame = (url, callback) => {
-                let game = document.querySelector(".game");
-                let gameFrame = game.firstElementChild;
-                window.eventHubAction = (result) => {
+            
+            const fireMinigame = (url: string, callback: (result: any) => void) => {
+                let game = document.querySelector(".game")!;
+                let gameFrame = <HTMLIFrameElement>game.firstElementChild;
+    
+                (<any>window).eventHubAction = (result: any) => {
                     setTimeout(() => { callback(result); }, 0);
                 };
+    
                 let src = `game/${url.replace(/ /g, "%20").replace(/'/g, "%27")}`;
                 gameFrame.setAttribute("src", src);
             };
-            fireMinigame(minigame.url, (result) => {
+    
+            fireMinigame(minigame.url, (result: any) => {
                 if (result.ready != undefined) {
                     if (choiceMade) {
                         document.body.classList.add("show-game");
@@ -398,19 +374,21 @@ export class UI {
                 }
                 else {
                     document.body.classList.remove("show-game");
-                    this.hideChoices(() => {
+                    this.hideChoicesAsync(() => {
                         let text = (result.win == true ? minigame.winText : minigame.loseText);
                         setTimeout(() => { callback(result); }, 0);
                     });
                 }
             });
-            let choices = Array();
-            choices.push({
+    
+            let choices = Array<IChoice>();
+            choices.push(<IChoice> {
                 kind: ChoiceKind.action,
                 id: 0,
                 text: minigame.text
             });
-            this.showChoices(choices, (chosen) => {
+    
+            this.showChoicesAsync(choices, (chosen: IChoice) => {
                 if (gameReady) {
                     document.body.classList.add("show-game");
                     document.body.classList.remove("disabled");
@@ -421,6 +399,7 @@ export class UI {
                 }
                 choiceMade = true;
             });
+            */
         };
         this.markupChunk = (chunk) => {
             let html = Array();

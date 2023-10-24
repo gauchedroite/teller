@@ -18,12 +18,12 @@ export interface IChoice {
 }
 
 export interface IUI {
-    alert: (text: string, canclose: () => boolean, onalert: () => void) => void,
-    showChoices: (sceneChoices: Array<IChoice>, onchoice: (chosen: IChoice) => void) => void,
-    hideChoices: (callback: () => void) => void,
-    initScene: (data: ISceneData, callback: () => void) => void,
-    addBlurb: (chunk: IMomentData, callback: (result?: any) => void) => void,
-    addBlurbFast: (chunk: IMomentData, callback: () => void) => void,
+    alertAsync: (text: string, ready: boolean) => Promise<void>,
+    showChoicesAsync: (sceneChoices: Array<IChoice>) => Promise<IChoice>,
+    hideChoicesAsync: () => Promise<void>,
+    initSceneAsync: (data: ISceneData) => Promise<void>,
+    addBlurbAsync: (chunk: IMomentData) => Promise<any>,
+    addBlurbFast: (chunk: IMomentData) => void,
     clearBlurb: () => void
     addChildWindow: (value: string, callback: (game: IGameInstance) => void) => void
 }

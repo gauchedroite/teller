@@ -1,5 +1,5 @@
 import * as App from "../../core/app.js";
-import { waitAsync } from "../../utils.js";
+import { waitforMsecAsync } from "../../utils.js";
 import { UI } from "../game-ui.js";
 import { Game } from "../game-loop.js";
 export const NS = "Game_story";
@@ -78,7 +78,6 @@ const myLayout = () => {
 };
 export const fetch = (args) => {
     App.prepareRender(NS, "Story");
-    game.startGame();
     App.render();
 };
 export const render = () => {
@@ -99,10 +98,11 @@ export const onButtonClick = () => {
 };
 const waitUserInput = async () => {
     while (!buttonClicked)
-        await waitAsync(20);
+        await waitforMsecAsync(20);
     buttonClicked = false;
 };
 const startStoryLoopAsync = async () => {
+    await game.startGameAsync();
     //console.log("Waiting")
     //await waitUserInput()
     //console.log("Waiting done")

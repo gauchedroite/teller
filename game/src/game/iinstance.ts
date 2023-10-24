@@ -2,10 +2,9 @@ import { IMoment } from "./igame-data.js"
 
 
 export interface IGameInstance {
-    startGame: () => void
+    startGameAsync: () => void
     resumeGame: () => void
     clearAllGameData: () => void
-    tick: () => boolean
 }
 
 export interface IEditorInstance {

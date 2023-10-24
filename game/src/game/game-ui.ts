@@ -2,6 +2,7 @@ import { IUI, IChoice, ChoiceKind } from "./iui.js";
 import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "./igame.js";
 import { IBackground } from "./igame.js";
 import { IGameInstance } from "./iinstance.js";
+import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../utils.js";
 
 declare const FastClick: any;
 
@@ -15,7 +16,7 @@ export class UI implements IUI {
         FastClick.attach(document.body);
     }
 
-    alert = (text: string, canclose: () => boolean, onalert: () => void) => {
+    alertAsync = async (text: string, ready: boolean) => {
         document.body.classList.add("showing-alert");
 
         let storyInner = <HTMLElement>document.querySelector(".story-inner");
@@ -37,37 +38,22 @@ export class UI implements IUI {
         let minimizer = inner.querySelector(".minimizer")!;
         minimizer.addEventListener("click", waitToMinimize);
 
-        const waitForClick = (done: () => void) => {
-            const onclick = () => {
-                modal.removeEventListener("click", onclick);
-                return done();
-            };
-            modal.addEventListener("click", onclick);
-        };
+        await waitforClickAsync(modal)
 
-        waitForClick(() => {
-            panel.innerHTML = `<div class="bounce1"></div><div class="bounce2"></div>`;
-            const waitForClose = () => {
-                var ready = canclose();
-                if (ready) {
-                    minimizer.removeEventListener("click", waitToMinimize);
-                    modal.classList.remove("show");
-                    modal.classList.remove("disable");
-                    setTimeout(() => { 
-                        document.body.classList.remove("showing-alert");
-                        setTimeout(onalert, 0);
-                    }, 250);
-                }
-                else {
-                    modal.classList.add("disable");
-                    setTimeout(waitForClose, 100);
-                }
-            };
-            waitForClose();
-        });
+        panel.innerHTML = `<div class="bounce1"></div><div class="bounce2"></div>`;
+        if (ready) {
+            minimizer.removeEventListener("click", waitToMinimize);
+            modal.classList.remove("show");
+            modal.classList.remove("disable");
+            await waitforMsecAsync(250)
+            document.body.classList.remove("showing-alert");
+        }
+        else {
+            modal.classList.add("disable");
+        }
     };
 
-    showChoices = (sceneChoices: Array<IChoice>, onchoice: (chosen: IChoice) => void) => {
+    showChoicesAsync = async (sceneChoices: Array<IChoice>) => {
         let panel = <HTMLElement>document.querySelector(".choice-panel");
         panel.innerHTML = "";
         let ul = document.createElement("ul");
@@ -110,32 +96,35 @@ export class UI implements IUI {
 
         let me = this;
         let lis = document.querySelectorAll(".choice-panel li");
-        const onChoice = (e: any) => {
-            for (var i = 0; i < lis.length; i++) {
-                lis[i].removeEventListener("click", onChoice);
-            } 
-            var target = <HTMLElement>e.target;
-            var li: HTMLElement = target;
-            while (true) {
-                if (li.nodeName == "LI") break;
-                li = li.parentElement!;
-            }
-            li.classList.add("selected");
-            setTimeout(() => {
-                onchoice(<IChoice> {
-                    kind: parseInt(li.getAttribute("data-kind")!),
-                    id: parseInt(li.getAttribute("data-id")!),
-                    text: ""
-                });
-            }, 500);
-        };
+
+
+        let indexClicked: unknown = undefined;
+        const onChoice = (i: number) => () => { indexClicked = i };
+        
         for (var i = 0; i < lis.length; i++) {
-            lis[i].addEventListener("click", onChoice);
+            lis[i].addEventListener("click", onChoice(i));
             lis[i].classList.remove("hidden");
-        } 
+        }
+        await waitforValueAsync(() => indexClicked)
+
+        var li: Element;
+        for (var i = 0; i < lis.length; i++) {
+            lis[i].removeEventListener("click", onChoice(i));
+            if (i == indexClicked)
+                li = lis[i]
+        }
+        li!.classList.add("selected");
+
+        await waitforMsecAsync(500)
+
+        return <IChoice> {
+            kind: parseInt(li!.getAttribute("data-kind")!),
+            id: parseInt(li!.getAttribute("data-id")!),
+            text: ""
+        }
     };
 
-    hideChoices = (callback: () => void) => {
+    hideChoicesAsync = async () => {
         document.body.classList.remove("showing-choices");
 
         // make sure the first blurb will be visible
@@ -151,16 +140,16 @@ export class UI implements IUI {
         article.style.marginBottom = "0";
         article.setAttribute("style", "");
         
-        setTimeout(callback, 250/*matches .choice-panel transition*/);
+        await waitforMsecAsync(250)
     };
 
-    initScene = (data: ISceneData, callback: () => void) => {
+    initSceneAsync = async (data: ISceneData) => {
         this.setTitle(data.title);
-        if (data.image == undefined) return callback();
-        this.changeBackground(data.image, undefined, callback);
+        if (data.image == undefined) return Promise.resolve();
+        return this.changeBackgroundAsync(data.image, undefined);
     };
 
-    addBlurb = (chunk: IMomentData, callback: (result?: any) => void) => {
+    addBlurbAsync = async (chunk: IMomentData) => {
         let html = this.markupChunk(chunk);
         let content = document.querySelector(".content")!;
         let article = document.querySelector("article")!;
@@ -168,20 +157,12 @@ export class UI implements IUI {
         div.innerHTML = html;
         let section = <HTMLDivElement>div.firstChild;
 
-        const waitForClick = (done: () => void) => {
-            const onclick = () => {
-                content.removeEventListener("click", onclick);
-                return done();
-            };
-            content.addEventListener("click", onclick);
-        };
-
         if (chunk.kind == ChunkKind.background) {
             let bg = <IBackground>chunk;
             if (bg.wide)
-                this.changeWideBackground(bg.asset, bg.metadata, callback);
+                this.changeWideBackground(bg.asset, bg.metadata);
             else
-                this.changeBackground(bg.asset, bg.metadata, callback);
+                return this.changeBackgroundAsync(bg.asset, bg.metadata);
         }
         else if (chunk.kind == ChunkKind.inline) {
             let inline = <IInline>chunk;
@@ -193,14 +174,13 @@ export class UI implements IUI {
             let assetName = inline.image.replace(/ /g, "%20").replace(/'/g, "%27");
             if (assetName.indexOf(".") == -1) assetName += ".jpg";
             assetName = `game/assets/${assetName}`;
+            
             let image = new Image();
-            image.onload = () => {
-                let img = <HTMLImageElement>section.firstElementChild;
-                img.style.backgroundImage = `url(${assetName})`;
-                img.classList.add("ready");
-                return callback();
-            };
             image.src = assetName;
+            await image.decode();
+            let img = <HTMLImageElement>section.firstElementChild;
+            img.style.backgroundImage = `url(${assetName})`;
+            img.classList.add("ready");
         }
         else if (chunk.kind == ChunkKind.text || chunk.kind == ChunkKind.dialog || chunk.kind == ChunkKind.gameresult) {
             section.style.opacity = "0";
@@ -215,33 +195,36 @@ export class UI implements IUI {
                     let assetName = "game/assets/" + dialog.metadata.image.replace(/ /g, "%20").replace(/'/g, "%27");
                     if (assetName.indexOf(".") == -1) assetName += ".jpg";
                     let head = <HTMLDivElement>section.getElementsByClassName("head")[0];
+
                     let image = new Image();
-                    image.onload = function() {
-                        head.style.backgroundImage = "url(" + assetName  + ")";
-                        head.classList.add("show");
-                    };
-                    setTimeout(() => { image.src = assetName; }, 100);
+                    await waitforMsecAsync(100);
+                    image.src = assetName;
+                    await image.decode();
+                    head.style.backgroundImage = "url(" + assetName  + ")";
+                    head.classList.add("show");
                 }
             }
 
             let spans = section.querySelectorAll("span");
             if (spans.length == 0) {
-                waitForClick(callback);
+                await waitforClickAsync(content);
             }
             else {
                 let ispan = 0;
-                waitForClick(() => {
-                    clearTimeout(showTimer);
-                    while (ispan < spans.length)
-                        spans[ispan++].removeAttribute("style");
-                    return callback();
-                });
+                await waitforClickAsync(content);
 
-                var showTimer = setTimeout(function show() {
-                    spans[ispan++].removeAttribute("style");
-                    if (ispan < spans.length) 
-                        showTimer = setTimeout(show, 25);
-                }, 100);
+                // let ispan = 0;
+                // waitForClick(() => {
+                //     clearTimeout(showTimer);
+                //     while (ispan < spans.length)
+                //         spans[ispan++].removeAttribute("style");
+                //     return callback();
+                // });
+                // var showTimer = setTimeout(function show() {
+                //     spans[ispan++].removeAttribute("style");
+                //     if (ispan < spans.length) 
+                //         showTimer = setTimeout(show, 25);
+                // }, 100);
             }
         }
         else if (chunk.kind == ChunkKind.heading) {
@@ -251,12 +234,13 @@ export class UI implements IUI {
             inner.innerHTML = html;
             document.body.classList.add("showing-heading");
             if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.add(hchunk.metadata.class);
-            heading.addEventListener("click", function onclick() {
-                heading.removeEventListener("click", onclick);
-                document.body.classList.remove("showing-heading");
-                if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class);
-                setTimeout(() => { callback(); }, 500);
-            });
+
+            // heading.addEventListener("click", function onclick() {
+            //     heading.removeEventListener("click", onclick);
+            //     document.body.classList.remove("showing-heading");
+            //     if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.remove(hchunk.metadata.class);
+            //     setTimeout(() => { callback(); }, 500);
+            // });
         }
         else if (chunk.kind == ChunkKind.doo) {
             let doo = <IDo>chunk;
@@ -267,33 +251,31 @@ export class UI implements IUI {
                 text: doo.text,
                 metadata: doo.metadata
             });
-            this.showChoices(choices, (chosen: IChoice) => {
-                this.hideChoices(callback);
-            });
+
+            await this.showChoicesAsync(choices);
+            return this.hideChoicesAsync();
         }
         else if (chunk.kind == ChunkKind.minigame) {
-            this.runMinigame(<IMiniGame>chunk, callback);
+            return this.runMinigameAsync(<IMiniGame>chunk);
         }
         else if (chunk.kind == ChunkKind.waitclick) {
-            waitForClick(callback);
+            return waitforClickAsync(content);
         }
         else if (chunk.kind == ChunkKind.title) {
             this.setTitle((<ITitle>chunk).text);
-            callback();
         }
         else if (chunk.kind == ChunkKind.style) {
             let style = <IStyle>chunk;
             let article = document.querySelector("article")!;
             if (style.metadata != undefined && style.metadata.class != undefined) article.classList.add(style.metadata.class);
             if (style.metadata != undefined && style.metadata.style != undefined) article.setAttribute("style", style.metadata.style);
-            callback();
         }
         else {
-            callback();
+            return;
         }
     };
 
-    addBlurbFast = (chunk: IMomentData, callback: () => void) => {
+    addBlurbFast = (chunk: IMomentData) => {
         var html = this.markupChunk(chunk)
         	.replace(/ style\="visibility:hidden"/g, "")
             .replace(/<span>/g, "")
@@ -303,7 +285,6 @@ export class UI implements IUI {
         div.innerHTML = html;
         var section = <HTMLDivElement>div.firstChild;
         article.appendChild(section);
-        callback();
     };
 
     clearBlurb = () => {
@@ -325,6 +306,8 @@ export class UI implements IUI {
         }, 0);
     };
 
+
+
     private setTitle = (title: string) => {
         let inner = document.querySelector(".title-inner")!;
         if (inner.innerHTML != title) {
@@ -336,8 +319,8 @@ export class UI implements IUI {
         }
     };
 
-    private changeBackground = (assetName: string, metadata: IMetadata | undefined, callback: () => void) => {
-        callback();
+    private changeBackgroundAsync = (assetName: string, metadata: IMetadata | undefined) => {
+        return Promise.resolve();
         /*
         if (assetName == undefined) return callback();
         if (window.getComputedStyle(document.querySelector(".bg")!).display == "none") return callback();
@@ -373,9 +356,9 @@ export class UI implements IUI {
         */
     };
 
-    private changeWideBackground = (assetName: string, metadata: IMetadata, callback: () => void) => {
-        if (assetName == undefined) return callback();
-        if (window.getComputedStyle(document.querySelector(".wbg")!).display == "none") return callback();
+    private changeWideBackground = (assetName: string, metadata: IMetadata) => {
+        if (assetName == undefined) return;
+        if (window.getComputedStyle(document.querySelector(".wbg")!).display == "none") return;
 
         let bg = <HTMLDivElement>document.querySelector(".wbg-inner");
         let zero = <HTMLIFrameElement>bg.firstElementChild;
@@ -386,17 +369,17 @@ export class UI implements IUI {
         let sceneUrl = `game/teller-image.html?${assetName}`;
         if (assetName.endsWith(".html")) sceneUrl = `game/${assetName}`;
             
-        if (zero.src.endsWith(sceneUrl)) return callback();
+        if (zero.src.endsWith(sceneUrl)) return;
 
         document.body.classList.add("change-wbg");
 
-        (<any>window).eventHubAction = (result: any) => {
-            if (result.asset == assetName && result.content == "ready") {
-                document.body.classList.remove("change-wbg");
-                bg.removeChild(zero);
-                callback();
-            }
-        };
+        // (<any>window).eventHubAction = (result: any) => {
+        //     if (result.asset == assetName && result.content == "ready") {
+        //         document.body.classList.remove("change-wbg");
+        //         bg.removeChild(zero);
+        //         callback();
+        //     }
+        // };
 
         let one = document.createElement("iframe");
         if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
@@ -405,7 +388,9 @@ export class UI implements IUI {
         one.setAttribute("src", sceneUrl);
     };
 
-    private runMinigame = (chunk: IMiniGame, callback: (result?: any) => void) => {
+    private runMinigameAsync = async (chunk: IMiniGame) => {
+        return Promise.resolve(true)
+        /*
         let minigame = <IMiniGame>chunk;
         let gameReady = false;
         let choiceMade = false;
@@ -433,7 +418,7 @@ export class UI implements IUI {
             }
             else {
                 document.body.classList.remove("show-game");
-                this.hideChoices(() => {
+                this.hideChoicesAsync(() => {
                     let text = (result.win == true ? minigame.winText : minigame.loseText);
                     setTimeout(() => { callback(result); }, 0);
                 });
@@ -447,7 +432,7 @@ export class UI implements IUI {
             text: minigame.text
         });
 
-        this.showChoices(choices, (chosen: IChoice) => {
+        this.showChoicesAsync(choices, (chosen: IChoice) => {
             if (gameReady) {
                 document.body.classList.add("show-game");
                 document.body.classList.remove("disabled");
@@ -458,6 +443,7 @@ export class UI implements IUI {
             }
             choiceMade = true;
         });
+        */
     };
 
     private markupChunk = (chunk: IMomentData): string => {
