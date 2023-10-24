@@ -1,6 +1,4 @@
-
 import { IMetadata, ISceneData, IMomentData } from "./igame.js"
-import { IGameInstance } from "./iinstance.js"
 
 export enum ChoiceKind {
     scene,

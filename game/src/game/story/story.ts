@@ -1,10 +1,9 @@
-
 import * as App from "../../core/app.js"
 import * as Router from "../../core/router.js"
 import * as Misc from "../../core/misc.js"
 import { waitforMsecAsync } from "../../utils.js"
-import { UI } from "../game-ui.js"
-import { Game } from "../game-loop.js"
+import { UI } from "./game-ui2.js"
+import { Game } from "./game-loop2.js"
 
 export const NS = "Game_story"
 
