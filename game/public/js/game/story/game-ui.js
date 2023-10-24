@@ -1,9 +1,77 @@
 import { ChoiceKind } from "../iui.js";
 import { ChunkKind } from "../igame.js";
 import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
+import { NS } from "./story.js";
+let UX;
 export class UI {
     constructor() {
         this.portrait = false;
+        this.myLayout = () => {
+            return `
+<button type="button" onclick="${UX}.cliko(42)">42</button>
+
+    <div class="game-body" style="display:none;">
+    <div class="wbg">
+        <div class="wbg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    </div>
+    
+    <div class="game-story">
+    <div class="bg" style="display:none;">
+        <div class="bg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+        <div class="game">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    
+    <div class="story">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="goto-menu">
+                    <i class="icon ion-navicon-round"></i> 
+                </div>
+                <div class="title">
+                    <div class="title-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="story-inner">
+            <div class="content">
+                <article></article>
+            </div>
+            <div class="choice-panel">
+            </div>
+            <div class="modal">
+                <div class="modal-inner">
+                    <span></span>
+                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+                </div>
+            </div>
+            <div class="heading">
+                <div class="heading-inner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="story-window hidden">
+    </div>
+    
+    <div class="preloader">
+        <div class="loader-ring">
+            <div class="loader-ring-light"></div>
+            <div class="loader-ring-track"></div>
+        </div>
+    </div>
+    </div>
+    `;
+        };
+        this.render = () => {
+            return this.myLayout();
+        };
         this.alertAsync = async (text, ready) => {
             document.body.classList.add("showing-alert");
             let storyInner = document.querySelector(".story-inner");
@@ -445,7 +513,10 @@ export class UI {
                     setTimeout(scroll, 10);
             }, 10);
         };
-        FastClick.attach(document.body);
+        this.cliko = (quarantedeux) => {
+            console.log(`cliko ${quarantedeux}`);
+        };
+        UX = `${NS}.ux`;
     }
 }
 //# sourceMappingURL=game-ui.js.map

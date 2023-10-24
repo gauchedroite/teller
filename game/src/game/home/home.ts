@@ -5,7 +5,7 @@ import * as Router from "../../core/router.js"
 import * as Misc from "../../core/misc.js"
 import WebglRunner from "../webgl-runner.js"
 
-export const NS = "Game_home"
+export const NS = "GHOME"
 
 
 let runner: WebglRunner | undefined = undefined;

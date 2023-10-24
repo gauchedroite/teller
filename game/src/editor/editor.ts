@@ -6,7 +6,7 @@ import { IGameData, IAction } from "../game/igame-data.js"
 import gdata from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
 
-export const NS = "Game_editor";
+export const NS = "GED";
 
 const SAVEFILE_KEY = "Teller"
 

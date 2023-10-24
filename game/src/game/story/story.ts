@@ -1,11 +1,9 @@
 import * as App from "../../core/app.js"
-import * as Router from "../../core/router.js"
-import * as Misc from "../../core/misc.js"
 import { waitforMsecAsync } from "../../utils.js"
 import { UI } from "./game-ui.js"
 import { Game } from "./game-loop.js"
 
-export const NS = "Game_story"
+export const NS = "GSTORY"
 
 let storyStarted = false
 let buttonClicked = false
@@ -16,74 +14,17 @@ const ui = new UI()
 const game = new Game(ui)
 
 
+export const ux = ui;
 
-const myLayout = () => {
+
+const myLayout = (gamebody: string) => {
     return `
 <div style="width:100vw; xheight:100vh; background-color:whitesmoke;">
     <a href="#/">Home</a><br>
-
     <button type="button" onclick="${NS}.onButtonClick()">OK ></button>
-
     <br><br>
 </div>
-
-<div class="game-body" style="display:none;">
-<div class="wbg">
-    <div class="wbg-inner">
-        <iframe title="cheval"></iframe>
-    </div>
-</div>
-</div>
-
-<div class="game-story">
-<div class="bg" style="display:none;">
-    <div class="bg-inner">
-        <iframe title="cheval"></iframe>
-    </div>
-    <div class="game">
-        <iframe title="cheval"></iframe>
-    </div>
-</div>
-
-<div class="story">
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="goto-menu">
-                <i class="icon ion-navicon-round"></i> 
-            </div>
-            <div class="title">
-                <div class="title-inner"></div>
-            </div>
-        </div>
-    </div>
-    <div class="story-inner">
-        <div class="content">
-            <article></article>
-        </div>
-        <div class="choice-panel">
-        </div>
-        <div class="modal">
-            <div class="modal-inner">
-                <span></span>
-                <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
-            </div>
-        </div>
-        <div class="heading">
-            <div class="heading-inner"></div>
-        </div>
-    </div>
-</div>
-
-<div class="story-window hidden">
-</div>
-
-<div class="preloader">
-    <div class="loader-ring">
-        <div class="loader-ring-light"></div>
-        <div class="loader-ring-track"></div>
-    </div>
-</div>
-</div>
+${gamebody}
 `
 }
 
@@ -99,7 +40,8 @@ export const fetch = (args: string[] | undefined) => {
 export const render = () => {
     if (!App.inContext(NS)) return ""
 
-    return myLayout()
+    const gamebody = ui.render()
+    return myLayout(gamebody)
 }
 
 export const postRender = () => {
@@ -125,7 +67,4 @@ const waitUserInput = async () => {
 
 const startStoryLoopAsync = async () => {
     await game.startGameAsync()
-    //console.log("Waiting")
-    //await waitUserInput()
-    //console.log("Waiting done")
 }

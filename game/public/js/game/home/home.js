@@ -1,7 +1,7 @@
 "use strict";
 import * as App from "../../core/app.js";
 import WebglRunner from "../webgl-runner.js";
-export const NS = "Game_home";
+export const NS = "GHOME";
 let runner = undefined;
 const myLayout = () => {
     return `

@@ -2,17 +2,87 @@ import { IUI, IChoice, ChoiceKind } from "../iui.js";
 import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "../igame.js";
 import { IBackground } from "../igame.js";
 import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
+import { NS } from "./story.js"
 
-declare const FastClick: any;
+let UX: string;
 
 
 export class UI implements IUI {
+
     portrait = false;
     sections: Array<string> | undefined;
     previousSceneUrl: string | undefined;
 
     constructor () {
-        FastClick.attach(document.body);
+        UX = `${NS}.ux`
+    }
+
+    private myLayout = () => {
+        return `
+<button type="button" onclick="${UX}.cliko(42)">42</button>
+
+    <div class="game-body" style="display:none;">
+    <div class="wbg">
+        <div class="wbg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    </div>
+    
+    <div class="game-story">
+    <div class="bg" style="display:none;">
+        <div class="bg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+        <div class="game">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    
+    <div class="story">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="goto-menu">
+                    <i class="icon ion-navicon-round"></i> 
+                </div>
+                <div class="title">
+                    <div class="title-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="story-inner">
+            <div class="content">
+                <article></article>
+            </div>
+            <div class="choice-panel">
+            </div>
+            <div class="modal">
+                <div class="modal-inner">
+                    <span></span>
+                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+                </div>
+            </div>
+            <div class="heading">
+                <div class="heading-inner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="story-window hidden">
+    </div>
+    
+    <div class="preloader">
+        <div class="loader-ring">
+            <div class="loader-ring-light"></div>
+            <div class="loader-ring-track"></div>
+        </div>
+    </div>
+    </div>
+    `
+    }
+
+    render = () => {
+        return this.myLayout()
     }
 
     alertAsync = async (text: string, ready: boolean) => {
@@ -489,4 +559,9 @@ export class UI implements IUI {
             if (top < end) setTimeout(scroll, 10);
         }, 10);
     };
+
+
+    cliko = (quarantedeux: number) => {
+        console.log(`cliko ${quarantedeux}`)
+    }
 }

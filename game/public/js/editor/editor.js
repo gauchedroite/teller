@@ -3,7 +3,7 @@ import * as Router from "../core/router.js";
 import * as Misc from "../core/misc.js";
 import gdata from "../game/game-data.js";
 import GameHelper from "../game/game-helper.js";
-export const NS = "Game_editor";
+export const NS = "GED";
 const SAVEFILE_KEY = "Teller";
 let state = {};
 let gids;
