@@ -1,7 +1,7 @@
 import * as App from "../../core/app.js";
 import { waitforMsecAsync } from "../../utils.js";
-import { UI } from "./game-ui2.js";
-import { Game } from "./game-loop2.js";
+import { UI } from "./game-ui.js";
+import { Game } from "./game-loop.js";
 export const NS = "Game_story";
 let storyStarted = false;
 let buttonClicked = false;
