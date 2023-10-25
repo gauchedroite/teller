@@ -2,83 +2,28 @@ import { ChoiceKind } from "../iui.js";
 import { ChunkKind } from "../igame.js";
 import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
 import { NS } from "./story.js";
-let UX;
+let UX; // Replaces ${NS} for events
 export class UI {
+    myStoryInner() { return document.querySelector(".story-inner"); }
+    myModal() { return document.querySelector(".modal"); }
+    myModalInner() { return document.querySelector(".modal-inner"); }
+    myChoicePanel() { return document.querySelector(".choice-panel"); }
+    myArticle() { return document.querySelector("article"); }
+    myContent() { return document.querySelector(".content"); }
+    myHeading() { return document.querySelector(".heading"); }
+    myHeadingInner() { return document.querySelector(".heading-inner"); }
+    myTitleInner() { return document.querySelector(".title-inner"); }
+    myWbg() { return document.querySelector(".wbg"); }
+    myWbgInner() { return document.querySelector(".wbg-inner"); }
     constructor() {
         this.portrait = false;
-        this.myLayout = () => {
-            return `
-<button type="button" onclick="${UX}.cliko(42)">42</button>
-
-    <div class="game-body" style="display:none;">
-    <div class="wbg">
-        <div class="wbg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-    </div>
-    </div>
-    
-    <div class="game-story">
-    <div class="bg" style="display:none;">
-        <div class="bg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-        <div class="game">
-            <iframe title="cheval"></iframe>
-        </div>
-    </div>
-    
-    <div class="story">
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="goto-menu">
-                    <i class="icon ion-navicon-round"></i> 
-                </div>
-                <div class="title">
-                    <div class="title-inner"></div>
-                </div>
-            </div>
-        </div>
-        <div class="story-inner">
-            <div class="content">
-                <article></article>
-            </div>
-            <div class="choice-panel">
-            </div>
-            <div class="modal">
-                <div class="modal-inner">
-                    <span></span>
-                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
-                </div>
-            </div>
-            <div class="heading">
-                <div class="heading-inner"></div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="story-window hidden">
-    </div>
-    
-    <div class="preloader">
-        <div class="loader-ring">
-            <div class="loader-ring-light"></div>
-            <div class="loader-ring-track"></div>
-        </div>
-    </div>
-    </div>
-    `;
-        };
-        this.render = () => {
-            return this.myLayout();
-        };
         this.alertAsync = async (text, ready) => {
             document.body.classList.add("showing-alert");
-            let storyInner = document.querySelector(".story-inner");
-            let inner = document.querySelector(".modal-inner");
+            let storyInner = this.myStoryInner();
+            let inner = this.myModalInner();
             let panel = inner.querySelector("span");
             panel.innerHTML = "<p>" + text + "</p>";
-            let modal = document.querySelector(".modal");
+            let modal = this.myModal();
             modal.classList.add("show");
             const waitToMinimize = (e) => {
                 e.stopPropagation();
@@ -103,7 +48,7 @@ export class UI {
             }
         };
         this.showChoicesAsync = async (sceneChoices) => {
-            let panel = document.querySelector(".choice-panel");
+            let panel = this.myChoicePanel();
             panel.innerHTML = "";
             let ul = document.createElement("ul");
             for (var i = 0; i < sceneChoices.length; i++) {
@@ -136,13 +81,13 @@ export class UI {
             panel.appendChild(ul);
             document.body.classList.add("showing-choices");
             panel.style.top = "calc(100% - " + panel.offsetHeight + "px)";
-            let storyInner = document.querySelector(".story-inner");
+            let storyInner = this.myStoryInner();
             storyInner.classList.remove("minimized");
-            let article = document.querySelector("article");
+            let article = this.myArticle();
             article.style.marginBottom = panel.offsetHeight + "px";
             this.scrollContent(article.parentElement);
             let me = this;
-            let lis = document.querySelectorAll(".choice-panel li");
+            let lis = this.myChoicePanel().querySelectorAll("li");
             let indexClicked = undefined;
             const onChoice = (i) => () => { indexClicked = i; };
             for (var i = 0; i < lis.length; i++) {
@@ -167,13 +112,13 @@ export class UI {
         this.hideChoicesAsync = async () => {
             document.body.classList.remove("showing-choices");
             // make sure the first blurb will be visible
-            var content = document.querySelector(".content");
-            let storyInner = document.querySelector(".story-inner");
+            var content = this.myContent();
+            let storyInner = this.myStoryInner();
             storyInner.scrollTop = content.offsetTop;
             //storyInner.style.height = "25%";
-            var panel = document.querySelector(".choice-panel");
+            var panel = this.myChoicePanel();
             panel.style.top = "100%";
-            var article = document.querySelector("article");
+            var article = this.myArticle();
             article.style.marginBottom = "0";
             article.setAttribute("style", "");
             await waitforMsecAsync(250);
@@ -186,8 +131,8 @@ export class UI {
         };
         this.addBlurbAsync = async (chunk) => {
             let html = this.markupChunk(chunk);
-            let content = document.querySelector(".content");
-            let article = document.querySelector("article");
+            let content = this.myContent();
+            let article = this.myArticle();
             let div = document.createElement("div");
             div.innerHTML = html;
             let section = div.firstChild;
@@ -255,8 +200,8 @@ export class UI {
             }
             else if (chunk.kind == ChunkKind.heading) {
                 let hchunk = chunk;
-                let heading = document.querySelector(".heading");
-                let inner = document.querySelector(".heading-inner");
+                let heading = this.myHeading();
+                let inner = this.myHeadingInner();
                 inner.innerHTML = html;
                 document.body.classList.add("showing-heading");
                 if (hchunk.metadata != undefined && hchunk.metadata.class != undefined)
@@ -290,7 +235,7 @@ export class UI {
             }
             else if (chunk.kind == ChunkKind.style) {
                 let style = chunk;
-                let article = document.querySelector("article");
+                let article = this.myArticle();
                 if (style.metadata != undefined && style.metadata.class != undefined)
                     article.classList.add(style.metadata.class);
                 if (style.metadata != undefined && style.metadata.style != undefined)
@@ -305,18 +250,82 @@ export class UI {
                 .replace(/ style\="visibility:hidden"/g, "")
                 .replace(/<span>/g, "")
                 .replace(/<\/span>/g, "");
-            var article = document.querySelector("article");
+            var article = this.myArticle();
             var div = document.createElement("div");
             div.innerHTML = html;
             var section = div.firstChild;
             article.appendChild(section);
         };
         this.clearBlurb = () => {
-            var article = document.querySelector("article");
+            var article = this.myArticle();
             article.innerHTML = "";
         };
+        this.render = () => {
+            return this.myLayout();
+        };
+        this.myLayout = () => {
+            return `
+<div class="game-body" style="display:none;">
+    <div class="wbg">
+        <div class="wbg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+</div>
+    
+<div class="game-story">
+    <div class="bg" style="display:none;">
+        <div class="bg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+        <div class="game">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    
+    <div class="story">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="goto-menu">
+                    <i class="icon ion-navicon-round"></i> 
+                </div>
+                <div class="title">
+                    <div class="title-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="story-inner">
+            <div class="content">
+                <article></article>
+            </div>
+            <div class="choice-panel">
+            </div>
+            <div class="modal">
+                <div class="modal-inner">
+                    <span></span>
+                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+                </div>
+            </div>
+            <div class="heading">
+                <div class="heading-inner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="story-window hidden">
+    </div>
+    
+    <div class="preloader">
+        <div class="loader-ring">
+            <div class="loader-ring-light"></div>
+            <div class="loader-ring-track"></div>
+        </div>
+    </div>
+</div>
+    `;
+        };
         this.setTitle = (title) => {
-            let inner = document.querySelector(".title-inner");
+            let inner = this.myTitleInner();
             if (inner.innerHTML != title) {
                 setTimeout(function () {
                     inner.innerHTML = title;
@@ -364,9 +373,9 @@ export class UI {
         this.changeWideBackground = (assetName, metadata) => {
             if (assetName == undefined)
                 return;
-            if (window.getComputedStyle(document.querySelector(".wbg")).display == "none")
+            if (window.getComputedStyle(this.myWbg()).display == "none")
                 return;
-            let bg = document.querySelector(".wbg-inner");
+            let bg = this.myWbgInner();
             let zero = bg.firstElementChild;
             assetName = encodeURIComponent(assetName);
             if (assetName.indexOf(".") == -1)
@@ -512,9 +521,6 @@ export class UI {
                 if (top < end)
                     setTimeout(scroll, 10);
             }, 10);
-        };
-        this.cliko = (quarantedeux) => {
-            console.log(`cliko ${quarantedeux}`);
         };
         UX = `${NS}.ux`;
     }

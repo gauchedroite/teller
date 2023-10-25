@@ -4,7 +4,7 @@ import { IBackground } from "../igame.js";
 import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
 import { NS } from "./story.js"
 
-let UX: string;
+let UX: string; // Replaces ${NS} for events
 
 
 export class UI implements IUI {
@@ -12,89 +12,35 @@ export class UI implements IUI {
     portrait = false;
     sections: Array<string> | undefined;
     previousSceneUrl: string | undefined;
+    
+
+    private myStoryInner() { return <HTMLElement>document.querySelector(".story-inner") }
+    private myModal() { return <HTMLElement>document.querySelector(".modal") }
+    private myModalInner() { return <HTMLElement>document.querySelector(".modal-inner") }
+    private myChoicePanel() { return <HTMLElement>document.querySelector(".choice-panel") }
+    private myArticle() { return <HTMLElement>document.querySelector("article") }
+    private myContent() { return <HTMLElement>document.querySelector(".content") }
+    private myHeading() { return <HTMLElement>document.querySelector(".heading") }
+    private myHeadingInner() { return <HTMLElement>document.querySelector(".heading-inner") }
+    private myTitleInner() { return <HTMLElement>document.querySelector(".title-inner") }
+    private myWbg() { return <HTMLElement>document.querySelector(".wbg") }
+    private myWbgInner() { return <HTMLElement>document.querySelector(".wbg-inner") }
+
 
     constructor () {
         UX = `${NS}.ux`
     }
 
-    private myLayout = () => {
-        return `
-<button type="button" onclick="${UX}.cliko(42)">42</button>
-
-    <div class="game-body" style="display:none;">
-    <div class="wbg">
-        <div class="wbg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-    </div>
-    </div>
-    
-    <div class="game-story">
-    <div class="bg" style="display:none;">
-        <div class="bg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-        <div class="game">
-            <iframe title="cheval"></iframe>
-        </div>
-    </div>
-    
-    <div class="story">
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="goto-menu">
-                    <i class="icon ion-navicon-round"></i> 
-                </div>
-                <div class="title">
-                    <div class="title-inner"></div>
-                </div>
-            </div>
-        </div>
-        <div class="story-inner">
-            <div class="content">
-                <article></article>
-            </div>
-            <div class="choice-panel">
-            </div>
-            <div class="modal">
-                <div class="modal-inner">
-                    <span></span>
-                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
-                </div>
-            </div>
-            <div class="heading">
-                <div class="heading-inner"></div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="story-window hidden">
-    </div>
-    
-    <div class="preloader">
-        <div class="loader-ring">
-            <div class="loader-ring-light"></div>
-            <div class="loader-ring-track"></div>
-        </div>
-    </div>
-    </div>
-    `
-    }
-
-    render = () => {
-        return this.myLayout()
-    }
 
     alertAsync = async (text: string, ready: boolean) => {
         document.body.classList.add("showing-alert");
 
-        let storyInner = <HTMLElement>document.querySelector(".story-inner");
-
-        let inner = <HTMLElement>document.querySelector(".modal-inner");
+        let storyInner = this.myStoryInner();
+        let inner = this.myModalInner();
         let panel = inner.querySelector("span")!;
         panel.innerHTML = "<p>" + text + "</p>";
 
-        let modal = <HTMLElement>document.querySelector(".modal");
+        let modal = this.myModal();
         modal.classList.add("show");
 
         const waitToMinimize = (e: any) => {
@@ -123,7 +69,7 @@ export class UI implements IUI {
     };
 
     showChoicesAsync = async (sceneChoices: Array<IChoice>) => {
-        let panel = <HTMLElement>document.querySelector(".choice-panel");
+        let panel = this.myChoicePanel();
         panel.innerHTML = "";
         let ul = document.createElement("ul");
         for (var i = 0; i < sceneChoices.length; i++) {
@@ -135,7 +81,7 @@ export class UI implements IUI {
             if (choice.kind == ChoiceKind.messageFrom) icon = "ion-chatbubble-working";
             icon = "ion-arrow-right-b";
 
-            let li = <HTMLLIElement>document.createElement("li");
+            let li = document.createElement("li");
             if (choice.metadata != undefined && choice.metadata.class != undefined) li.classList.add(choice.metadata.class);
             if (choice.metadata != undefined && choice.metadata.style != undefined) li.setAttribute("style", choice.metadata.style);
             li.setAttribute("data-kind", choice.kind.toString());
@@ -156,15 +102,15 @@ export class UI implements IUI {
 
         panel.style.top = "calc(100% - " + panel.offsetHeight + "px)";
 
-        let storyInner = <HTMLElement>document.querySelector(".story-inner");
+        let storyInner = this.myStoryInner();
         storyInner.classList.remove("minimized");
 
-        let article = <HTMLElement>document.querySelector("article");
+        let article = this.myArticle();
         article.style.marginBottom = panel.offsetHeight + "px";
         this.scrollContent(article.parentElement!);
 
         let me = this;
-        let lis = document.querySelectorAll(".choice-panel li");
+        let lis = this.myChoicePanel().querySelectorAll("li");
 
 
         let indexClicked: unknown = undefined;
@@ -197,15 +143,15 @@ export class UI implements IUI {
         document.body.classList.remove("showing-choices");
 
         // make sure the first blurb will be visible
-        var content = <HTMLElement>document.querySelector(".content");
-        let storyInner = <HTMLElement>document.querySelector(".story-inner");
+        var content = this.myContent();
+        let storyInner = this.myStoryInner();
         storyInner.scrollTop = content.offsetTop;
         //storyInner.style.height = "25%";
 
-        var panel = <HTMLElement>document.querySelector(".choice-panel");
+        var panel = this.myChoicePanel();
         panel.style.top = "100%";
 
-        var article = <HTMLElement>document.querySelector("article");
+        var article = this.myArticle();
         article.style.marginBottom = "0";
         article.setAttribute("style", "");
         
@@ -220,8 +166,8 @@ export class UI implements IUI {
 
     addBlurbAsync = async (chunk: IMomentData) => {
         let html = this.markupChunk(chunk);
-        let content = document.querySelector(".content")!;
-        let article = document.querySelector("article")!;
+        let content = this.myContent();
+        let article = this.myArticle();
         let div = document.createElement("div");
         div.innerHTML = html;
         let section = <HTMLDivElement>div.firstChild;
@@ -293,8 +239,8 @@ export class UI implements IUI {
         }
         else if (chunk.kind == ChunkKind.heading) {
             let hchunk = <IHeading>chunk;
-            let heading = <HTMLDivElement>document.querySelector(".heading");
-            let inner = <HTMLDivElement>document.querySelector(".heading-inner");
+            let heading = this.myHeading();
+            let inner = this.myHeadingInner();
             inner.innerHTML = html;
             document.body.classList.add("showing-heading");
             if (hchunk.metadata != undefined && hchunk.metadata.class != undefined) heading.classList.add(hchunk.metadata.class);
@@ -328,7 +274,7 @@ export class UI implements IUI {
         }
         else if (chunk.kind == ChunkKind.style) {
             let style = <IStyle>chunk;
-            let article = document.querySelector("article")!;
+            let article = this.myArticle();
             if (style.metadata != undefined && style.metadata.class != undefined) article.classList.add(style.metadata.class);
             if (style.metadata != undefined && style.metadata.style != undefined) article.setAttribute("style", style.metadata.style);
         }
@@ -342,7 +288,7 @@ export class UI implements IUI {
         	.replace(/ style\="visibility:hidden"/g, "")
             .replace(/<span>/g, "")
             .replace(/<\/span>/g, "");
-        var article = document.querySelector("article")!;
+        var article = this.myArticle();
         var div = document.createElement("div");
         div.innerHTML = html;
         var section = <HTMLDivElement>div.firstChild;
@@ -350,14 +296,80 @@ export class UI implements IUI {
     };
 
     clearBlurb = () => {
-        var article = <HTMLDivElement>document.querySelector("article");
+        var article = this.myArticle();
         article.innerHTML = "";
     };
 
+    render = () => {
+        return this.myLayout()
+    }
 
+
+
+    private myLayout = () => {
+        return `
+<div class="game-body" style="display:none;">
+    <div class="wbg">
+        <div class="wbg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+</div>
+    
+<div class="game-story">
+    <div class="bg" style="display:none;">
+        <div class="bg-inner">
+            <iframe title="cheval"></iframe>
+        </div>
+        <div class="game">
+            <iframe title="cheval"></iframe>
+        </div>
+    </div>
+    
+    <div class="story">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="goto-menu">
+                    <i class="icon ion-navicon-round"></i> 
+                </div>
+                <div class="title">
+                    <div class="title-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="story-inner">
+            <div class="content">
+                <article></article>
+            </div>
+            <div class="choice-panel">
+            </div>
+            <div class="modal">
+                <div class="modal-inner">
+                    <span></span>
+                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+                </div>
+            </div>
+            <div class="heading">
+                <div class="heading-inner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="story-window hidden">
+    </div>
+    
+    <div class="preloader">
+        <div class="loader-ring">
+            <div class="loader-ring-light"></div>
+            <div class="loader-ring-track"></div>
+        </div>
+    </div>
+</div>
+    `
+    }
 
     private setTitle = (title: string) => {
-        let inner = document.querySelector(".title-inner")!;
+        let inner = this.myTitleInner();
         if (inner.innerHTML != title) {
             setTimeout(function() {
                 inner.innerHTML = title;
@@ -406,9 +418,9 @@ export class UI implements IUI {
 
     private changeWideBackground = (assetName: string, metadata: IMetadata) => {
         if (assetName == undefined) return;
-        if (window.getComputedStyle(document.querySelector(".wbg")!).display == "none") return;
+        if (window.getComputedStyle(this.myWbg()).display == "none") return;
 
-        let bg = <HTMLDivElement>document.querySelector(".wbg-inner");
+        let bg = this.myWbgInner();
         let zero = <HTMLIFrameElement>bg.firstElementChild;
 
         assetName = encodeURIComponent(assetName);
@@ -559,9 +571,4 @@ export class UI implements IUI {
             if (top < end) setTimeout(scroll, 10);
         }, 10);
     };
-
-
-    cliko = (quarantedeux: number) => {
-        console.log(`cliko ${quarantedeux}`)
-    }
 }
