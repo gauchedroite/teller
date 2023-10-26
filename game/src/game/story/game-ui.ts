@@ -10,7 +10,7 @@ let UX: string; // Replaces ${NS} for events
 export class UI implements IUI {
 
     portrait = false;
-    sections: Array<string> | undefined;
+    sections: string[] | undefined;
     previousSceneUrl: string | undefined;
     
 
@@ -23,8 +23,8 @@ export class UI implements IUI {
     private myHeading() { return <HTMLElement>document.querySelector(".heading") }
     private myHeadingInner() { return <HTMLElement>document.querySelector(".heading-inner") }
     private myTitleInner() { return <HTMLElement>document.querySelector(".title-inner") }
-    private myWbg() { return <HTMLElement>document.querySelector(".wbg") }
-    private myWbgInner() { return <HTMLElement>document.querySelector(".wbg-inner") }
+    private myBg() { return <HTMLElement>document.querySelector(".bg") }
+    private myBgInner() { return <HTMLElement>document.querySelector(".bg-inner") }
 
 
     constructor () {
@@ -68,7 +68,7 @@ export class UI implements IUI {
         }
     };
 
-    showChoicesAsync = async (sceneChoices: Array<IChoice>) => {
+    showChoicesAsync = async (sceneChoices: IChoice[]) => {
         let panel = this.myChoicePanel();
         panel.innerHTML = "";
         let ul = document.createElement("ul");
@@ -174,10 +174,7 @@ export class UI implements IUI {
 
         if (chunk.kind == ChunkKind.background) {
             let bg = <IBackground>chunk;
-            if (bg.wide)
-                this.changeWideBackground(bg.asset, bg.metadata);
-            else
-                return this.changeBackgroundAsync(bg.asset, bg.metadata);
+            return this.changeBackgroundAsync(bg.asset, bg.metadata);
         }
         else if (chunk.kind == ChunkKind.inline) {
             let inline = <IInline>chunk;
@@ -252,7 +249,7 @@ export class UI implements IUI {
         }
         else if (chunk.kind == ChunkKind.doo) {
             let doo = <IDo>chunk;
-            let choices = Array<IChoice>();
+            let choices: IChoice[] = [];
             choices.push(<IChoice> { 
                 kind: ChoiceKind.action,
                 id: 0,
@@ -296,8 +293,7 @@ export class UI implements IUI {
     };
 
     clearBlurb = () => {
-        var article = this.myArticle();
-        article.innerHTML = "";
+        this.myArticle().innerHTML = "";
     };
 
     render = () => {
@@ -308,25 +304,14 @@ export class UI implements IUI {
 
     private myLayout = () => {
         return `
-<div class="game-body" style="display:none;">
-    <div class="wbg">
-        <div class="wbg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-    </div>
-</div>
-    
-<div class="game-story">
-    <div class="bg" style="display:none;">
+<div class="game-story full-viewport">
+    <div class="bg full-viewport">
         <div class="bg-inner">
-            <iframe title="cheval"></iframe>
-        </div>
-        <div class="game">
-            <iframe title="cheval"></iframe>
+            <iframe></iframe>
         </div>
     </div>
     
-    <div class="story">
+    <div class="story full-viewport">
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="goto-menu">
@@ -354,10 +339,7 @@ export class UI implements IUI {
             </div>
         </div>
     </div>
-    
-    <div class="story-window hidden">
-    </div>
-    
+
     <div class="preloader">
         <div class="loader-ring">
             <div class="loader-ring-light"></div>
@@ -379,73 +361,43 @@ export class UI implements IUI {
         }
     };
 
-    private changeBackgroundAsync = (assetName: string, metadata: IMetadata | undefined) => {
-        return Promise.resolve();
-        /*
-        if (assetName == undefined) return callback();
-        if (window.getComputedStyle(document.querySelector(".bg")!).display == "none") return callback();
+    private changeBackgroundAsync = async (assetName: string, metadata: IMetadata | undefined) => {
+        if (assetName == undefined) return Promise.resolve();
+        if (window.getComputedStyle(this.myBg()).display == "none") return Promise.resolve();
 
-        let bg = <HTMLDivElement>document.querySelector(".bg-inner");
+        let bg = this.myBgInner();
         let zero = <HTMLIFrameElement>bg.firstElementChild;
 
         assetName = encodeURIComponent(assetName);
         if (assetName.indexOf(".") == -1) assetName += ".jpg";
 
-        let sceneUrl = `game/teller-image.html?${assetName}`;
+        let sceneUrl = `teller-image.html?${assetName}`;
         if (assetName.endsWith(".html")) sceneUrl = `game/${assetName}`;
             
-        if (zero.src.endsWith(sceneUrl)) return callback();
+        if (zero.src.endsWith(sceneUrl)) return Promise.resolve();
+
 
         document.body.classList.add("change-bg");
 
+        let one = document.createElement("iframe");
+        if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
+        if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
+        bg.appendChild(one);
+        one.setAttribute("src", sceneUrl);
+        one.title = "BG";
+
+
         (<any>window).eventHubAction = (result: any) => {
-            if (result.asset == assetName && result.content == "ready") {
-                setTimeout(function() {
-                    document.body.classList.remove("change-bg");
-                    bg.removeChild(zero);
-                    callback();
-                }, 250);
-            }
+            if (result.asset == assetName && result.content == "ready")
+                hubActionDone = true;
         };
 
-        let one = document.createElement("iframe");
-        if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
-        if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
-        bg.appendChild(one);
-        one.setAttribute("src", sceneUrl);
-        */
-    };
+        let hubActionDone: unknown = undefined;
+        await waitforValueAsync(() => hubActionDone)
+        await waitforMsecAsync(250)
 
-    private changeWideBackground = (assetName: string, metadata: IMetadata) => {
-        if (assetName == undefined) return;
-        if (window.getComputedStyle(this.myWbg()).display == "none") return;
-
-        let bg = this.myWbgInner();
-        let zero = <HTMLIFrameElement>bg.firstElementChild;
-
-        assetName = encodeURIComponent(assetName);
-        if (assetName.indexOf(".") == -1) assetName += ".jpg";
-
-        let sceneUrl = `game/teller-image.html?${assetName}`;
-        if (assetName.endsWith(".html")) sceneUrl = `game/${assetName}`;
-            
-        if (zero.src.endsWith(sceneUrl)) return;
-
-        document.body.classList.add("change-wbg");
-
-        // (<any>window).eventHubAction = (result: any) => {
-        //     if (result.asset == assetName && result.content == "ready") {
-        //         document.body.classList.remove("change-wbg");
-        //         bg.removeChild(zero);
-        //         callback();
-        //     }
-        // };
-
-        let one = document.createElement("iframe");
-        if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
-        if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
-        bg.appendChild(one);
-        one.setAttribute("src", sceneUrl);
+        document.body.classList.remove("change-bg");
+        bg.removeChild(zero);
     };
 
     private runMinigameAsync = async (chunk: IMiniGame) => {
@@ -485,7 +437,7 @@ export class UI implements IUI {
             }
         });
 
-        let choices = Array<IChoice>();
+        let choices: IChoice[] = [];
         choices.push(<IChoice> { 
             kind: ChoiceKind.action,
             id: 0,
@@ -507,7 +459,7 @@ export class UI implements IUI {
     };
 
     private markupChunk = (chunk: IMomentData): string => {
-        let html = Array<string>();
+        let html: string[] = [];
 
         if (chunk.kind == ChunkKind.text) {
             let text = <IText>chunk;
@@ -532,7 +484,7 @@ export class UI implements IUI {
                 html.push(`<h2>${dialog.parenthetical}</h2>`);
 
             for (var line of dialog.lines) {
-                var spans = Array.prototype.map.call(line, function (char:any) {
+                var spans = [].map.call(line, function (char:any) {
                     return `<span style='visibility:hidden'>${char}</span>`;
                 })
                 html.push(`<p>${spans.join("")}</p>`);

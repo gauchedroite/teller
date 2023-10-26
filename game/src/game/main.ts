@@ -19,10 +19,8 @@ export const startup = () => {
 
 export const render = () => {
     return `
-<div>
 ${home.render()}
 ${story.render()}
-</div>
 `
 }
 

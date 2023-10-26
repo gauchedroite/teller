@@ -19,21 +19,14 @@ export const ux = ui;
 
 const myLayout = (uirender: string) => {
     return `
-<div style="width:100vw; xheight:100vh; background-color:whitesmoke;">
-    <a href="#/">Home</a><br>
-</div>
-${uirender}
+    ${uirender}
 `
 }
-
-
 
 export const fetch = (args: string[] | undefined) => {
     App.prepareRender(NS, "Story")
     App.render()
 }
-
-
 
 export const render = () => {
     if (!App.inContext(NS)) return ""

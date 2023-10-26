@@ -1,3 +1,12 @@
+@import "./_reset.css";
+@import "./preloaders.css";
 @import "./home.css";
 @import "./editor.css";
 @import "./story.css";
+
+
+.full-viewport {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
