@@ -74,7 +74,13 @@ const mySelectRow = (label: string, url: string, disabled = false, text: string 
 
 const layoutCol_Game = () => {
     return `
-    <div class="content-block-title">Game Info</div>
+    <div class="content-block-title">
+        <div>Game Info</div>
+        <div>
+            <a href="#/"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
+            <a href="#/story"><i title="Game" class="fa-regular fa-gamepad-modern"></i></i></a>
+        </div>
+    </div>
     <div class="list-block">
         <ul>
             <li>${myInputRow("game_name", state.game.name, "Name", "Game name", )}</li>
@@ -301,7 +307,7 @@ const pageLayout = (map: Map<string, string>, modal: string) => {
     ${pages.join("")}
 </div>
 ${modal}
-    `
+`
 }
 
 
@@ -368,7 +374,7 @@ const refresh = () => {
 }
 
 export const fetch = (args: string[] | undefined) => {
-    App.prepareRender(NS, "Editor");
+    App.prepareRender(NS, "Editor", "game_editor");
     Router.registerDirtyExit(null);
     fetchState(args)
         .then(App.render)

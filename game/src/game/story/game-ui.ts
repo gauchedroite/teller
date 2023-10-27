@@ -320,64 +320,62 @@ export class UI implements IUI {
 
     private myLayout = () => {
         return `
-<div class="game-story">
-    <div class="solid">
-        <div class="solid-inner">
-            <div class="graphics">
-                <iframe></iframe>
-            </div>
-            <div class="graphics">
-                <iframe></iframe>
-            </div>
-            <div class="graphics game">
-                <iframe></iframe>
-            </div>
-            <div class="graphics fader"></div>
+<div class="solid">
+    <div class="solid-inner">
+        <div class="graphics">
+            <iframe></iframe>
         </div>
+        <div class="graphics">
+            <iframe></iframe>
+        </div>
+        <div class="graphics game">
+            <iframe></iframe>
+        </div>
+        <div class="graphics fader"></div>
     </div>
+</div>
 
-    <div class="story">
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="goto-menu">
-                    <i class="fa-solid fa-bars"></i>
-                </div>
-                <div class="title">
-                    <div class="title-inner"></div>
-                </div>
+<div class="story">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="goto-menu">
+                <a href="#/"><i class="fa-solid fa-bars"></i></a>
             </div>
-        </div>
-        <div class="next">
-            <div class="next-inner">
-                <i class="fa-solid fa-caret-down"></i>
-            </div>
-        </div>
-        <div class="story-inner">
-            <div class="content">
-                <div class="content-inner"></div>
-            </div>
-            <div class="choice-panel">
-            </div>
-            <div class="modal">
-                <div class="modal-inner">
-                    <span></span>
-                    <div class="minimizer"><i class="fa-solid fa-caret-down"></i></div>
-                </div>
-            </div>
-            <div class="heading">
-                <div class="heading-inner"></div>
+            <div class="title">
+                <div class="title-inner"></div>
             </div>
         </div>
     </div>
-
-    <div class="story-window hidden">
-    </div>
-
-    <div class="preloader">
-        <div class="preloader-inner">
-            <div class="bounce1"></div>
-            <div class="bounce2"></div>
+    <div class="next">
+        <div class="next-inner">
+            <i class="fa-solid fa-caret-down"></i>
         </div>
+    </div>
+    <div class="story-inner">
+        <div class="content">
+            <div class="content-inner"></div>
+        </div>
+        <div class="choice-panel">
+        </div>
+        <div class="modal">
+            <div class="modal-inner">
+                <span></span>
+                <div class="minimizer"><i class="fa-solid fa-caret-down"></i></div>
+            </div>
+        </div>
+        <div class="heading">
+            <div class="heading-inner"></div>
+        </div>
+    </div>
+</div>
+
+<div class="story-window hidden">
+</div>
+
+<div class="preloader">
+    <div class="preloader-inner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
     </div>
 </div>
 `

@@ -12,7 +12,8 @@ let runner: WebglRunner | undefined = undefined;
 
 const myLayout = () => {
     return `
-<div style="position:absolute;">
+<canvas id="canvas" class="full-viewport"></canvas>
+<div id="game_menu">
     <a href="#/story" style="color:whitesmoke;">Continuer</a><br>
     <a href="#/story/new" style="color:whitesmoke;">Nouvelle partie</a><br>
     <a href="#/editor" style="color:whitesmoke;">Editeur</a><br>
@@ -94,11 +95,7 @@ const fragmentShader = () => {
 
 
 export const fetch = (args: string[] | undefined) => {
-    App.prepareRender(NS, "Home")
-    // Router.registerDirtyExit(null)
-    // fetchState(args)
-    //     .then(App.render)
-    //     .catch(App.render)
+    App.prepareRender(NS, "Home", "game_home")
     App.render()
 }
 

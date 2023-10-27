@@ -20,7 +20,7 @@ const myLayout = () => {
 
 
 export const fetch = (args: string[] | undefined) => {
-    App.prepareRender(NS, "IDE")
+    App.prepareRender(NS, "IDE", "game_ide")
     // Router.registerDirtyExit(null)
     // fetchState(args)
     //     .then(App.render)
