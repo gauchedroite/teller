@@ -488,19 +488,19 @@
         background-color: rgba(255, 255, 255, 0.2);
         border: 8px solid rgba(0, 0, 0, 0.075);
         transition: left 0.15s;
-    }
 
-    .next .next-inner {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 64px;
-        color: rgba(0, 0, 0, 0.075);
-    }
+        .next-inner {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 64px;
+            color: rgba(0, 0, 0, 0.075);
+        }
 
-    .next.hidden {
-        left: -10%;
+        &.hidden {
+            left: -10%;
+        }
     }
 
     .story-inner {
@@ -513,92 +513,100 @@
         border-top: 4px solid rgba(255, 255, 255, 0.5);
         background-color: rgba(255, 255, 255, 0.2);
         transition: height 0.15s, border 0.15s, background 0.15s;
+
+        .content {
+            transition: top 0.2s 0.1s;
+        }
+
+        &.minimized {
+            border-top: 4px solid rgba(255, 255, 255, 0);
+            background-color: rgba(255, 255, 255, 0);
+
+            .content {
+                top: 100%;
+            }
+
+            .modal {
+                height: initial;
+                top: initial;
+                bottom: 0;
+                font-size: inherit;
+
+                .modal-inner {
+                    width: inherit;
+                    padding: 8px 52px 8px 8px;
+                    background-color: rgba(255, 255, 255, 0.5);
+                    border-radius: inherit;
+                }
+
+                .minimizer {
+                    right: 2px;
+                    transform: rotate(180deg) scale(0.75);
+                    background-color: #ccc;
+                }
+            }
+        }
     }
 
-    .story-inner .content {
-        transition: top 0.2s 0.1s;
+
+    &.desktop {
+        .next {
+            display: none;
+        }
+
+        .story-inner {
+            left: 1%;
+        }
     }
 
-    .story-inner.minimized {
-        border-top: 4px solid rgba(255, 255, 255, 0);
-        background-color: rgba(255, 255, 255, 0);
+    &.disabled {
+        .solid {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .story-inner {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     }
 
-    .story-inner.minimized .content {
-        top: 100%;
+    &.show-game {
+        .game {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .story-inner {
+            height: 42px;
+            opacity: 0;
+        }
+
+        .navbar-inner .title {
+            opacity: 0;
+        }
+
+        .story-window {
+            opacity: 0;
+        }
     }
 
-    .story-inner.minimized .modal {
-        height: initial;
-        top: initial;
-        bottom: 0;
-        font-size: inherit;
-    }
+    &.change-bg {
+        .fader {
+            z-index: 3;
+            opacity: 0.35;
+        }
 
-    .story-inner.minimized .modal .modal-inner {
-        width: inherit;
-        padding: 8px 52px 8px 8px;
-        background-color: rgba(255, 255, 255, 0.5);
-        border-radius: inherit;
-    }
-
-    .story-inner.minimized .modal .minimizer {
-        right: 2px;
-        transform: rotate(180deg) scale(0.75);
-        background-color: #ccc;
-    }
-
-
-    &.desktop .next {
-        display: none;
-    }
-
-    &.desktop .story-inner {
-        left: 1%;
-    }
-
-    &.disabled .solid {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    &.disabled .next {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    &.disabled .story-inner {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    &.show-game .game {
-        opacity: 1;
-        z-index: 2;
-    }
-
-    &.show-game .story-inner {
-        height: 42px;
-        opacity: 0;
-    }
-
-    &.show-game .navbar-inner .title {
-        opacity: 0;
-    }
-
-    &.show-game .story-window {
-        opacity: 0;
-    }
-
-    &.change-bg .fader {
-        z-index: 3;
-        opacity: 0.35;
-    }
-
-    &.change-bg .preloader {
-        z-index: 30;
-        opacity: 1;
-        transition-delay: 1s;
+        .preloader {
+            z-index: 30;
+            opacity: 1;
+            transition-delay: 1s;
+        }
     }
 }
 
