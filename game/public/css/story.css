@@ -239,98 +239,98 @@
         border-top: 3px solid #333;
         background: rgba(255, 255, 255, 0.35);
         transition: top 0.25s;
-    }
 
-    .choice-panel.disabled {
-        opacity: 0.5;
-    }
+        &.disabled {
+            opacity: 0.5;
+        }
 
-    .choice-panel.disabled ul li {
-        cursor: default;
-    }
+        &.disabled ul li {
+            cursor: default;
+        }
 
-    .choice-panel ul {
-        padding: 32px;
-        font-size: large;
-        list-style: none;
-    }
+        & ul {
+            padding: 32px;
+            font-size: large;
+            list-style: none;
 
-    .choice-panel ul li {
-        padding-bottom: 22px;
-        cursor: pointer;
-    }
+            & li {
+                padding-bottom: 22px;
+                cursor: pointer;
 
-    .choice-panel ul li.hidden {
-        opacity: 0.5;
-        transform: scale(0.5);
-    }
+                &.hidden {
+                    opacity: 0.5;
+                    transform: scale(0.5);
+                }
 
-    .choice-panel ul li.selected {
-        animation: blink 0.1s ease 4;
-    }
+                &.selected {
+                    animation: blink 0.1s ease 4;
+                }
 
-    .choice-panel ul li:nth-child(1) {
-        transition: opacity 0.5s, transform 0.5s;
-    }
+                &:nth-child(1) {
+                    transition: opacity 0.5s, transform 0.5s;
+                }
 
-    .choice-panel ul li:nth-child(2) {
-        transition: opacity 0.5s 0.1s, transform 0.5s 0.1s;
-    }
+                &:nth-child(2) {
+                    transition: opacity 0.5s 0.1s, transform 0.5s 0.1s;
+                }
 
-    .choice-panel ul li:nth-child(3) {
-        transition: opacity 0.5s 0.2s, transform 0.5s 0.2s;
-    }
+                &:nth-child(3) {
+                    transition: opacity 0.5s 0.2s, transform 0.5s 0.2s;
+                }
 
-    .choice-panel ul li:nth-child(4) {
-        transition: opacity 0.5s 0.3s, transform 0.5s 0.3s;
-    }
+                &:nth-child(4) {
+                    transition: opacity 0.5s 0.3s, transform 0.5s 0.3s;
+                }
 
-    .choice-panel ul li:nth-child(5) {
-        transition: opacity 0.5s 0.4s, transform 0.5s 0.4s;
-    }
+                &:nth-child(5) {
+                    transition: opacity 0.5s 0.4s, transform 0.5s 0.4s;
+                }
 
-    .choice-panel ul li:last-child {
-        padding-bottom: 10px;
-    }
+                &:last-child {
+                    padding-bottom: 10px;
+                }
+            }
 
-    .choice-panel ul .kind {
-        font-size: larger;
-        width: 32px;
-        height: 32px;
-        float: left;
-        border-radius: 50%;
-        border: 2px solid black;
-        background-color: #ffffff;
-        text-align: center;
-        transform: translateY(-6px);
-    }
+            .kind {
+                font-size: larger;
+                width: 32px;
+                height: 32px;
+                float: left;
+                border-radius: 50%;
+                border: 2px solid black;
+                background-color: #ffffff;
+                text-align: center;
+                transform: translateY(-6px);
 
-    .choice-panel ul .kind i {
-        width: 32px;
-        height: 32px;
-    }
+                & i {
+                    width: 32px;
+                    height: 32px;
+                }
 
-    .choice-panel ul .kind>div {
-        width: 32px;
-        padding-top: 5px;
-    }
+                &>div {
+                    width: 32px;
+                    padding-top: 5px;
+                }
+            }
 
-    .choice-panel ul .choice {
-        margin-left: 56px;
-    }
+            .choice {
+                margin-left: 56px;
+            }
 
-    .choice-panel ul .subtext {
-        font-size: smaller;
-    }
+            .subtext {
+                font-size: smaller;
+            }
+        }
 
-    .choice-panel:before {
-        content: "";
-        width: 100%;
-        height: 3px;
-        position: absolute;
-        top: 0;
-        background-color: #ffffff;
-        border-bottom: 3px solid #333;
+        &:before {
+            content: "";
+            width: 100%;
+            height: 3px;
+            position: absolute;
+            top: 0;
+            background-color: #ffffff;
+            border-bottom: 3px solid #333;
+        }
     }
 
 
