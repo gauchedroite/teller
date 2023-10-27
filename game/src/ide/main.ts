@@ -1,4 +1,3 @@
-"use strict"
 
 import * as router from "../core/router.js"
 import * as ide from "./ide.js"

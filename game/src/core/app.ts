@@ -1,5 +1,4 @@
 ﻿// @ts-nocheck
-"use strict"
 
 import { reviver, replacer } from "./misc.js"
 

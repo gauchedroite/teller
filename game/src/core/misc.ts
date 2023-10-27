@@ -1,5 +1,4 @@
 ﻿// @ts-nocheck
-"use strict"
 
 declare const Toastify: any;
 declare const i18n: any;

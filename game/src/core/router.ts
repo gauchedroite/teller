@@ -1,7 +1,4 @@
-﻿// @ts-nocheck
-"use strict"
-
-
+﻿
 interface IRoute {
     url: string
     callback: (params?: string[]) => void
@@ -11,7 +8,7 @@ let router: IRoute[] = [];
 
 let reverting = false;
 let resumeTo: string;
-let dirtyExit: () => boolean;
+let dirtyExit: (() => boolean) | null;
 let onHashChange: (hash: string) => void;
 let beforeCallback: () => Promise<void>;
 
@@ -92,7 +89,7 @@ const hashChange = async () => {
                 if (beforeCallback)
                     await beforeCallback();
 
-                let parameters = new RegExp(route.url).exec(hash);
+                let parameters = new RegExp(route.url).exec(hash)!;
                 if (parameters.length < 2 || parameters[1] == undefined)
                     route.callback([]);
                 else
