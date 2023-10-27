@@ -77,18 +77,18 @@ export class UI implements IUI {
         for (var i = 0; i < sceneChoices.length; i++) {
             let choice = sceneChoices[i];
 
-            var icon: string = "ion-ios-location";
-            if (choice.kind == ChoiceKind.action) icon = "ion-flash";
-            if (choice.kind == ChoiceKind.messageTo) icon = "ion-android-person";
-            if (choice.kind == ChoiceKind.messageFrom) icon = "ion-chatbubble-working";
-            icon = "ion-arrow-right-b";
+            var icon: string = "fa-light fa-location-dot";
+            if (choice.kind == ChoiceKind.action) icon = "fa-light fa-bolt-lightning";
+            if (choice.kind == ChoiceKind.messageTo) icon = "fa-light fa-user";
+            if (choice.kind == ChoiceKind.messageFrom) icon = "fa-light fa-message-dots";
+            icon = "fa-solid fa-arrow-right";
 
             let li = document.createElement("li");
             li.setAttribute("data-kind", choice.kind.toString());
             li.setAttribute("data-id", choice.id.toString());
             li.classList.add("hidden");
             let html = `
-                <div class="kind"><div><i class="icon ${icon}"></i></div></div>
+                <div class="kind"><div><i class="${icon}"></i></div></div>
                 <div class="choice">${choice.text}</div>`;
             if (choice.subtext != undefined) {
                 html = `${html}<div class="choice subtext">${choice.subtext}</div>`;                
@@ -338,7 +338,7 @@ export class UI implements IUI {
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="goto-menu">
-                    <i class="icon ion-navicon-round"></i> 
+                    <i class="fa-solid fa-bars"></i>
                 </div>
                 <div class="title">
                     <div class="title-inner"></div>
@@ -347,7 +347,7 @@ export class UI implements IUI {
         </div>
         <div class="next">
             <div class="next-inner">
-                <i class="icon ion-arrow-down-b"></i> 
+                <i class="fa-solid fa-caret-down"></i>
             </div>
         </div>
         <div class="story-inner">
@@ -359,7 +359,7 @@ export class UI implements IUI {
             <div class="modal">
                 <div class="modal-inner">
                     <span></span>
-                    <div class="minimizer"><i class="ion ion-arrow-down-b"></i></div>
+                    <div class="minimizer"><i class="fa-solid fa-caret-down"></i></div>
                 </div>
             </div>
             <div class="heading">
