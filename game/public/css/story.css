@@ -20,20 +20,20 @@
         height: 100%;
         display: block;
         transition: opacity 0.75s;
-    }
 
-    .graphics iframe {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
-        width: 100%;
-        height: 100%;
-    }
+        & iframe {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
 
-    .graphics.game {
-        opacity: 0;
-        z-index: 0;
+        .game {
+            opacity: 0;
+            z-index: 0;
+        }
     }
 
     .story {
@@ -54,47 +54,47 @@
         z-index: 10;
         font-size: x-large;
         pointer-events: auto;
-    }
 
-    .navbar .navbar-inner {
-        width: 100%;
-        bottom: 0;
-        display: flex;
-    }
+        .navbar-inner {
+            width: 100%;
+            bottom: 0;
+            display: flex;
+        }
 
-    .navbar .navbar-inner div.title {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-    }
+        .navbar-inner div.title {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
 
-    .navbar .navbar-inner div.title .title-inner {
-        position: absolute;
-        top: 0;
-        left: 0;
-        cursor: default;
-        padding: 6px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-family: "Montserrat", sans-serif;
-        font-weight: bolder;
-        font-size: larger;
-        letter-spacing: 0.1em;
-        text-shadow: rgba(255, 255, 255, 0.25) -1px 1px 1px, rgba(255, 255, 255, 0.25) 1px -1px 1px, rgba(255, 255, 255, 0.25) -1px -1px 1px, rgba(255, 255, 255, 0.25) 1px 1px 1px;
-        transition: top 0.5s;
-    }
+        .navbar-inner div.title .title-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: default;
+            padding: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: "Montserrat", sans-serif;
+            font-weight: bolder;
+            font-size: larger;
+            letter-spacing: 0.1em;
+            text-shadow: rgba(255, 255, 255, 0.25) -1px 1px 1px, rgba(255, 255, 255, 0.25) 1px -1px 1px, rgba(255, 255, 255, 0.25) -1px -1px 1px, rgba(255, 255, 255, 0.25) 1px 1px 1px;
+            transition: top 0.5s;
+        }
 
-    .navbar .navbar-inner div.title .title-inner.out {
-        top: -100%;
-    }
+        .navbar-inner div.title .title-inner.out {
+            top: -100%;
+        }
 
-    .navbar .navbar-inner div.goto-menu {
-        padding: 8px;
-        cursor: pointer;
-        background: rgba(255, 255, 255, 0.5);
-        margin-right: 8px;
-        border: 2px solid rgba(0, 0, 0, 0.5);
+        .navbar-inner div.goto-menu {
+            padding: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.5);
+            margin-right: 8px;
+            border: 2px solid rgba(0, 0, 0, 0.5);
+        }
     }
 
     .story .content .content-inner {
@@ -124,112 +124,112 @@
         overflow: scroll;
         -ms-overflow-style: none;
         transition: opacity 0.25s;
-    }
 
-    .content::-webkit-scrollbar {
-        display: none;
-    }
+        &::-webkit-scrollbar {
+            display: none;
+        }
 
-    .content .content-inner {
-        padding: 16px 0;
-        line-height: 1.4em;
-    }
+        .content-inner {
+            padding: 16px 0;
+            line-height: 1.4em;
+        }
 
-    .content .content-inner p {
-        padding-bottom: 12px;
-    }
+        .content-inner p {
+            padding-bottom: 12px;
+        }
 
-    .content.overlay {
-        opacity: 0.5;
-        transition: opacity 0.25s;
+        &.overlay {
+            opacity: 0.5;
+            transition: opacity 0.25s;
+        }
     }
 
     .section {
         font-size: large;
         padding: 8px 0;
-    }
 
-    .section.text {
-        padding: 8px 24px;
-    }
+        &.text {
+            padding: 8px 24px;
 
-    .section.text p {
-        padding-bottom: 12px;
-    }
+            & p {
+                padding-bottom: 12px;
+            }
+        }
 
-    .section.dialog {
-        position: relative;
-        padding: 8px 24px;
-    }
+        &.dialog {
+            position: relative;
+            padding: 8px 24px;
 
-    .section.dialog .head-placeholder,
-    .section.dialog .head {
-        position: absolute;
-        width: 75px;
-        height: 75px;
-        top: 0;
-        left: 40px;
-        background: #c4c4c4;
-        border-radius: 40px;
-    }
+            .head-placeholder,
+            .head {
+                position: absolute;
+                width: 75px;
+                height: 75px;
+                top: 0;
+                left: 40px;
+                background: #c4c4c4;
+                border-radius: 40px;
+            }
 
-    .section.dialog .head {
-        background: white;
-        transform: scale(0);
-        transition: all 0.15s;
-    }
+            .head {
+                background: white;
+                transform: scale(0);
+                transition: all 0.15s;
+            }
 
-    .section.dialog .head.show {
-        transform: scale(1);
-    }
+            .head.show {
+                transform: scale(1);
+            }
 
-    .section.dialog .text {
-        margin-left: 105px;
-    }
+            .text {
+                margin-left: 105px;
+            }
 
-    .section.dialog .text p {
-        margin: 0 10%;
-    }
+            .text p {
+                margin: 0 10%;
+            }
 
-    .section.dialog h1 {
-        text-align: center;
-        text-transform: uppercase;
-        font-weight: bold;
-        padding-bottom: 8px;
-    }
+            & h1 {
+                text-align: center;
+                text-transform: uppercase;
+                font-weight: bold;
+                padding-bottom: 8px;
+            }
 
-    .section.dialog h2 {
-        text-align: center;
-    }
+            & h2 {
+                text-align: center;
+            }
 
-    .section.dialog p {
-        margin: 0 17%;
-        padding-bottom: 12px;
-    }
+            & p {
+                margin: 0 17%;
+                padding-bottom: 12px;
+            }
+        }
 
-    .section.result {
-        padding: 8px 24px;
-    }
+        &.result {
+            padding: 8px 24px;
 
-    .section.result p {
-        padding-bottom: 12px;
-        font-style: italic;
-    }
+            & p {
+                padding-bottom: 12px;
+                font-style: italic;
+            }
+        }
 
-    .section.image {
-        position: relative;
-        padding: 8px 0;
-        height: 150px;
-        width: 100%;
-        background-color: #bbb;
-    }
+        &.image {
+            position: relative;
+            padding: 8px 0;
+            height: 150px;
+            width: 100%;
+            background-color: #bbb;
 
-    .section.image div {
-        width: 100%;
-        height: 0;
-        transition: height 0.25s;
-        background: no-repeat center center;
-        background-size: cover;
+            & div {
+                width: 100%;
+                height: 0;
+                transition: height 0.25s;
+                background: no-repeat center center;
+                background-size: cover;
+            }
+        }
     }
 
     .choice-panel {
