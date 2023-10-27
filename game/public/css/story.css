@@ -6,41 +6,384 @@
 
 #gstory {
 
-    width: 100vw;
-    height: 100vh;
-
-    font-family: -apple-system, SF UI Text, Helvetica Neue, Helvetica, Arial, sans-serif;
-    padding: 0;
-    margin: 0;
-    line-height: 1.4;
-
-    background-color:whitesmoke;
-
     *::-webkit-scrollbar { display: none; }
 
-    & iframe {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
-        width: 100vw;
-        height: 100vh;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+
+    font-family: "Roboto Slab", serif;
+    color: rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    background-color: black;
+    user-select: none;
+
+    .solid {
+        position: absolute;
+        width: 100%;
+        top: 40px;
+        height: calc(70% - 40px);
+    }
+    
+    .graphics {
+        position: absolute;
+        width: 100%;
+        height: 100%;
         display: block;
-    }
+        transition: opacity 0.75s ease;
 
-    .story {
-        color: #888;
-    }
-
-    &.change-bg {
-        .bg {
-            & iframe {
-                opacity: 0;
+        & iframe {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        &.game {
+            opacity: 0;
+            z-index: 0;
+            &.show {
+                opacity: 1;
+                z-index: 2;
             }
         }
-        /* .preloader {
-            opacity: 1;
-            transition: opacity 0.5s 1.5s;
-        } */
     }
+    
+    .story {
+        z-index: 10;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .navbar {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        z-index: 10;
+        font-size: x-large;
+        background-color: #aaa;
+    
+        .navbar-inner {
+            width: 100%;
+            height: 100%;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+    
+            & div.title {
+                width: 100%;
+                cursor: default;
+                padding: 8px;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                background: rgba(255, 255, 255, 0.2);
+            }
+        }
+    
+        .drawer {
+            position: absolute;
+            width: 18px;
+            left: calc(100% - 18px);
+            transition: all 0.25s ease;
+    
+            & div.drawer-inner {
+                font-size: 32px;
+                padding: 3px;
+                transition: all 0.25s ease;
+            }
+        }
+    }
+    
+    .closed {
+        .drawer {
+            left: 0;
+            & div.drawer-inner {
+                transform: scaleX(-1);
+            }
+        }
+        .solid {
+            pointer-events: none;
+        }
+        .story-inner {
+            pointer-events: none;
+        }
+    }
+    
+    .story-inner {
+        position: absolute;
+        overflow: hidden;
+        background-color: #aaa;
+    }
+    
+    .content {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        cursor: default;
+        overflow: scroll;
+        &::-webkit-scrollbar { display: none; }
+
+        .content-inner {
+            padding: 16px 0;
+            line-height: 1.4em;
+            p {
+                padding-bottom: 12px;
+            }
+        }
+
+        &.overlay {
+            opacity: 0.5;
+            transition: opacity 0.25s ease; 
+        }
+
+        transition: opacity 0.25s ease; 
+    }
+    
+    & section {
+        font-size: large;
+        padding: 8px 0;
+        &.text {
+            padding: 8px 24px;
+            & p {
+                padding-bottom: 12px;
+            }
+        }
+        &.dialog {
+            position: relative;
+            padding: 8px 24px;
+            .head-placeholder, .head {
+                position: absolute;
+                width: 75px;
+                height: 75px;
+                top: 0;
+                left: 40px;
+                background: #c4c4c4;
+                border-radius: 40px;
+            }
+            .head {
+                background: white;
+                transform: scale(0);
+                transition: all 0.15s ease;
+                &.show {
+                    transform: scale(1);
+                }
+            }
+            .text {
+                margin-left: 105px;
+                p {
+                    margin: 0 10%;
+                }
+            }
+            & h1 {
+                text-align: center;
+                text-transform: uppercase;
+                font-weight: bold;
+                padding-bottom: 8px;
+            }
+            & h2 {
+                text-align: center;
+            }
+            & p {
+                margin: 0 17%;
+                padding-bottom: 12px;
+            }
+        }
+        &.result {
+            padding: 8px 24px;
+            & p {
+                padding-bottom: 12px;
+                font-style: italic;
+            }
+        }
+        &.image {
+            position: relative;
+            padding: 8px 0;
+            height: 150px;
+            width: 100%;
+            background-color: #bbb;
+
+            & div {
+                width: 100%;
+                height: 0;
+                transition: height 0.25s ease; 
+                background: no-repeat center center;
+                background-size: cover;
+            }
+        }
+    }
+    
+    .choice-panel {
+        position: absolute;
+        width: 100%;
+        top: 100%;
+        border-top: 3px solid var(--story-seperator-color);
+        background: #ffffff; /*url(game/assets/ignasi_pattern_s.png);*/
+        transition: top 0.25s ease; 
+
+        &.disabled {
+            opacity: 0.5;
+            & ul li {
+                cursor: default;
+            }
+        }
+        & ul {
+            padding: 32px;
+            font-size: large;
+            list-style: none;
+            & li {
+                padding-bottom: 22px;
+                cursor: pointer;
+            }
+            & li:last-child {
+                padding-bottom: 10px;
+            }
+            .kind {
+                font-size: larger;
+                width: 32px;
+                height: 32px;
+                float: left;
+                border-radius: 50%;
+                border: 2px solid black;
+                background-color: #ffffff; /*@accent-color;*/
+                text-align: center;
+                transform: translateY(-6px);
+                & i {
+                    width: 32px;
+                    height: 32px;
+                }
+                &>div {
+                    width: 32px;
+                    padding-top: 5px;
+                }
+            }
+            .choice {
+                margin-left: 56px;
+            }
+            .subtext {
+                font-size: smaller;
+            }
+        }
+        &:before {
+            content: "";
+            width: 100%;
+            height: 3px;
+            position: absolute;
+            top: 0;
+            background-color: #ffffff; /*@accent-color;*/
+            border-bottom: 3px solid var(--story-seperator-color);
+        }
+    }
+    
+    .modal {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        .modal-inner {
+            width: 150px;
+            border: 2px #666 solid;
+            padding: 24px;
+            background-color: white;
+            border-radius: 16px;
+            opacity: 0;
+            transform: scale(0);
+            & p {
+                font-size: x-large;
+                text-align: center;
+                line-height: 1.25;
+            }
+        }
+        &.show {
+            left: 0;
+            .modal-inner {
+                opacity: 1;
+                transform: scale(1);
+                transition: all 0.15s ease;
+                cursor: pointer;
+            }
+        }
+        &.disable {
+            .modal-inner {
+                background-color: transparent;
+                width: 50px;
+                height: 50px;
+                cursor: default;
+            }
+        }
+    }
+    
+    .heading {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 100%;
+        background-color: white;
+        z-index: 11;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+
+        .heading-inner {
+            height: 100%;
+            background: url(/assets/ignasi_pattern_s.png);
+            h1 {
+                position: absolute;
+                width: 80%;
+                height: 48%;
+                top: 0;
+                padding: 0 10%;
+                display: flex;
+                align-items: flex-end;
+                font-family: "Anton", sans-serif;
+                font-size: xx-large;
+                font-variant: small-caps;
+                line-height: 1.25em;
+            }
+            & h2 {
+                position: absolute;
+                width: 80%;
+                height: 50%;
+                top: 50%;
+                padding: 0 10%;
+                text-align: center;
+                font-family: "Farsan", cursive;
+                font-size: large;
+            }
+        }
+        &.show {
+            left: 0;
+        }
+        &.showing {
+            opacity: 1;
+        }
+    }
+    
+    .fader {
+        background-color: black;
+    }
+    
+    .story-inner {
+        bottom: 0;
+        width: 100%;
+        height: 30%;
+        transition: height 0.15s ease;
+        &.retracted {
+            height: var(--story-navbar-height);
+            opacity: 0.4;
+        }
+    }    
 }

@@ -9,7 +9,7 @@ import * as IDEMain from "./ide/main.js"
 
 export const render = () => {
     return `
-    <canvas id="canvas" class="full-viewport"></canvas>
+    <canvas id="canvas" class="full-viewport" style="display:none;"></canvas>
     ${GameMain.render()}
     ${EditorMain.render()}
     ${IDEMain.render()}

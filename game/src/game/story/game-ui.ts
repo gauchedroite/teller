@@ -20,11 +20,13 @@ export class UI implements IUI {
     private myChoicePanel() { return <HTMLElement>document.querySelector(".choice-panel") }
     private myArticle() { return <HTMLElement>document.querySelector("article") }
     private myContent() { return <HTMLElement>document.querySelector(".content") }
+    private myContentInner() { return <HTMLElement>document.querySelector(".content-inner") }
     private myHeading() { return <HTMLElement>document.querySelector(".heading") }
     private myHeadingInner() { return <HTMLElement>document.querySelector(".heading-inner") }
     private myTitleInner() { return <HTMLElement>document.querySelector(".title-inner") }
-    private myBg() { return <HTMLElement>document.querySelector(".bg") }
-    private myBgInner() { return <HTMLElement>document.querySelector(".bg-inner") }
+    private mySolidInner() { return <HTMLElement>document.querySelector(".solid-inner") }
+    private myNext() { return <HTMLElement>document.querySelector(".next") }
+    private myGame() { return <HTMLElement>document.querySelector(".game") }
 
 
     constructor () {
@@ -82,8 +84,6 @@ export class UI implements IUI {
             icon = "ion-arrow-right-b";
 
             let li = document.createElement("li");
-            if (choice.metadata != undefined && choice.metadata.class != undefined) li.classList.add(choice.metadata.class);
-            if (choice.metadata != undefined && choice.metadata.style != undefined) li.setAttribute("style", choice.metadata.style);
             li.setAttribute("data-kind", choice.kind.toString());
             li.setAttribute("data-id", choice.id.toString());
             li.classList.add("hidden");
@@ -98,18 +98,22 @@ export class UI implements IUI {
         }
         panel.appendChild(ul);
 
-        document.body.classList.add("showing-choices");
+        var content = this.myContent()
+        content.classList.add("overlay");
 
         panel.style.top = "calc(100% - " + panel.offsetHeight + "px)";
 
         let storyInner = this.myStoryInner();
+        storyInner.style.height = "calc(25% + " + panel.offsetHeight + "px)";
         storyInner.classList.remove("minimized");
 
-        let article = this.myArticle();
-        article.style.marginBottom = panel.offsetHeight + "px";
-        this.scrollContent(article.parentElement!);
+        let text = this.myContentInner();
+        text.style.marginBottom = panel.offsetHeight + "px";
+        this.scrollContent(text.parentElement!);
 
-        let me = this;
+        var next = this.myNext()
+        next.classList.add("hidden");
+
         let lis = this.myChoicePanel().querySelectorAll("li");
 
 
@@ -140,20 +144,23 @@ export class UI implements IUI {
     };
 
     hideChoicesAsync = async () => {
-        document.body.classList.remove("showing-choices");
+        var content = this.myContent()
+        content.classList.remove("overlay");
+        content.style.pointerEvents = "auto";
 
         // make sure the first blurb will be visible
-        var content = this.myContent();
-        let storyInner = this.myStoryInner();
+        var storyInner = this.myStoryInner()
         storyInner.scrollTop = content.offsetTop;
-        //storyInner.style.height = "25%";
+        storyInner.style.height = "25%";
 
         var panel = this.myChoicePanel();
         panel.style.top = "100%";
 
-        var article = this.myArticle();
-        article.style.marginBottom = "0";
-        article.setAttribute("style", "");
+        var text = this.myContentInner()
+        text.style.marginBottom = "0";
+        text.setAttribute("style", "");
+        var next = this.myNext()
+        next.classList.remove("hidden");
         
         await waitforMsecAsync(250)
     };
@@ -167,39 +174,46 @@ export class UI implements IUI {
     addBlurbAsync = async (chunk: IMomentData) => {
         let html = this.markupChunk(chunk);
         let content = this.myContent();
-        let article = this.myArticle();
+        var inner = this.myContentInner()
+        var next = this.myNext()
         let div = document.createElement("div");
         div.innerHTML = html;
         let section = <HTMLDivElement>div.firstChild;
 
         if (chunk.kind == ChunkKind.background) {
+            if (this.portrait) return;
             let bg = <IBackground>chunk;
-            return this.changeBackgroundAsync(bg.asset, bg.metadata);
+            await this.changeBackgroundAsync(bg.asset, undefined);
         }
         else if (chunk.kind == ChunkKind.inline) {
             let inline = <IInline>chunk;
-            if (inline.metadata != undefined && inline.metadata.class != undefined) section.classList.add(inline.metadata.class);
-            if (inline.metadata != undefined && inline.metadata.style != undefined) section.setAttribute("style", inline.metadata.style);
-            article.appendChild(section);
-            this.scrollContent(article.parentElement!);
+            
+            section.style.opacity = "0";
+            inner.appendChild(section);
+            this.scrollContent(inner.parentElement!);
+            section.style.opacity = "1";
+            section.style.transition = "opacity 0.1s ease";
+            section.style.animation = "color-cycle 5s infinite";
 
             let assetName = inline.image.replace(/ /g, "%20").replace(/'/g, "%27");
             if (assetName.indexOf(".") == -1) assetName += ".jpg";
-            assetName = `game/assets/${assetName}`;
+            assetName = `assets/${assetName}`;
             
             let image = new Image();
             image.src = assetName;
             await image.decode();
+
+            section.style.animation = "";
             let img = <HTMLImageElement>section.firstElementChild;
             img.style.backgroundImage = `url(${assetName})`;
-            img.classList.add("ready");
+            img.style.height = "100%";
         }
         else if (chunk.kind == ChunkKind.text || chunk.kind == ChunkKind.dialog || chunk.kind == ChunkKind.gameresult) {
             section.style.opacity = "0";
-            article.appendChild(section);
-            this.scrollContent(article.parentElement!);
-            section.style.transition = "all 0.915s ease";
+            inner.appendChild(section);
+            this.scrollContent(inner.parentElement!);
             section.style.opacity = "1";
+            section.style.transition = "all 0.915s ease";
 
             if (chunk.kind == ChunkKind.dialog) {
                 let dialog = <IDialog>chunk;
@@ -293,7 +307,7 @@ export class UI implements IUI {
     };
 
     clearBlurb = () => {
-        this.myArticle().innerHTML = "";
+        this.myContentInner().innerHTML = "";
     };
 
     render = () => {
@@ -304,14 +318,23 @@ export class UI implements IUI {
 
     private myLayout = () => {
         return `
-<div class="game-story full-viewport">
-    <div class="bg full-viewport">
-        <div class="bg-inner">
-            <iframe></iframe>
+<div class="game-story">
+    <div class="solid">
+        <div class="solid-inner">
+            <div class="graphics">
+                <iframe></iframe>
+            </div>
+            <div class="graphics">
+                <iframe></iframe>
+            </div>
+            <div class="graphics game">
+                <iframe></iframe>
+            </div>
+            <div class="graphics fader"></div>
         </div>
     </div>
-    
-    <div class="story full-viewport">
+
+    <div class="story">
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="goto-menu">
@@ -322,9 +345,14 @@ export class UI implements IUI {
                 </div>
             </div>
         </div>
+        <div class="next">
+            <div class="next-inner">
+                <i class="icon ion-arrow-down-b"></i> 
+            </div>
+        </div>
         <div class="story-inner">
             <div class="content">
-                <article></article>
+                <div class="content-inner"></div>
             </div>
             <div class="choice-panel">
             </div>
@@ -340,14 +368,17 @@ export class UI implements IUI {
         </div>
     </div>
 
+    <div class="story-window hidden">
+    </div>
+
     <div class="preloader">
-        <div class="loader-ring">
-            <div class="loader-ring-light"></div>
-            <div class="loader-ring-track"></div>
+        <div class="preloader-inner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
         </div>
     </div>
 </div>
-    `
+`
     }
 
     private setTitle = (title: string) => {
@@ -362,80 +393,93 @@ export class UI implements IUI {
     };
 
     private changeBackgroundAsync = async (assetName: string, metadata: IMetadata | undefined) => {
-        if (assetName == undefined) return Promise.resolve();
-        if (window.getComputedStyle(this.myBg()).display == "none") return Promise.resolve();
+        if (document.body.classList.contains("portrait")) return;
 
-        let bg = this.myBgInner();
-        let zero = <HTMLIFrameElement>bg.firstElementChild;
+        if (assetName == undefined) return;
+        assetName = assetName.replace(/ /g, "%20").replace(/'/g, "%27");
 
-        assetName = encodeURIComponent(assetName);
-        if (assetName.indexOf(".") == -1) assetName += ".jpg";
+        var solid = this.mySolidInner();
+        var zero = <HTMLElement>solid.children[0];
+        var one = <HTMLElement>solid.children[1];
 
-        let sceneUrl = `teller-image.html?${assetName}`;
-        if (assetName.endsWith(".html")) sceneUrl = `game/${assetName}`;
-            
-        if (zero.src.endsWith(sceneUrl)) return Promise.resolve();
+        var back = (zero.style.zIndex == "0" ? zero : one);
+        var front = (zero.style.zIndex == "0" ? one : zero);
+        var backFrame = <HTMLIFrameElement>back.firstElementChild;
+        var frontFrame = <HTMLIFrameElement>front.firstElementChild;
 
+        var css = assetName.replace(".html", "").replace(".jpg", "").replace(".png", "");
+        document.body.setAttribute("data-bg", css);
+
+        if (assetName.indexOf(".") == -1)
+            assetName += ".jpg";
+
+        var sceneUrl = assetName;
+        if (!assetName.endsWith(".html"))
+            sceneUrl = "teller-image.html?" + assetName;
+        
+        if (frontFrame.src.indexOf(sceneUrl) != -1) return;
+        if (sceneUrl == this.previousSceneUrl) return;
+
+        this.previousSceneUrl = sceneUrl;
 
         document.body.classList.add("change-bg");
 
-        let one = document.createElement("iframe");
-        if (metadata != undefined && metadata.class != undefined) one.setAttribute("class", metadata.class);
-        if (metadata != undefined && metadata.style != undefined) one.setAttribute("style", metadata.style);
-        bg.appendChild(one);
-        one.setAttribute("src", sceneUrl);
-        one.title = "BG";
+        back.style.opacity = "0";
+        backFrame.setAttribute("src", sceneUrl);
 
 
         (<any>window).eventHubAction = (result: any) => {
-            if (result.asset == assetName && result.content == "ready")
+            if (result.content == "ready")
                 hubActionDone = true;
         };
 
         let hubActionDone: unknown = undefined;
         await waitforValueAsync(() => hubActionDone)
-        await waitforMsecAsync(250)
 
+        back.style.opacity = "1";
+        front.style.opacity = "0";
         document.body.classList.remove("change-bg");
-        bg.removeChild(zero);
+
+        await waitforMsecAsync(500);//do not use "transitionend" here as it was failing on me. hardcode the delay instead
+
+        back.style.zIndex = "1";
+        front.style.zIndex = "0";
     };
 
     private runMinigameAsync = async (chunk: IMiniGame) => {
-        return Promise.resolve(true)
-        /*
         let minigame = <IMiniGame>chunk;
         let gameReady = false;
         let choiceMade = false;
         
-        const fireMinigame = (url: string, callback: (result: any) => void) => {
-            let game = document.querySelector(".game")!;
-            let gameFrame = <HTMLIFrameElement>game.firstElementChild;
+        let game = this.myGame()
+        let gameFrame = <HTMLIFrameElement>game.firstElementChild;
 
-            (<any>window).eventHubAction = (result: any) => {
-                setTimeout(() => { callback(result); }, 0);
-            };
+        let src = `game/${minigame.url.replace(/ /g, "%20").replace(/'/g, "%27")}`;
+        gameFrame.setAttribute("src", src);
 
-            let src = `game/${url.replace(/ /g, "%20").replace(/'/g, "%27")}`;
-            gameFrame.setAttribute("src", src);
+        (<any>window).eventHubAction = (result: any) => {
+            hubResult = result
+            hubActionDone = true;
         };
+        let hubResult: any;
+        let hubActionDone: unknown = undefined;
+        await waitforValueAsync(() => hubActionDone)
 
-        fireMinigame(minigame.url, (result: any) => {
-            if (result.ready != undefined) {
-                if (choiceMade) {
-                    document.body.classList.add("show-game");
-                    document.body.classList.remove("change-bg");
-                    document.body.classList.remove("disabled");
-                }
-                gameReady = true;
+        if (hubResult.ready != undefined) {
+            if (choiceMade) {
+                document.body.classList.add("show-game");
+                document.body.classList.remove("change-bg");
+                document.body.classList.remove("disabled");
             }
-            else {
-                document.body.classList.remove("show-game");
-                this.hideChoicesAsync(() => {
-                    let text = (result.win == true ? minigame.winText : minigame.loseText);
-                    setTimeout(() => { callback(result); }, 0);
-                });
-            }
-        });
+            gameReady = true;
+        }
+        else {
+            document.body.classList.remove("show-game");
+
+            await this.hideChoicesAsync()
+            let text = (hubResult.win == true ? minigame.winText : minigame.loseText);
+            return hubResult
+        }
 
         let choices: IChoice[] = [];
         choices.push(<IChoice> { 
@@ -444,19 +488,18 @@ export class UI implements IUI {
             text: minigame.text
         });
 
-        this.showChoicesAsync(choices, (chosen: IChoice) => {
-            if (gameReady) {
-                document.body.classList.add("show-game");
-                document.body.classList.remove("disabled");
-            }
-            else {
-                document.body.classList.add("change-bg");
-                document.body.classList.add("disabled");
-            }
-            choiceMade = true;
-        });
-        */
-    };
+        await this.showChoicesAsync(choices)
+
+        if (gameReady) {
+            document.body.classList.add("show-game");
+            document.body.classList.remove("disabled");
+        }
+        else {
+            document.body.classList.add("change-bg");
+            document.body.classList.add("disabled");
+        }
+        choiceMade = true;
+};
 
     private markupChunk = (chunk: IMomentData): string => {
         let html: string[] = [];
