@@ -3,10 +3,19 @@
 @import "./home.css";
 @import "./editor.css";
 @import "./story.css";
+@import "./custom.css";
 
 
 .full-viewport {
     position: absolute;
     width: 100vw;
     height: 100vh;
+}
+
+html,
+body {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }

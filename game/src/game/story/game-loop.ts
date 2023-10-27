@@ -186,7 +186,7 @@ export class Game implements IGameInstance {
                 }
             }
             else {
-                this.refreshGameAndAlertAsync("!!! DEAD END !!!");
+                await this.refreshGameAndAlertAsync("!!! DEAD END !!!");
                 op = Op.BUILD_CHOICES
             }
         }
@@ -223,9 +223,8 @@ export class Game implements IGameInstance {
         if (skipFileLoad == false) {
             const text = await Game.getDataFileAsync("data/state.json")
             if (text != undefined && text.length > 0) this.gdata.load_Game(text);
-            skipFileLoad = true;
         }
-        return this.ui.alertAsync(text, skipFileLoad); 
+        return this.ui.alertAsync(text); 
     };
 
     private getAllPossibleMoments = (): Array<IMoment> => {

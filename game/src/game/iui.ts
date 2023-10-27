@@ -16,7 +16,7 @@ export interface IChoice {
 }
 
 export interface IUI {
-    alertAsync: (text: string, ready: boolean) => Promise<void>,
+    alertAsync: (text: string) => Promise<void>,
     showChoicesAsync: (sceneChoices: Array<IChoice>) => Promise<IChoice>,
     hideChoicesAsync: () => Promise<void>,
     initSceneAsync: (data: ISceneData) => Promise<void>,

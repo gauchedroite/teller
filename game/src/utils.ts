@@ -26,25 +26,38 @@ export async function waitforMsecAsync(msec: number) {
 }
 
 export async function waitforClickAsync(content: Element, msec: number = 20, ontick?: () => any) {
-    let clicked = false;
-
     content.addEventListener("click", function onclick() {
         content.removeEventListener("click", onclick);
         clicked = true;
     });
 
-    while (!clicked) {
-        await waitforMsecAsync(msec)
-        if (ontick != undefined) ontick()
+    let clicked: unknown = undefined
+    return waitforValueAsync(() => clicked, ontick)
+}
+
+export async function waitforAnyClickAsync(contents: Element[], msec: number = 20, ontick?: () => any) {
+
+    let indexClicked: unknown = undefined;
+    const onChoice = (i: number) => () => { indexClicked = i };
+
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].addEventListener("click", onChoice(i));
+    }
+
+    await waitforValueAsync(() => indexClicked, ontick)
+
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].removeEventListener("click", onChoice(i));
     }
 }
 
-export async function waitforValueAsync(getValue: () => unknown) {
+export async function waitforValueAsync(getValue: () => unknown, ontick?: () => any) {
     while (true) {
         const value = getValue()
         if (value != undefined)
             break
         await waitforMsecAsync(20)
+        if (ontick != undefined) ontick()
     }
 }
 

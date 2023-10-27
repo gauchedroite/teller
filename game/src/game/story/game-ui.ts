@@ -1,7 +1,7 @@
 import { IUI, IChoice, ChoiceKind } from "../iui.js";
 import { ISceneData, IMomentData, ChunkKind, IInline, IDialog, IHeading, IDo, IMiniGame, ITitle, IStyle, IMetadata, IText, IGameResult } from "../igame.js";
 import { IBackground } from "../igame.js";
-import { waitforMsecAsync, waitforClickAsync, waitforValueAsync } from "../../utils.js";
+import { waitforMsecAsync, waitforClickAsync, waitforValueAsync, waitforAnyClickAsync } from "../../utils.js";
 import { NS } from "./story.js"
 
 let UX: string; // Replaces ${NS} for events
@@ -34,12 +34,15 @@ export class UI implements IUI {
     }
 
 
-    alertAsync = async (text: string, ready: boolean) => {
-        document.body.classList.add("showing-alert");
+    alertAsync = async (text: string) => {
+        var content = this.myContent()
+        content.classList.add("overlay");
+        content.style.pointerEvents = "none";
 
-        let storyInner = this.myStoryInner();
-        let inner = this.myModalInner();
-        let panel = inner.querySelector("span")!;
+        var next = this.myNext()
+        var storyInner = this.myStoryInner()
+        var inner = this.myModalInner()
+        var panel = inner.querySelector("span")!;
         panel.innerHTML = "<p>" + text + "</p>";
 
         let modal = this.myModal();
@@ -55,19 +58,18 @@ export class UI implements IUI {
         let minimizer = inner.querySelector(".minimizer")!;
         minimizer.addEventListener("click", waitToMinimize);
 
-        await waitforClickAsync(modal)
 
-        panel.innerHTML = `<div class="bounce1"></div><div class="bounce2"></div>`;
-        if (ready) {
-            minimizer.removeEventListener("click", waitToMinimize);
-            modal.classList.remove("show");
-            modal.classList.remove("disable");
-            await waitforMsecAsync(250)
-            document.body.classList.remove("showing-alert");
-        }
-        else {
-            modal.classList.add("disable");
-        }
+        await waitforAnyClickAsync([modal, next])
+
+        panel.innerHTML = "<div class=\"bounce1\"></div><div class=\"bounce2\"></div>";
+        minimizer.removeEventListener("click", waitToMinimize);
+        modal.classList.remove("show");
+        modal.classList.remove("disable");
+
+        await waitforMsecAsync(250)
+
+        content.classList.remove("overlay");
+        content.style.pointerEvents = "";
     };
 
     showChoicesAsync = async (sceneChoices: IChoice[]) => {
@@ -506,16 +508,16 @@ export class UI implements IUI {
 
         if (chunk.kind == ChunkKind.text) {
             let text = <IText>chunk;
-            html.push("<section class='text'>");
+            html.push("<div class='section text'>");
             for (var line of text.lines) {
                 html.push(`<p>${line}</p>`);
             }
-            html.push("</section>");
+            html.push("</div>");
         }
         else if (chunk.kind == ChunkKind.dialog) {
             let dialog = <IDialog>chunk;
             let hasImage = (dialog.metadata != undefined && dialog.metadata.image != undefined);
-            html.push("<section class='dialog'>");
+            html.push("<div class='section dialog'>");
             if (hasImage) {
                 html.push(`<div class='head-placeholder'></div>`);
                 html.push(`<div class='head'></div>`);
@@ -533,18 +535,18 @@ export class UI implements IUI {
                 html.push(`<p>${spans.join("")}</p>`);
             }
             if (hasImage) html.push("</div>");
-            html.push("</section>");
+            html.push("</div>");
         }
         else if (chunk.kind == ChunkKind.gameresult) {
             let result = <IGameResult>chunk;
-            html.push("<section class='result'>");
+            html.push("<div class='section result'>");
             html.push(`<p>${result.text}</p>`);
-            html.push("</section>");
+            html.push("</div>");
         }
         else if (chunk.kind == ChunkKind.inline) {
-            html.push("<section class='image'>");
+            html.push("<div class='section image'>");
             html.push("<div></div>");
-            html.push("</section>");
+            html.push("</div>");
         }
         else if (chunk.kind == ChunkKind.heading) {
             let heading = <IHeading>chunk;
