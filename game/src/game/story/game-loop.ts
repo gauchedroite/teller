@@ -31,7 +31,7 @@ export class Game implements IGameInstance {
     }
 
     startGameAsync = async () => {
-        if (true/*continueExistingGame() needs to be tested*/ || this.gdata.moments.length == 0) {
+        if (this.gdata.moments.length == 0) {
             const text = await Game.getDataFileAsync("data/state.json");
             if (text != undefined && text.length > 0) this.gdata.load_Game(text);
             return this.startNewGameAsync();

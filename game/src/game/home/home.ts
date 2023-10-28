@@ -17,6 +17,7 @@ const myLayout = () => {
     <a href="#/story" style="color:whitesmoke;">Continuer</a><br>
     <a href="#/story/new" style="color:whitesmoke;">Nouvelle partie</a><br>
     <a href="#/editor" style="color:whitesmoke;">Editeur</a><br>
+    <a href="#/ide" style="color:whitesmoke;">IDE</a><br>
 </div>
 `
 }

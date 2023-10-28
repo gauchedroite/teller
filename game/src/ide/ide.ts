@@ -3,17 +3,16 @@ import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"
 
-export const NS = "Game_ide"
+export const NS = "GIDE"
 
 
 
 const myLayout = () => {
     return `
-<div style="width:100%; height:100%;">
-    <a href="#/">Game</a><br>
-    <a href="#/editor">Editor</a><br>
-    IDE
-</div>
+<a href="#/">Home</a><br>
+<a href="#/story">Story</a><br>
+<a href="#/editor">Editor</a><br>
+IDE
 `
 }
 

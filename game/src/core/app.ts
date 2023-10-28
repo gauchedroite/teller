@@ -140,11 +140,11 @@ export const pauseRender = (pause = true) => {
     rendering = pause;
 }
 
-export const prepareRender = (ns: string, title: string, id: string) => {
+export const prepareRender = (ns: string, title: string, renderRootId: string) => {
     transitionUI();
     if (title.length > 0) setPageTitle(title);
     if (ns.length > 0) setContext(ns);
-    setRenderRoot(id)
+    setRenderRoot(renderRootId)
 };
 
 export const setHardRender = () => {
