@@ -4,6 +4,7 @@
   "description": "Teller - the game server",
   "author": "GaucheDroite",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "tsc-watch --noClear --onSuccess \"node dist/server.js\""
   },

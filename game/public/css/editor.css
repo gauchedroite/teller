@@ -36,6 +36,12 @@
         width: 100vw;
         height: 100vh;
         display: flex;
+        justify-content: space-between;
+    }
+
+    .pages-editor {
+        display: flex;
+        width: 100%;
     }
     
     .page {
@@ -381,5 +387,12 @@
     
     .modal-button.modal-button-bold {
         font-weight: 500;
+    }
+
+
+    .page-ide {
+        /* position: absolute;
+        right: 0; */
+        border-left: 1px solid var(--ged-border-color);
     }
 }

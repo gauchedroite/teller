@@ -279,6 +279,16 @@ const layoutCol_Action = () => {
     `
 }
 
+const layoutCol_IDE = () => {
+    return `
+<div class="page page-ide">
+    <div class="content-block-title">
+        <div>State</div>
+    </div>
+</div>
+`
+}
+
 const layout_Modal = () => {
     if (modalWhat == undefined)
         return ""
@@ -299,12 +309,17 @@ const layout_Modal = () => {
 }
 
 
-const pageLayout = (map: Map<string, string>, modal: string) => {
+const pageLayout = (map: Map<string, string>, ide: string, modal: string) => {
     const pages: string[] = []
-    map.forEach((value, key) => pages.push(`<div class="page page-${key}">${value}</div>`)) //) cols.map(one => `<div class="page">${one}</div>`)
+    map.forEach((value, key) => pages.push(`<div class="page page-${key}">${value}</div>`))
     return `
 <div class="pages">
-    ${pages.join("")}
+    <div class="pages-editor">
+        ${pages.join("")}
+    </div>
+    <div class="pages-ide">
+        ${ide}
+    </div>
 </div>
 ${modal}
 `
@@ -406,9 +421,11 @@ export const render = () => {
     if (gids.actionid != undefined)
         map.set("actionid", layoutCol_Action())
 
+    const ide = layoutCol_IDE()
+
     const modal = layout_Modal()
 
-    return pageLayout(map, modal)
+    return pageLayout(map, ide, modal)
 }
 
 export const postRender = () => {
