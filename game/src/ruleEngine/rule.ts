@@ -13,6 +13,7 @@ class Criterion {
     b: number = Number.MIN_VALUE;
 }
 
+
 export class Rule {
     private whoid: number;
     private nameid: number;
@@ -25,22 +26,27 @@ export class Rule {
     private index = 0;
     private crit: Criterion | null = null;
     private done = false;
+    
     constructor(who: Actor, name: string = "rulename") {
         this.whoid = who.id;
         this.nameid = Symbols.add(name);
     }
+
     eq(key: string, val: number): Rule {
         this.insertSorted({ k: Symbols.add(key), a: val, b: val });
         return this;
     }
+
     le(key: string, val: number): Rule {
         this.insertSorted({ k: Symbols.add(key), a: Number.MIN_VALUE, b: val });
         return this;
     }
+
     ge(key: string, val: number): Rule {
         this.insertSorted({ k: Symbols.add(key), a: val, b: Number.MAX_VALUE });
         return this;
     }
+
     private insertSorted(criterion: Criterion) {
         insertSorted(criterion, this.criteria, function(a: Criterion, b: Criterion): number {
             if (a.k < b.k) return -1;
@@ -48,13 +54,16 @@ export class Rule {
             throw "Criterion already exist: " + a.k;
         });
     }
+
     get criteriaLength() {
         return this.criteria.length;
     }
+
     response(response: Response): Rule {
         this._response = response;
         return this;
     }
+
     get hasAction(): boolean {
         if (this._response != undefined && this._response != null && this._response.hasResponse)
             return true;
@@ -64,24 +73,29 @@ export class Rule {
             return true;
         return false;
     }
+
     remember(key: string, val: number): Rule {
         this.memid = Symbols.add(key);
         this.memval = val;
         return this;
     }
+
     trigger(actor: Actor, concept: string): Rule {
         this.actorid = actor.id;
         this.conceptid = Symbols.add(concept);
         return this;
     }
+
     private isMatchingOne(facts: Facts): boolean {
         var iter = <IStatementIterator>facts;
         return this._isMatching(iter);
     }
+
     isMatching(factset: FactSet): boolean {
         var iter = <IStatementIterator>factset;
         return this._isMatching(iter);
     }
+
     private _isMatching(iter: IStatementIterator): boolean {
         iter.initIterator();
         for(var ic = 0; ic < this.criteria.length; ic++) {
@@ -103,6 +117,7 @@ export class Rule {
         }
         return true;
     }
+
     private _apply(factSet: FactSet, actors: Actors) {
         if (this.memid != 0) {
             var facts = factSet.getFacts(this.whoid, FactKind.Memory);
@@ -116,6 +131,7 @@ export class Rule {
         }
         return false;
     }
+
     execute(factSet: FactSet, actors: Actors) {
         if (this._response != undefined) {
             var line = this._response.selectOneLine(); 
@@ -124,12 +140,14 @@ export class Rule {
         }
         this._apply(factSet, actors);
     }
+
     initIterator() {
         this.index = 0;
         this.crit = null;
         this.done = false;
         this.next();
     }
+
     next() {
         if (this.index < this.criteria.length) {
             this.done = false;
@@ -139,6 +157,7 @@ export class Rule {
             this.crit = null;
         }
     }
+
     getcrit() { return this.crit; }
     getdone() { return this.done; }
 }
@@ -147,9 +166,11 @@ export class Rule {
 export class Rules {
     private name: number;
     private rules = Array<Rule>();
+
     constructor(name: string) {
         this.name = Symbols.add(name);
     }
+
     add(rule: Rule) {
         if (rule.hasAction == false)
             throw "Rule doesn't have any action";
@@ -160,6 +181,7 @@ export class Rules {
             return 0;
         });
     }
+
     findMatchingRule(factset: FactSet): Rule | null {
         var matchedRules = Array<Rule>();
         var len = this.rules.length;
@@ -176,5 +198,6 @@ export class Rules {
             return null;
         return matchedRules[Math.floor(Math.random() * matchedRules.length)];
     }
+
     get length() { return this.rules.length; }
 }

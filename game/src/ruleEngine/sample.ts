@@ -11,10 +11,12 @@ export class Sample {
         var femme = new Actor("femme");
         var au = new Actor("Au");
         var world = new Actor("world");
+        //
         actors.add(jack).add(femme).add(au).add(world);
         
         
         var factset = new FactSet();
+        //
         var facts = new Facts(concept, FactKind.EventParams)
         facts.add("E", 55).add("F", 66).add("A", 11).add("D", 44);
         factset.add(facts);
@@ -30,6 +32,7 @@ export class Sample {
         
         
         var rules = new Rules("Rules for some dialog");
+        //
         rules.add(new Rule(femme)
             .eq("G", 77).eq("A", 11).eq("B", 22)
             .response(new Response().add(new Line("dummy line")))

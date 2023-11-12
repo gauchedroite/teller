@@ -1,7 +1,6 @@
 
 import { expect } from "chai";
-import Symbols from "../symbol.js";
-import { FactSet, Facts, FactKind, Rules, Rule, Response, Line, Actors, Actor } from "../ruler.js";
+import { Symbols, FactSet, Facts, FactKind, Rules, Rule, Response, Line, Actors, Actor } from "../ruleEngine.js";
 
 describe('Rules', () => {
 

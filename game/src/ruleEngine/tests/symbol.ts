@@ -1,6 +1,6 @@
 
 import { expect } from "chai";
-import Symbols from "../symbol.js";
+import { Symbols } from "../ruleEngine.js";
 
 describe('Symbols', () => {
 

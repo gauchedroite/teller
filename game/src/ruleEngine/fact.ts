@@ -1,13 +1,16 @@
-import { Actor } from "./actor";
-import insertSorted from "./sorter";
-import { IStatementIterator, Statement } from "./statement";
-import Symbols from "./symbol";
+
+import { Actor } from "./actor.js";
+import insertSorted from "./sorter.js";
+import { IStatementIterator, Statement } from "./statement.js";
+import Symbols from "./symbol.js";
+
 
 export enum FactKind {
     EventParams,
     State,
     Memory
 }
+
 
 export class Facts implements IStatementIterator {
     private whoid: number;
@@ -20,6 +23,7 @@ export class Facts implements IStatementIterator {
         this.whoid = who.id;
         this.nameid = Symbols.add("" + name);
     }
+
     add(key: string, val: number): Facts {
         var statement: Statement = { k: Symbols.add(key), v: val };
         insertSorted(statement, this.facts, function(a: Statement, b: Statement): number {
@@ -29,12 +33,14 @@ export class Facts implements IStatementIterator {
         });
         return this;
     };
+
     initIterator() {
         this.index = 0;
         this.state = null;
         this.done = false;
         this.next();
     }
+
     next() {
         if (this.index < this.facts.length) {
             this.done = false;
@@ -44,11 +50,14 @@ export class Facts implements IStatementIterator {
             this.state = null;
         }
     }
+
     getstate() { return this.state!; }
     getdone() { return this.done; }
+
     is(whoid: number, nameid: number): boolean {
         return (this.whoid == whoid && this.nameid == nameid);
     }
+
     update(id: number, val: number | undefined) {
         if (val == undefined)
             return;
@@ -64,17 +73,21 @@ export class Facts implements IStatementIterator {
         var key = Symbols.getById(id);
         this.add(key, val);
     }
+
     get length() { return this.facts.length; }
 }
+
 
 export class FactSet implements IStatementIterator {
     private factset = Array<Facts>();
     private fact: Statement | null = null;
     private done = false;
+
     add(facts: Facts) {
         this.factset.push(facts);
         return this;
     }
+
     initIterator() {
         this.fact = null;
         this.done = false;
@@ -82,6 +95,7 @@ export class FactSet implements IStatementIterator {
             this.factset[i].initIterator();
         this.next();
     }
+
     next() {
         var i0 = -1;
         var mink = Number.MAX_VALUE;
@@ -105,8 +119,10 @@ export class FactSet implements IStatementIterator {
             this.fact = null;
         }
     }
+
     getstate() { return this.fact!; }
     getdone() { return this.done; }
+
     getFacts(whoid: number, name: FactKind) {
         var nameid = Symbols.add("" + name);
         var len = this.factset.length;
