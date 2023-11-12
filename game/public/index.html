@@ -25,6 +25,15 @@
         APP.root = "https://localhost:5502/";
     </script>
 
+    <script type="importmap">
+        {
+            "imports": {
+                "marked": "./lib/marked.esm.js",
+                "dompurify": "./lib/purify.es.js"
+            }
+        }
+    </script>
+
     <script src="lib/morphdom-umd.js"></script>
     <script src='lib/fastclick.js'></script>
     <script type="module" src="./js/index.js"></script>

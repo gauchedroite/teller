@@ -30,19 +30,22 @@ export default class Parser {
             return seps;
         };
     }
+    
     parse = (): any => {
         var node = {};
         this.scanner.nextSymbol();
         this.parse_scene(node);
         this.scanner.accept("");
         return node;
-    };
+    }
+
     parse_scene = (node: any) => {
         var main = this.parse_scene_main(node);
         if (main == null) return;
         this.parse_extra(node);
         this.parse_body_csv(node);
-    };
+    }
+
     parse_scene_main = (node: any): any => {
         node.main = {};
         this.parse_location(node.main);
@@ -53,6 +56,7 @@ export default class Parser {
             node.main.when = { err: "When is missing" };
         return node.main;
     }
+
     parse_extra = (node: any) => {
         node.extra = {};
         var found = false;
@@ -62,6 +66,7 @@ export default class Parser {
             found = found || (this.parse_timeout(node.extra) != null);
         } while (found);
     }
+
     parse_location = (node: any): any => {
         if (this.scanner.accept(".location")) {
             var location: any = {};
@@ -78,7 +83,8 @@ export default class Parser {
             return node.location = location;
         }
         return node.location = {err: "Location is missing"};
-    };
+    }
+
     parse_when = (node: any) => {
         if (this.scanner.accept(".when")) {
             var when: any = [];
@@ -91,7 +97,8 @@ export default class Parser {
             return node.when = when;
         }
         return null;
-    };
+    }
+
     parse_then = (node: any): any => {
         if (this.scanner.accept(".then")) {
             var then: any = {};
@@ -108,6 +115,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_remember = (node: any): any => {
         if (this.scanner.accept(".remember")) {
             var remember: any = {};
@@ -133,6 +141,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_timeout = (node: any): any => {
         if (this.scanner.accept(".timeout")) {
             var timeout = this.scanner.symbol;
@@ -143,6 +152,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_body_csv = (node: any) => {
         var commands = [".when", ".character", ".line", ".random", ".question"];
         node.body = [];
@@ -155,6 +165,7 @@ export default class Parser {
             if (this.scanner.symbol.charAt(0) != ".") break;
         } while (contains(commands, this.scanner.symbol))
     }
+
     parse_body_do = (node: any) => {
         var action = this.parse_action({});
         if (action != null) {
@@ -217,6 +228,7 @@ export default class Parser {
             }
         }
     }
+
     parse_action = (node: any): any => {
         var line = this.parse_line({});
         if (line != null) {
@@ -226,6 +238,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_dialog = (node: any) => {
         var line = this.parse_dialog_line({});
         if (line == null) {
@@ -242,6 +255,7 @@ export default class Parser {
 
         return null
     }
+
     parse_dialog_line = (node: any): any => {
         if (this.parse_line(node) != null) {
             this.parse_odds(node);
@@ -251,6 +265,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_odds = (node: any): any => {
         if (this.scanner.accept(".odds")) {
             var odds = this.scanner.symbol;
@@ -261,6 +276,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_query = (node: any) => {
         do {
             var line = this.parse_query_line({});
@@ -269,6 +285,7 @@ export default class Parser {
             node.push(line);
         } while (true);
     }
+
     parse_query_line = (node: any): any => {
         if (this.parse_line(node) != null) {
             this.parse_default(node);
@@ -278,12 +295,14 @@ export default class Parser {
         }
         return null;
     }
+
     parse_default = (node: any): any => {
         if (this.scanner.accept(".default")) {
             return node.def = true;
         }
         return null;
     }
+
     parse_line = (node: any): any => {
         if (this.scanner.accept(".line")) {
             var line = this.scanner.symbol;
@@ -292,6 +311,7 @@ export default class Parser {
         }
         return null;
     }
+
     parse_style = (node: any): any => {
         if (this.scanner.accept(".style")) {
             var style = this.scanner.symbol;
@@ -301,6 +321,7 @@ export default class Parser {
             return node.style = style;
         }
     }
+
     parse_character = (node: any): any => {
         if (this.scanner.accept(".character")) {
             var character: any = {};
@@ -322,6 +343,7 @@ export default class Parser {
         }
         return null;
     }
+
     splitKeys = (symbol: string | null) => {
         if (symbol == null) return { id: null, text: null };
         

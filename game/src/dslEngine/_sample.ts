@@ -1,3 +1,4 @@
+import { SceneViewer } from "./_sceneViewer.js";
 import Parser from "./parser.js";
 import Scanner from "./scanner.js";
 import { script } from "./test-script.js";
@@ -5,10 +6,10 @@ import { script } from "./test-script.js";
 
 export class Sample {
     static run1() {
-        var scriptHtml = wrapHtml(script);
-        var scene = parseHtmlScript(script);
-        
-        console.log(scene);
+        var scriptHtml = wrapHtml(script)
+        var scene = parseHtmlScript(script)
+        var renderedHtml = SceneViewer.render(scene)
+        console.log(renderedHtml)
     }
 }
 
