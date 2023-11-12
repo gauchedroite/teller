@@ -3,18 +3,20 @@ import Symbols from "./symbol.js";
 import insertSorted from "./sorter.js";
 
 export enum FactKind {
-    EventParams, State, Memory
+    EventParams,
+    State,
+    Memory
 }
 
 export class Statement {
-    k: number = -Infinity;
-    v: number = -Infinity;
+    k: number = Number.MIN_VALUE;
+    v: number = Number.MIN_VALUE;
 }
 
 export class Criterion {
-    k: number = -Infinity;
-    a: number = -Infinity;
-    b: number = -Infinity;
+    k: number = Number.MIN_VALUE;
+    a: number = Number.MIN_VALUE;
+    b: number = Number.MIN_VALUE;
 }
 
 export interface IStatementIterator {

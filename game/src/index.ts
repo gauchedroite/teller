@@ -1,4 +1,5 @@
 import { startup } from "./main.js"
+import { Sample } from "./ruleEngine/sample.js"
 
 declare const FastClick: any;
 
@@ -17,3 +18,6 @@ onresize();
 
 
 startup()
+
+Sample.run1()
+
