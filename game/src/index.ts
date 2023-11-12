@@ -1,5 +1,6 @@
 import { startup } from "./main.js"
-import { Sample } from "./ruleEngine/sample.js"
+import { Sample as ruleEngineSample } from "./ruleEngine/_sample.js"
+import { Sample as dslEngineSample } from "./dslEngine/_sample.js"
 
 declare const FastClick: any;
 
@@ -19,5 +20,7 @@ onresize();
 
 startup()
 
-Sample.run1()
 
+
+//ruleEngineSample.run1()
+dslEngineSample.run1()
