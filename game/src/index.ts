@@ -23,4 +23,4 @@ startup()
 
 
 //ruleEngineSample.run1()
-dslEngineSample.run1()
+//dslEngineSample.run1()

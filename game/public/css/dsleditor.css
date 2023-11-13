@@ -1,0 +1,117 @@
+
+#gdsl {
+    & nav {
+        background-color: #333;
+        overflow: hidden;
+
+        & ul {
+            margin-left: 20px;
+            li {
+                display: inline-block;
+                list-style-type: none;
+            }
+        }
+        & a {
+            color: #aaa;
+            display: block;
+            line-height: 2em;
+            padding: 0.25em 0.25em;
+            text-decoration: none;
+            &:hover {
+                color: yellow;
+            }
+        }
+    }
+    
+    .scene {
+        /* background-color: yellowgreen; */
+    }
+
+    .scene-editor-wrapper {
+        width: 13cm;
+        float: left;
+    }
+
+    .scene-viewer-wrapper {
+        width: 14cm;
+        margin-left: 13cm;
+    }
+
+    .scene-editor {
+        padding: 0.5cm;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
+        [contenteditable]:focus {
+            outline: 0 solid transparent;
+        }
+    }
+
+    .scene-viewer {
+        font-family: Courier New, Courier, monospace;
+        width: 13cm;
+        padding: 1cm;
+        border: 1px solid #e0e0e0;
+        margin: auto;
+
+        & em {
+            font-weight: bold;
+        }
+        & strong {
+            font-weight: bold;
+            background-color: whitesmoke;
+        }
+    }
+    
+    .ed-error {
+        background-color: indianred;
+    }
+
+    .ed-location {
+        font-weight: bold;
+        color: white;
+        background-color: #444;
+    }
+    .ed-text {
+    }
+
+    .ed-when, .ed-then, .ed-remember, .ed-timeout,
+    .ed-def, .ed-odds, .ed-style {
+        color: #d0d0d0;
+        font-size: 80%;
+        font-weight: normal;
+        line-height: 95%;
+    }
+    .ed-character {
+        margin-left: 5.5cm;
+    }
+    .ed-mood {
+        color: #d0d0d0;
+        font-size: 80%;
+        font-weight: normal;
+        line-height: 95%;
+        margin-left: 0.2cm;
+    }
+    .ed-parenthetical {
+        margin-left: -1.5cm;
+    }
+    .ed-dialog, .ed-random, .ed-question, .ed-action {
+        margin: 0.45cm 0;
+    }
+    .ed-dialog-line {
+        margin: 0 3cm;
+    }
+    .ed-ask {
+        margin: 0 3cm 0.45cm 3cm;
+    }
+    .ed-random-line, .ed-choice-line {
+        margin: 0 3cm 0.45cm 0.05cm;
+    }
+    .ed-random-lines, .ed-choice-lines {
+        border-left: solid 0.2cm #f8f8f8;
+        margin-left: 2.75cm;
+    }
+    
+    .my-standout {
+        background-color: rgba(255, 255, 0, 0.25);
+    }    
+}

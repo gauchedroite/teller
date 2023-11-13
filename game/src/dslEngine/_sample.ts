@@ -9,7 +9,11 @@ export class Sample {
         var scriptHtml = wrapHtml(script)
         var scene = parseHtmlScript(script)
         var renderedHtml = SceneViewer.render(scene)
-        console.log(renderedHtml)
+        return renderedHtml
+    }
+
+    static get_script() {
+        return script
     }
 }
 

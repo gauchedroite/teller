@@ -17,13 +17,15 @@ class Action {
             }
             return ""
         };
+        
         var doStyle = (style: any) => {
-            if (style == undefined) return null;
+            if (style == undefined) return "";
             if (style.err) return Error.render(style.err)
-            return `<span className="ed-style">style ${style}</span>`;
+            return `<span class="ed-style">style ${style}</span>`;
         };
+
         return `
-        <div className="ed-action" key="${dkey}">
+        <div class="ed-action" key="${dkey}">
             ${When.render(node.when)}
             ${doAction(node.action)}
             ${doStyle(node.action.style)}
@@ -33,28 +35,28 @@ class Action {
 
 class Character {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         if (node.err) return Error.render(node.err)
             
         var doId = (id: any) => {
-            return null;
+            return "";
             if (id)
-                return `<span className="ed-id">[${id}]</span>`;
+                return `<span class="ed-id">[${id}]</span>`;
         };
 
         var doMood = (mood: any) => {
             if (mood)
-                return `<span className="ed-mood">${mood}</span>`;
+                return `<span class="ed-mood">${mood}</span>`;
             return ""
         };
 
         var doParenthetical = (parenthetical: any) => {
             if (parenthetical)
-                return `<div className="ed-parenthetical">(${parenthetical})</div>`;
+                return `<div class="ed-parenthetical">(${parenthetical})</div>`;
             return ""
         };
 
-        return `<div className="ed-character">
+        return `<div class="ed-character">
             <div>${doId(node.id)}${node.actor}${doMood(node.mood)}</div>
             ${doParenthetical(node.parenthetical)}
         </div>`;
@@ -63,10 +65,9 @@ class Character {
 
 class DialogLine {
     static render(line: any) {
-        if (line == undefined) return null;
+        if (line == undefined) return "";
         if (line.err) return Error.render(line.err)
-
-        return `<div className="ed-dialog-line">${line}</div>`;
+        return `<div class="ed-dialog-line">${line}</div>`;
     }
 }
 
@@ -74,8 +75,7 @@ class Dialog {
     static render(node: any, dkey: number) {
         if (node.err) return Error.render(node.err)
         if (node.dialog.err) return Error.render(node.dialog.err)
-
-        return `<div className="ed-dialog" key="${dkey}">
+        return `<div class="ed-dialog" key="${dkey}">
             ${When.render(node.when)}
             ${Character.render(node.dialog.character)}
             ${DialogLine.render(node.dialog.line)}
@@ -87,12 +87,12 @@ class RandomLine {
     static render(node: any, jey: number) {
         
         var doOdds = (odds: any) => {
-            if (odds == undefined) return null;
+            if (odds == undefined) return "";
             if (odds.err) return Error.render(odds.err)
-            return `<div className="ed-odds">odds ${odds}</div>`;
+            return `<div class="ed-odds">odds ${odds}</div>`;
         };
 
-        return `<div className="ed-random-line">
+        return `<div class="ed-random-line">
             <div>${node.line}</div>
             ${doOdds(node.odds)}
             ${Then.render(node.then)}
@@ -109,13 +109,13 @@ class Random {
         var key = 0;
         const lines = node.random.lines.map((item: any) => {
             return RandomLine.render(item, key++)
-        })
+        }).join("")
 
         return `
-        <div className="ed-random" key="${dkey}">
+        <div class="ed-random" key="${dkey}">
             ${When.render(node.when)}
             ${Character.render(node.random.character)}
-            <div className="ed-random-lines">${lines}</div>
+            <div class="ed-random-lines">${lines}</div>
         </div>`;
     }
 }
@@ -125,16 +125,16 @@ class ChoiceLine {
         
         var doDef = (def: any) => {
             if (def)
-                return `<div className="ed-def">default answer</div>`;
+                return `<div class="ed-def">default answer</div>`;
             return ""
         };
 
         return `
-        <div className="ed-choice-line" key="${dkey}">
+        <div class="ed-choice-line" key="${dkey}">
             <div>${node.line}</div>
             ${doDef(node.def)}
             ${Then.render(node.then)}
-            ${Remember.render(node.remember)} />
+            ${Remember.render(node.remember)}
         </div>
         `;
     }
@@ -143,7 +143,7 @@ class ChoiceLine {
 class Ask {
     static render(ask: any) {
         if (ask.err) return Error.render(ask.err)
-        return `<div className="ed-ask">${ask}</div>`;
+        return `<div class="ed-ask">${ask}</div>`;
     }
 }
 
@@ -155,14 +155,14 @@ class Question {
         var key = 0;
         const lines = question.choices.map((item: any) => {
             return ChoiceLine.render(item, key++)
-        })
+        }).join("")
 
         return `
-        <div className="ed-question" key="${dkey}">
+        <div class="ed-question" key="${dkey}">
             ${When.render(node.when)}
             ${Character.render(question.character)}
             ${Ask.render(question.ask)}
-            <div className="ed-choice-lines">${lines}</div>    
+            <div class="ed-choice-lines">${lines}</div>    
         </div>
         `
     }
@@ -170,7 +170,7 @@ class Question {
 
 class Body {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         
         var key = 0;
         var body = node.map((item: any) => {
@@ -181,19 +181,18 @@ class Body {
             if (item.question)
                 return Question.render(item, key++)     
             return Action.render(item, key++) 
-        })
+        }).join("")
 
-        return `<div className="ed-body">${body}</div>`
+        return `<div class="ed-body">${body}</div>`
     }
 }
 
 class Then {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         if (node.err) return Error.render(node.err)
-
         return `
-        <div className="ed-then">then&nbsp;
+        <div class="ed-then">then&nbsp;
             <span>${node.character}</span>&nbsp;
             <span>${node.concept}</span>
         </div>
@@ -203,12 +202,12 @@ class Then {
 
 class Remember {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         if (node.err) return Error.render(node.err)
         return `
-        <div className="ed-remember">remember&nbsp;
-            <span>{node.key}</span>= 
-            <span>{node.value}</span>
+        <div class="ed-remember">remember&nbsp;
+            <span>${node.key}</span> = 
+            <span>${node.value}</span>
         </div>
         `
     }
@@ -216,11 +215,10 @@ class Remember {
 
 class Timeout {
     static render(timeout: any) {
-        if (timeout == undefined) return null;
+        if (timeout == undefined) return "";
         if (timeout.err) return Error.render(timeout.err)
-
         return `
-        <div className="ed-timeout">timeout&nbsp;
+        <div class="ed-timeout">timeout&nbsp;
             <span>${timeout}</span>
         </div>
         `
@@ -229,9 +227,9 @@ class Timeout {
 
 class Extra {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         return `
-        <div className="ed-extra">
+        <div class="ed-extra">
             ${Then.render(node.then)}
             ${Remember.render(node.remember)}
             ${Timeout.render(node.timeout)}
@@ -242,17 +240,15 @@ class Extra {
 
 class When {
     static render(node: any) {
-        if (node == undefined) return null;
+        if (node == undefined) return "";
         if (node.err) return Error.render(node.err)
             
         var key = 0;
         const when = node.map((item: string) => {
-            return `<span key=${key++}>${item}&nbsp;</span>`
-        })
+            return `<span key="${key++}">${item}&nbsp;</span>`
+        }).join("")
 
-        return `
-        <div className="ed-when">when ${when}</div>
-        `
+        return `<div class="ed-when">when ${when}</div>`
     }
 }
 
@@ -265,13 +261,13 @@ class Location {
         location = location + (lockey ? "/" + lockey : "");
 
         var doId = (id: any) => {
-            return null;
+            return "";
             if (id)
-                return `<span className="ed-id">[${id}]</span>`
+                return `<span class="ed-id">[${id}]</span>`
         };
 
         return `
-        <div className="ed-location">
+        <div class="ed-location">
             ${doId(node.id)}
             ${location}
         </div>
@@ -282,9 +278,9 @@ class Location {
 class Main {
     static render(node: any) {
         return `
-        <div className="ed-main">
+        <div class="ed-main">
             ${Location.render(node.location)}
-            ${When.render(node.when)}}
+            ${When.render(node.when)}
         </div>
         `
     }
@@ -292,14 +288,14 @@ class Main {
 
 class Error {
     static render(error: any) {
-        return `<div className="ed-error">${error}</div>`
+        return `<div class="ed-error">${error}</div>`
     }
 }
 
 export class SceneViewer {
     static render(scene: any) {
         return `
-        <div className="scene-viewer">
+        <div class="scene-viewer">
             ${Main.render(scene.main)}
             ${Extra.render(scene.extra)}
             ${Body.render(scene.body)}
