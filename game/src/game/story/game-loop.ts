@@ -59,6 +59,8 @@ export class Game implements IGameInstance {
         this.gdata.options = options;
     };
 
+
+    
     private startNewGameAsync = async () => {
         this.gdata.history = [];    //init the list of showed moments
         this.gdata.clearContinueData();
@@ -92,6 +94,8 @@ export class Game implements IGameInstance {
         await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
         await this.updateAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES)
     };
+
+
 
     private updateAsync = async (op: Op): Promise<void> => {
         this.data = this.gdata.select_Game();
@@ -191,6 +195,8 @@ export class Game implements IGameInstance {
             }
         }
     };
+
+
 
     private saveContinueData = () => {
         this.gdata.setContinueLocation({

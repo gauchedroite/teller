@@ -19,6 +19,7 @@ export class Facts implements IStatementIterator {
     private index = 0;
     private state: Statement | null = null;
     private done = false;
+    
     constructor(who: Actor, name: FactKind = FactKind.State) {
         this.whoid = who.id;
         this.nameid = Symbols.add("" + name);
