@@ -5,6 +5,8 @@ import * as Misc from "../core/misc.js"
 import { IGameData, IAction } from "../game/igame-data.js"
 import GameData from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
+import { Game } from "../game/story/game-loop.js"
+import { UI } from "../game/story/game-ui.js"
 
 export const NS = "GED";
 
@@ -13,6 +15,7 @@ const SAVEFILE_KEY = "Teller"
 
 let gdata: GameData;
 let state = <IGameData>{};
+let editor_url = ""
 
 
 interface GIDs {
@@ -79,7 +82,7 @@ const layoutCol_Game = () => {
         <div>Game Info</div>
         <div>
             <a href="#/"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
-            <a href="#/story"><i title="Game" class="fa-regular fa-gamepad-modern"></i></i></a>
+            <a href="#/story/${gdata.gameName}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></i></a>
         </div>
     </div>
     <div class="list-block">
@@ -93,9 +96,9 @@ const layoutCol_Game = () => {
     <div class="content-block-title">Game Objects</div>
     <div class="list-block">
         <ul>
-            <li>${mySelectRow("Situations", `#/editor/gameid=${gids.gameid}/sits`)}</li>
-            <li>${mySelectRow("Actors", `#/editor/gameid=${gids.gameid}/actors`, true)}</li>
-            <li>${mySelectRow("State", `#/editor/gameid=${gids.gameid}/state`, true)}</li>
+            <li>${mySelectRow("Situations", `#/${editor_url}/gameid=${gids.gameid}/sits`)}</li>
+            <li>${mySelectRow("Actors", `#/${editor_url}/gameid=${gids.gameid}/actors`, true)}</li>
+            <li>${mySelectRow("State", `#/${editor_url}/gameid=${gids.gameid}/state`, true)}</li>
         </ul>
     </div>
 
@@ -114,7 +117,7 @@ const layoutCol_Game = () => {
 
 const layoutCol_Situations = () => {
     const sits = state.situations.filter(one => one.gameid == 0)
-    const lines = sits.map(one => `<li>${mySelectRow(`${one.name}`, `#/editor/gameid=${gids.gameid}/sitid=${one.id}`, false, one.when)}</li>`)
+    const lines = sits.map(one => `<li>${mySelectRow(`${one.name}`, `#/${editor_url}/gameid=${gids.gameid}/sitid=${one.id}`, false, one.when)}</li>`)
 
     return `
     <div class="content-block-title">
@@ -137,11 +140,11 @@ const layoutCol_Situation = () => {
     const scenes = state.scenes.filter(one => one.sitid == sitid)
     const scenelines = scenes.map(one => {
         const selected = one.id == gids.sceneid
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.name}`, `#/editor/gameid=${gids.gameid}/sceneid=${one.id}`)}</li>`
+        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.name}`, `#/${editor_url}/gameid=${gids.gameid}/sceneid=${one.id}`)}</li>`
     })
 
     const actors = state.actors.filter(one => one.sitid == sitid)
-    const actorlines = actors.map(one => `<li>${mySelectRow(`${one.name}`, `#/editor/gameid=${gids.gameid}/actorid=${one.id}`, true)}</li>`)
+    const actorlines = actors.map(one => `<li>${mySelectRow(`${one.name}`, `#/${editor_url}/gameid=${gids.gameid}/actorid=${one.id}`, true)}</li>`)
             
     return `
     <div class="content-block-title">
@@ -185,14 +188,14 @@ const layoutCol_Scene = () => {
     const momlines = moments.map(one => {
         const selected = one.id == gids.momentid
         const commands = GameHelper.getCommands(one.text).join("<br>")
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/editor/gameid=${gids.gameid}/momentid=${one.id}`, false, commands)}</li>`
+        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/gameid=${gids.gameid}/momentid=${one.id}`, false, commands)}</li>`
     })
 
     const actions = gdata.getActionsOf(scene)
     const actlines = actions.map(one => {
         const selected = one.id == gids.actionid
         const commands = GameHelper.getCommands(one.text).join("<br>")
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/editor/gameid=${gids.gameid}/actionid=${one.id}`, false, commands, one.name)}</li>`
+        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/gameid=${gids.gameid}/actionid=${one.id}`, false, commands, one.name)}</li>`
     })
     
     return `
@@ -379,6 +382,18 @@ const parseArgs = (args: string[] | undefined) => {
 }
 
 const fetchState = (args: string[] | undefined) => {
+    if (args != undefined && args.length > 0) {
+        const name = args[0]
+        if (name == "new") {
+        }
+        else {
+            const ui = new UI()
+            const game = new Game(name, ui)
+            gdata = game.gdata
+            editor_url = `editor/${gdata.gameName}`
+        }
+    }
+
     state = gdata.select_Game()
     parseArgs(args)
     return Promise.resolve()
@@ -391,6 +406,7 @@ const refresh = () => {
 
 export const fetch = (args: string[] | undefined) => {
     App.prepareRender(NS, "Editor", "game_editor");
+
     Router.registerDirtyExit(null);
     fetchState(args)
         .then(App.render)
@@ -506,19 +522,19 @@ export const executeModal = () => {
 
     if (what == "sitid") {
         gdata.deleteSituation(gids.sitid!)
-        Router.goto(`#/editor/gameid=${gids.gameid}`)
+        Router.goto(`#/${editor_url}/gameid=${gids.gameid}`)
     }
     else if (what == "sceneid") {
         gdata.deleteScene(gids.sceneid!)
-        Router.goto(`#/editor/gameid=${gids.gameid}/sitid=${gids.sitid}`)
+        Router.goto(`#/${editor_url}/gameid=${gids.gameid}/sitid=${gids.sitid}`)
     }
     else if (what == "momentid") {
         gdata.deleteSceneMoment(gids.momentid!)
-        Router.goto(`#/editor/gameid=${gids.gameid}/sceneid=${gids.sceneid}`)
+        Router.goto(`#/${editor_url}/gameid=${gids.gameid}/sceneid=${gids.sceneid}`)
     }
     else if (what == "actionid") {
         gdata.deleteAction(gids.actionid!)
-        Router.goto(`#/editor/gameid=${gids.gameid}/sceneid=${gids.sceneid}`)
+        Router.goto(`#/${editor_url}/gameid=${gids.gameid}/sceneid=${gids.sceneid}`)
     }
 }
 
@@ -526,22 +542,22 @@ export const executeModal = () => {
 
 export const addSituation = () => {
     const id = gdata.addSituation(gids.gameid!)
-    Router.goto(`#/editor/gameid=${gids.gameid}/sitid=${id}`)
+    Router.goto(`#/${editor_url}/gameid=${gids.gameid}/sitid=${id}`)
 }
 
 export const addScene = () => {
     const id = gdata.addScene(gids.sitid!)
-    Router.goto(`#/editor/gameid=${gids.gameid}/sceneid=${id}`)
+    Router.goto(`#/${editor_url}/gameid=${gids.gameid}/sceneid=${id}`)
 }
 
 export const addMoment = () => {
     const id = gdata.addMoment(gids.sceneid!)
-    Router.goto(`#/editor/gameid=${gids.gameid}/momentid=${id}`)
+    Router.goto(`#/${editor_url}/gameid=${gids.gameid}/momentid=${id}`)
 }
 
 export const addAction = () => {
     const id = gdata.addAction(gids.sceneid!)
-    Router.goto(`#/editor/gameid=${gids.gameid}/actionid=${id}`)
+    Router.goto(`#/${editor_url}/gameid=${gids.gameid}/actionid=${id}`)
 }
 
 

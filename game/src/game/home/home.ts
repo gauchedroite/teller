@@ -14,9 +14,9 @@ const myLayout = () => {
     return `
 <canvas id="canvas" class="full-viewport"></canvas>
 <div id="game_menu">
-    <a href="#/story" style="color:whitesmoke;">Continuer</a><br>
-    <a href="#/story/new" style="color:whitesmoke;">Nouvelle partie</a><br>
-    <a href="#/editor" style="color:whitesmoke;">Editeur</a><br>
+    <a href="#/story/coudon" style="color:whitesmoke;">Continuer</a><br>
+    <a href="#/story/coudon/restart" style="color:whitesmoke;">Restart la partie</a><br>
+    <a href="#/editor/coudon" style="color:whitesmoke;">Editeur</a><br>
     <a href="#/dsleditor" style="color:whitesmoke;">Editeur DSL</a><br>
 </div>
 `

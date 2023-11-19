@@ -8,22 +8,30 @@ let storyStarted = false
 
 
 
-const ui = new UI()
-const game = new Game("coudon", ui)
+let ui: UI
+let game: Game
 
 
-export const ux = ui;
 
+const fetchState = async (gameName: string) => {
+    ui = new UI()
+    game = new Game(gameName, ui)
+}
 
-export const fetch = (args: string[] | undefined) => {
+export const fetch = async (args: string[] | undefined) => {
     App.prepareRender(NS, "Story", "game_story")
 
     if (args != undefined && args.length > 0) {
-        if (args[0] == "new") {
-            game.clearAllGameData()
+        const name = args[0]
+        const action = args[1];
+        if (action == "restart") {
+            game?.clearAllGameData()
             storyStarted = false;
-            (<any>document).location = "#/story";
+            (<any>document).location = `#/story/${name}`;
             location.reload();
+        }
+        else {
+            await fetchState(name)
         }
     }
 
@@ -48,7 +56,7 @@ export const render = () => {
 export const postRender = () => {
     if (!App.inContext(NS)) return
 
-    if (!storyStarted) {
+    if (!storyStarted && game != undefined) {
         storyStarted = true
         setTimeout(game.startGameAsync, 0)
     }
