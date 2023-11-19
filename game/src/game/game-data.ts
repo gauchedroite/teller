@@ -4,10 +4,10 @@ import { IOptions } from "./igame.js";
 
 
 export default class GameData {
-    gameName: string;
+    id: string;
 
     constructor(name: string) {
-        this.gameName = name;
+        this.id = name;
     }
 
     select_Game = () => {
@@ -72,7 +72,8 @@ export default class GameData {
 //
 // situations
 //
-    addSituation = (gameid: number) => {
+    addSituation = () => {
+        const gameid = 0;
         var id = -1;
         var sits = this.situations;
         for (var sit of sits) {
@@ -630,7 +631,7 @@ export default class GameData {
 //
 
     getDataFileAsync = async () => {
-        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameName}`
+        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.id}`
         const response = await fetch(url)
         return response.text()
     };
@@ -698,49 +699,49 @@ export default class GameData {
     // state
     //
     get state() : any {
-        const _state_ = JSON.parse(localStorage.getItem("state") ?? "{}");
+        const _state_ = JSON.parse(this.localStorage_getItem("state") ?? "{}");
         return isObjectEmpty(_state_) ? null : _state_
     }
 
     set state(moms: any) {
-        localStorage.setItem("state", JSON.stringify(moms));
+        this.localStorage_setItem("state", JSON.stringify(moms));
     }
 
     clearState = () => {
-        localStorage.removeItem("state");
+        this.localStorage_removeItem("state");
     }
 
     //
     // history
     //
     get history() : Array<number> {
-        return JSON.parse(localStorage.getItem("history") ?? "[]")
+        return JSON.parse(this.localStorage_getItem("history") ?? "[]")
     }
 
     set history(mids: Array<number>) {
-        localStorage.setItem("history", JSON.stringify(mids));
+        this.localStorage_setItem("history", JSON.stringify(mids));
     }
 
     clearHistory = () => {
-        localStorage.removeItem("history");
+        this.localStorage_removeItem("history");
     }
 
     //
     // options
     //
     get options() : IOptions {
-        return JSON.parse(localStorage.getItem("options") ?? "{}")
+        return JSON.parse(this.localStorage_getItem("options") ?? "{}")
     }
 
     set options(options: IOptions) {
-        localStorage.setItem("options", JSON.stringify(options));
+        this.localStorage_setItem("options", JSON.stringify(options));
     }
 
     //
     // continue location
     //
     getContinueLocation() : any {
-        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations") ?? "{}")
+        let locs: Array<any> = JSON.parse(this.localStorage_getItem("continueLocations") ?? "{}")
         if (isObjectEmpty(locs)) return null;
         let key = "root";
         let loc = null;
@@ -753,7 +754,7 @@ export default class GameData {
     }
 
     setContinueLocation(loc: any) {
-        let locs: Array<any> = JSON.parse(localStorage.getItem("continueLocations") ?? "{}")
+        let locs: Array<any> = JSON.parse(this.localStorage_getItem("continueLocations") ?? "{}")
         let key = "root";
         if (isObjectEmpty(locs)) 
             locs = new Array<any>();
@@ -761,13 +762,13 @@ export default class GameData {
         locs.forEach((item: any) => {
             if (found == false && item.source == key) {
                 item.loc = loc;
-                localStorage.setItem("continueLocations", JSON.stringify(locs));
+                this.localStorage_setItem("continueLocations", JSON.stringify(locs));
                 found = true;
             }
         });
         if (found == false) {
             locs.push({ source: key, loc: loc });
-            localStorage.setItem("continueLocations", JSON.stringify(locs));
+            this.localStorage_setItem("continueLocations", JSON.stringify(locs));
         }
     }
 
@@ -775,19 +776,34 @@ export default class GameData {
     // continue state
     //
     get continueState() : any {
-        const _state_ = JSON.parse(localStorage.getItem("continueState") ?? "{}")
+        const _state_ = JSON.parse(this.localStorage_getItem("continueState") ?? "{}")
         return isObjectEmpty(_state_) ? null : _state_
     }
 
     set continueState(state: any) {
-        localStorage.setItem("continueState", JSON.stringify(state));
+        this.localStorage_setItem("continueState", JSON.stringify(state));
     }
 
     //
     // clear continue location and state
     //
     clearContinueData = () => {
-        localStorage.removeItem("continueLocations");
-        localStorage.removeItem("continueState");
+        this.localStorage_removeItem("continueLocations");
+        this.localStorage_removeItem("continueState");
+    }
+
+    //
+    // localStorage get/set/remove
+    //
+    private localStorage_getItem(key: string) {
+        return localStorage.getItem(`${this.id}_${key}`)
+    }
+
+    private localStorage_setItem(key: string, json: string) {
+        localStorage.setItem(`${this.id}_${key}`, json);
+    }
+
+    private localStorage_removeItem(key: string) {
+        localStorage.removeItem(`${this.id}_${key}`);
     }
 }

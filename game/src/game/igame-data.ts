@@ -12,7 +12,6 @@ export enum AKind {
 }
 
 export interface IGameMeta {
-    id: number
     name: string
     initialstate: string
     text: string

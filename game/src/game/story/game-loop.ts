@@ -19,10 +19,10 @@ export class Game implements IGameInstance {
     gameWindows: Array<IGameInstance>;
     started: boolean;
 
-    constructor(name: string, ui: IUI) {
+    constructor(id: string, ui: IUI) {
         (<any>window).GameInstance = this;
 
-        this.gdata = new GameData(name);
+        this.gdata = new GameData(id);
         this.ui = ui
 
         this.sitWindows = new Array<string>();

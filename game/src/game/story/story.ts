@@ -13,9 +13,9 @@ let game: Game
 
 
 
-const fetchState = async (gameName: string) => {
+const fetchState = async (id: string) => {
     ui = new UI()
-    game = new Game(gameName, ui)
+    game = new Game(id, ui)
 }
 
 export const fetch = async (args: string[] | undefined) => {
