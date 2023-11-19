@@ -3,7 +3,12 @@ import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, 
 import { IOptions } from "./igame.js";
 
 
-export class GameData {
+export default class GameData {
+    gameName: string;
+
+    constructor(name: string) {
+        this.gameName = name;
+    }
 
     select_Game = () => {
         var game = this.game;
@@ -623,6 +628,13 @@ export class GameData {
 //
 // localstorage
 //
+
+    getDataFileAsync = async () => {
+        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameName}`
+        const response = await fetch(url)
+        return response.text()
+    };
+
     clearStorage = () => {
         localStorage.clear();
     }
@@ -702,8 +714,6 @@ export class GameData {
     // history
     //
     get history() : Array<number> {
-        //const _history_ = JSON.parse(localStorage.getItem("history") ?? "{}")
-        //return isObjectEmpty(_history_) ? null : _history_
         return JSON.parse(localStorage.getItem("history") ?? "[]")
     }
 
@@ -781,11 +791,3 @@ export class GameData {
         localStorage.removeItem("continueState");
     }
 }
-
-
-
-
-const gameData = new GameData();
-export default gameData;
-
-

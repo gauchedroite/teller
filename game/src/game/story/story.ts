@@ -9,7 +9,7 @@ let storyStarted = false
 
 
 const ui = new UI()
-const game = new Game(ui)
+const game = new Game("coudon", ui)
 
 
 export const ux = ui;

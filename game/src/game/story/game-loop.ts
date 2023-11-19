@@ -1,5 +1,5 @@
 import { IGameInstance } from "../iinstance.js";
-import { GameData } from "../game-data.js";
+import GameData from "../game-data.js";
 import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "../igame-data.js";
 import { ChoiceKind, IChoice, IUI } from "../iui.js";
 import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op } from "../igame.js";
@@ -19,10 +19,10 @@ export class Game implements IGameInstance {
     gameWindows: Array<IGameInstance>;
     started: boolean;
 
-    constructor(ui: IUI) {
+    constructor(name: string, ui: IUI) {
         (<any>window).GameInstance = this;
 
-        this.gdata = new GameData();
+        this.gdata = new GameData(name);
         this.ui = ui
 
         this.sitWindows = new Array<string>();
@@ -32,7 +32,7 @@ export class Game implements IGameInstance {
 
     startGameAsync = async () => {
         if (this.gdata.moments.length == 0) {
-            const text = await Game.getDataFileAsync("data/state.json");
+            const text = await this.gdata.getDataFileAsync();
             if (text != undefined && text.length > 0) this.gdata.load_Game(text);
             return this.startNewGameAsync();
         }
@@ -227,7 +227,7 @@ export class Game implements IGameInstance {
     private refreshGameAndAlertAsync = async (text: string) => {
         let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
         if (skipFileLoad == false) {
-            const text = await Game.getDataFileAsync("data/state.json")
+            const text = await this.gdata.getDataFileAsync()
             if (text != undefined && text.length > 0) this.gdata.load_Game(text);
         }
         return this.ui.alertAsync(text); 
@@ -741,10 +741,5 @@ export class Game implements IGameInstance {
             }
         }
         return newSitWindows;
-    };
-
-    private static getDataFileAsync = async (url: string) => {
-        const response = await fetch(url)
-        return response.text()
     };
 }

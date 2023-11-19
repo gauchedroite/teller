@@ -3,7 +3,7 @@ import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"
 import { IGameData, IAction } from "../game/igame-data.js"
-import gdata from "../game/game-data.js"
+import GameData from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
 
 export const NS = "GED";
@@ -11,6 +11,7 @@ export const NS = "GED";
 const SAVEFILE_KEY = "Teller"
 
 
+let gdata: GameData;
 let state = <IGameData>{};
 
 
