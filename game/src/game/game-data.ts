@@ -719,6 +719,7 @@ export default class GameData implements IGameData {
         this.localStorage_setItem("continueState", JSON.stringify(state));
     }
 
+    
     //
     // clear continue location and state
     //
@@ -726,6 +727,8 @@ export default class GameData implements IGameData {
         this.localStorage_removeItem("continueLocations");
         this.localStorage_removeItem("continueState");
     }
+
+
 
     //
     // localStorage get/set/remove

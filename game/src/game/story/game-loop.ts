@@ -18,6 +18,7 @@ export class Game implements IGameInstance {
     sitWindows: Array<string>;
     gameWindows: Array<IGameInstance>;
     started: boolean;
+    bc: BroadcastChannel;
 
     constructor(id: string, ui: IUI) {
         (<any>window).GameInstance = this;
@@ -28,6 +29,8 @@ export class Game implements IGameInstance {
         this.sitWindows = new Array<string>();
         this.gameWindows = new Array<IGameInstance>();
         this.started = false;
+
+        this.bc = new BroadcastChannel("game-loop")
     }
 
     startGameAsync = async () => {
@@ -78,7 +81,10 @@ export class Game implements IGameInstance {
         (state as any)[this.gdata.game.initialstate] = true;
         this.gdata.state = state;
 
+        this.bc.postMessage({ op: "GAME_START" })
+
         this.data = this.gdata;
+        this.bc.postMessage({ op: "SHOWING_CHOICES" })
         this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
         if (this.currentMoment != null) {
             await this.updateAsync(Op.START_BLURBING);
@@ -125,6 +131,7 @@ export class Game implements IGameInstance {
                 
                 this.ui.clearBlurb();
                 await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
+                this.bc.postMessage({op: "SHOWING_MOMENT", moment: this.currentMoment })
                 op = Op.BLURB;
             }
             else if (op == Op.BLURB) {
@@ -175,6 +182,7 @@ export class Game implements IGameInstance {
                 }
             }
             else if (op == Op.BUILD_CHOICES) {
+                this.bc.postMessage({op: "SHOWING_CHOICES" })
                 let moments = this.getAllPossibleMoments();
                 let messages = this.getAllPossibleMessages();
                 let choices = this.buildChoices(moments, messages);

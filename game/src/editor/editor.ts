@@ -1,7 +1,7 @@
 ﻿import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"
-import { IGameData, IAction } from "../game/igame-data.js"
+import { IGameData, IAction, IMoment, Kind } from "../game/igame-data.js"
 import GameData from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
 import { Game } from "../game/story/game-loop.js"
@@ -13,6 +13,7 @@ export const NS = "GED";
 let gdata: GameData;
 let state = <IGameData>{};
 let editor_url = ""
+let prevState: any = {}
 
 
 interface GIDs {
@@ -280,10 +281,62 @@ const layoutCol_Action = () => {
 }
 
 const layoutCol_IDE = () => {
+    const state = gdata.state
+
+    interface IProp { name: string, prev: any, now: any };
+    var all = new Array<IProp>();
+
+    for (var property in prevState) {
+        all.push({ name: property, prev: prevState[property], now: undefined });
+    }
+
+    for (var property in state) {
+        var found = false;
+        for (var prev of all) {
+            if (prev.name == property) {
+                prev.now = state[property];
+                found = true;
+                break;
+            }
+        }
+        if (found) continue;
+        all.push({ name: property, prev: undefined, now: state[property] });
+    }
+
+    all.sort((a: IProp, b: IProp) => { return a.name.localeCompare(b.name); });
+
+    const rows = all.map(one => {
+        let now = one.now
+        let classname: string | null = null
+        let title: string | null = null
+
+        if (one.prev == undefined) {
+            classname = "new"
+        }
+        else if (one.now == undefined) {
+            classname = "deleted"
+            now = one.prev
+        }
+        else if (one.prev != one.now) {
+            classname = "changed"
+            title = `previous value: ${one.prev}`
+        }
+        return `<tr ${classname ? `class="${classname}"` : ""}><td>${one.name}</td><td ${title ? `title="${title}"`: ""}>${now}</td></tr>`
+    })
+
     return `
 <div class="page page-ide">
     <div class="content-block-title">
         <div>State</div>
+    </div>
+    <div class="content-block">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+            ${rows.join("")}
+        </table>
     </div>
 </div>
 `
@@ -564,4 +617,31 @@ export const saveState = () => {
     state_json = element.value.replace(/\n/g, "\\n")
     gdata.load_Game(state_json)
     refresh()
+}
+
+
+const bc = new BroadcastChannel("game-loop")
+bc.onmessage = event => {
+
+    if (gdata == undefined)
+        return
+
+    setTimeout(() => {
+
+        if (event.data.op == "SHOWING_CHOICES") {
+            App.render()
+            prevState = JSON.parse(JSON.stringify(gdata.state))
+        }
+        else if (event.data.op == "GAME_START") {
+            prevState = {}
+            App.render()
+        }
+        else if (event.data.op == "SHOWING_MOMENT") {
+            const moment = event.data.moment as IMoment
+            const mid = moment.id
+            const kind = (moment.kind == Kind.Moment ? "moment" : "action")
+            Router.goto(`#/${editor_url}/${kind}id=${mid}`)
+        }
+
+    }, 1);
 }
