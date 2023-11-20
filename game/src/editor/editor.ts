@@ -1,5 +1,4 @@
-﻿
-import * as App from "../core/app.js"
+﻿import * as App from "../core/app.js"
 import * as Router from "../core/router.js"
 import * as Misc from "../core/misc.js"
 import { IGameData, IAction } from "../game/igame-data.js"
@@ -9,8 +8,6 @@ import { Game } from "../game/story/game-loop.js"
 import { UI } from "../game/story/game-ui.js"
 
 export const NS = "GED";
-
-const SAVEFILE_KEY = "Teller"
 
 
 let gdata: GameData;
@@ -376,26 +373,27 @@ const parseArgs = (args: string[] | undefined) => {
     })
 }
 
-const fetchState = (args: string[] | undefined) => {
+const fetchState = async (args: string[] | undefined) => {
     if (args != undefined && args.length > 0) {
-        const name = args[0]
-        if (name == "new") {
+        const id = args[0]
+        if (id == "new") {
+            debugger//TODO
         }
-        else {
-            const ui = new UI()
-            const game = new Game(name, ui)
-            gdata = game.gdata
-            editor_url = `editor/${gdata.id}`
+        else if (gdata == undefined) {
+            editor_url = `editor/${id}`
+            gdata = new GameData(id);
+            const text = await gdata.fetchGameFileAsync();
+            if (text != undefined && text.length > 0) gdata.load_Game(text);
         }
     }
 
-    state = gdata.select_Game()
+    state = gdata
     parseArgs(args)
     return Promise.resolve()
 }
 
 const refresh = () => {
-    state = gdata.select_Game()
+    state = gdata
     App.render()
 }
 
@@ -556,9 +554,7 @@ export const addAction = () => {
 
 
 export const getState = () => {
-    state = gdata.select_Game();
-    delete state.me;
-    delete state.meid;
+    state = gdata
     state_json = JSON.stringify(state);
     refresh()
 }

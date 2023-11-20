@@ -31,9 +31,10 @@ export class Game implements IGameInstance {
     }
 
     startGameAsync = async () => {
-        if (this.gdata.moments.length == 0) {
-            const text = await this.gdata.getDataFileAsync();
-            if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+        const text = await this.gdata.fetchGameFileAsync();
+        if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+
+        if (this.gdata.state == undefined || isObjectEmpty(this.gdata.state)) {
             return this.startNewGameAsync();
         }
         else {
@@ -77,7 +78,7 @@ export class Game implements IGameInstance {
         (state as any)[this.gdata.game.initialstate] = true;
         this.gdata.state = state;
 
-        this.data = this.gdata.select_Game();
+        this.data = this.gdata;
         this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
         if (this.currentMoment != null) {
             await this.updateAsync(Op.START_BLURBING);
@@ -90,7 +91,7 @@ export class Game implements IGameInstance {
 
     private continueExistingGameAsync = async () => {
         this.restoreContinueData();
-        this.data = this.gdata.select_Game();
+        this.data = this.gdata;
         await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
         await this.updateAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES)
     };
@@ -98,7 +99,7 @@ export class Game implements IGameInstance {
 
 
     private updateAsync = async (op: Op): Promise<void> => {
-        this.data = this.gdata.select_Game();
+        this.data = this.gdata;
 
         while (true) {
             if (op == Op.START_BLURBING && !this.started) {
@@ -227,7 +228,7 @@ export class Game implements IGameInstance {
     private refreshGameAndAlertAsync = async (text: string) => {
         let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
         if (skipFileLoad == false) {
-            const text = await this.gdata.getDataFileAsync()
+            const text = await this.gdata.fetchGameFileAsync()
             if (text != undefined && text.length > 0) this.gdata.load_Game(text);
         }
         return this.ui.alertAsync(text); 

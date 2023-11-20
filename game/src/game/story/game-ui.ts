@@ -18,7 +18,6 @@ export class UI implements IUI {
     private myModal() { return <HTMLElement>document.querySelector(".modal") }
     private myModalInner() { return <HTMLElement>document.querySelector(".modal-inner") }
     private myChoicePanel() { return <HTMLElement>document.querySelector(".choice-panel") }
-    private myArticle() { return <HTMLElement>document.querySelector("article") }
     private myContent() { return <HTMLElement>document.querySelector(".content") }
     private myContentInner() { return <HTMLElement>document.querySelector(".content-inner") }
     private myHeading() { return <HTMLElement>document.querySelector(".heading") }
@@ -287,9 +286,9 @@ export class UI implements IUI {
         }
         else if (chunk.kind == ChunkKind.style) {
             let style = <IStyle>chunk;
-            let article = this.myArticle();
-            if (style.metadata != undefined && style.metadata.class != undefined) article.classList.add(style.metadata.class);
-            if (style.metadata != undefined && style.metadata.style != undefined) article.setAttribute("style", style.metadata.style);
+            const storyInner = this.myStoryInner();
+            if (style.metadata != undefined && style.metadata.class != undefined) storyInner.classList.add(style.metadata.class);
+            if (style.metadata != undefined && style.metadata.style != undefined) storyInner.setAttribute("style", style.metadata.style);
         }
         else {
             return;
@@ -298,14 +297,19 @@ export class UI implements IUI {
 
     addBlurbFast = (chunk: IMomentData) => {
         var html = this.markupChunk(chunk)
-        	.replace(/ style\="visibility:hidden"/g, "")
+        	.replace(/ style\='visibility:hidden'/g, "")
             .replace(/<span>/g, "")
             .replace(/<\/span>/g, "");
-        var article = this.myArticle();
+
         var div = document.createElement("div");
         div.innerHTML = html;
+
         var section = <HTMLDivElement>div.firstChild;
-        article.appendChild(section);
+        if (section == undefined)
+            return
+
+        const contentInner = this.myContentInner();
+        contentInner.appendChild(section);
     };
 
     clearBlurb = () => {

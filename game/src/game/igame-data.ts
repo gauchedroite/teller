@@ -71,6 +71,4 @@ export interface IGameData {
     scenes: Array<IScene>
     actors: Array<IActor>
     moments: Array<IMoment>
-    me: any
-    meid?: number
 }

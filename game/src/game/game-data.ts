@@ -3,33 +3,16 @@ import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, 
 import { IOptions } from "./igame.js";
 
 
-export default class GameData {
+export default class GameData implements IGameData {
     id: string;
+    game: IGameMeta = <IGameMeta> {};
+    situations: Array<ISituation> = [];
+    scenes: Array<IScene> = [];
+    actors: Array<IActor> = [];
+    moments: Array<IMoment> = [];
 
     constructor(name: string) {
         this.id = name;
-    }
-
-    select_Game = () => {
-        var game = this.game;
-        var sits = this.situations;
-        var scns = this.scenes;
-        var acts = this.actors;
-        var moms = this.moments;
-        var gdata = <IGameData> <unknown> {
-            game: game || <IGameMeta> <unknown> { id: 0, name: null, initialstate: null, text: null },
-            situations: sits,
-            scenes: scns,
-            actors: acts,
-            moments: moms,
-            me: null,
-            meid: null
-        };
-        if (game == null) {
-            var text = JSON.stringify(gdata);
-            this.load_Game(text);
-        }
-        return gdata;
     }
 
     load_Game = (text: string) => {
@@ -630,69 +613,21 @@ export default class GameData {
 // localstorage
 //
 
-    getDataFileAsync = async () => {
+    fetchGameFileAsync = async () => {
+        const savedtext = this.localStorage_getItem("_game")
+        if (savedtext) {
+            return savedtext
+        }
+
         const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.id}`
         const response = await fetch(url)
-        return response.text()
+        const text = await response.text()
+        this.localStorage_setItem("_game", text)
+        return text
     };
 
     clearStorage = () => {
         localStorage.clear();
-    }
-
-    //
-    // game
-    //
-    get game() {
-        return <IGameMeta> JSON.parse(localStorage.getItem("game") ?? "{}");
-    }
-
-    set game(game: IGameMeta) {
-        localStorage.setItem("game", JSON.stringify(game));
-    }
-
-    //
-    // situations
-    //
-    get situations() : Array<ISituation> {
-        return JSON.parse(localStorage.getItem("situations") ?? "[]");
-    }
-
-    set situations(sits: Array<ISituation>) {
-        localStorage.setItem("situations", JSON.stringify(sits));
-    }
-
-    //
-    // scenes
-    //
-    get scenes() : Array<IScene> {
-        return JSON.parse(localStorage.getItem("scenes") ?? "[]")
-    }
-
-    set scenes(moms: Array<IScene>) {
-        localStorage.setItem("scenes", JSON.stringify(moms));
-    }
-
-    //
-    // actors
-    //
-    get actors() : Array<IActor> {
-        return JSON.parse(localStorage.getItem("actors") ?? "[]")
-    }
-
-    set actors(moms: Array<IActor>) {
-        localStorage.setItem("actors", JSON.stringify(moms));
-    }
-
-    //
-    // moments
-    //
-    get moments() : Array<IMoment> {
-        return JSON.parse(localStorage.getItem("moments") ?? "[]")
-    }
-
-    set moments(moms: Array<IMoment>) {
-        localStorage.setItem("moments", JSON.stringify(moms));
     }
 
     //
