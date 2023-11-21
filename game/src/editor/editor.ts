@@ -129,8 +129,8 @@ const layoutCol_Situations = () => {
 
     return `
     <div class="content-block-title">
-        <div>Situations</div>
-        <div><a href="#" onclick="${NS}.addSituation();return false;"><i title="New Situation" class="fa-regular fa-video-plus"></i></a></div>
+        <div><i class="fa-regular fa-video"></i>&nbsp;Situations</div>
+        <div><a href="#" onclick="${NS}.addSituation();return false;"><i title="New Situation" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
         <ul>${lines.join("")}</ul>
@@ -164,7 +164,7 @@ const layoutCol_Situation = () => {
             
     return `
     <div class="content-block-title">
-        <div>Situation</div>
+        <div><i class="fa-regular fa-video"></i>&nbsp;Situation</div>
         <div><a href="#" onclick="${NS}.openModal('sitid');return false;"><i title="Delete Situation" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
@@ -176,8 +176,8 @@ const layoutCol_Situation = () => {
     </div>
 
     <div class="content-block-title">
-        <div>Scenes</div>
-        <div><a href="#" onclick="${NS}.addScene();return false;"><i title="New Scene" class="fa-regular fa-camera"></i></a></div>
+        <div><i class="fa-regular fa-camera"></i>&nbsp;Scenes</div>
+        <div><a href="#" onclick="${NS}.addScene();return false;"><i title="New Scene" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
         <ul>${scenelines.join("")}</ul>
@@ -234,7 +234,7 @@ const layoutCol_Scene = () => {
     
     return `
     <div class="content-block-title">
-        <div>Scene</div>
+        <div><i class="fa-regular fa-camera"></i>&nbsp;Scene</div>
         <div><a href="#" onclick="${NS}.openModal('sceneid');return false;"><i title="Delete Scene" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
@@ -245,16 +245,16 @@ const layoutCol_Scene = () => {
     </div>
 
     <div class="content-block-title">
-        <div>Moments</div>
-        <div><a href="#" onclick="${NS}.addMoment();return false;"><i title="New Moment" class="fa-regular fa-clock"></i></a></div>
+        <div><i class="fa-regular fa-clock"></i>&nbsp;Moments</div>
+        <div><a href="#" onclick="${NS}.addMoment();return false;"><i title="New Moment" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
         <ul>${momlines.join("")}</ul>
     </div>
 
     <div class="content-block-title">
-        <div>Actions</div>
-        <div><a href="#" onclick="${NS}.addAction();return false;"><i title="New Action" class="fa-regular fa-bolt"></i></a></div>
+        <div><i class="fa-regular fa-bolt"></i>&nbsp;Actions</div>
+        <div><a href="#" onclick="${NS}.addAction();return false;"><i title="New Action" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
         <ul>${actlines.join("")}</ul>
@@ -271,7 +271,7 @@ const layoutCol_Moment = () => {
     
     return `
     <div class="content-block-title">
-        <div>Moment</div>
+        <div><i class="fa-regular fa-clock"></i>&nbsp;Moment</div>
         <div><a href="#" onclick="${NS}.openModal('momentid');return false;"><i title="Delete Moment" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
@@ -298,7 +298,7 @@ const layoutCol_Action = () => {
     
     return `
     <div class="content-block-title">
-        <div>Action</div>
+        <div><i class="fa-regular fa-bolt"></i>&nbsp;Action</div>
         <div><a href="#" onclick="${NS}.openModal('actionid');return false;"><i title="Delete Action" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
@@ -635,18 +635,22 @@ export const executeModal = () => {
 
     if (what == "sitid") {
         gdata.deleteSituation(gids.sitid!)
+        gdata.update_Game(gdata)
         Router.goto(`#/${editor_url}`)
     }
     else if (what == "sceneid") {
         gdata.deleteScene(gids.sceneid!)
+        gdata.update_Game(gdata)
         Router.goto(`#/${editor_url}/sitid=${gids.sitid}`)
     }
     else if (what == "momentid") {
         gdata.deleteSceneMoment(gids.momentid!)
+        gdata.update_Game(gdata)
         Router.goto(`#/${editor_url}/sceneid=${gids.sceneid}`)
     }
     else if (what == "actionid") {
         gdata.deleteAction(gids.actionid!)
+        gdata.update_Game(gdata)
         Router.goto(`#/${editor_url}/sceneid=${gids.sceneid}`)
     }
 }
@@ -695,6 +699,11 @@ const getMomentUrl = (moment: IMoment) => {
 
 }
 
+
+
+//
+// Events
+//
 
 const bc = new BroadcastChannel("game-loop")
 bc.onmessage = event => {

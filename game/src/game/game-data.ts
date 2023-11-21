@@ -29,6 +29,14 @@ export default class GameData extends UserData implements IGameData {
     update_Game = (gdata: IGameData) => {
         const json = JSON.stringify(gdata)
         this.load_Game(json)
+
+        this.persistGame(<IGameData>{
+            game: this.game,
+            situations: this.situations,
+            scenes: this.scenes,
+            actors: this.actors,
+            moments: this.moments
+        })
     }
 
 
@@ -590,7 +598,7 @@ export default class GameData extends UserData implements IGameData {
 
 
 //
-// fetchGameFileAsync
+// Game File management
 //
     fetchGameFileAsync = async () => {
         const savedtext = this.localStorage_getItem("_game")
@@ -603,5 +611,13 @@ export default class GameData extends UserData implements IGameData {
         const text = await response.text()
         this.localStorage_setItem("_game", text)
         return text
-    };
+    }
+
+    publishGameFileAsync = () => {
+    }
+
+    persistGame = (data: IGameData) => {
+
+        this.localStorage_setItem("_game", JSON.stringify(data))
+    }
 }

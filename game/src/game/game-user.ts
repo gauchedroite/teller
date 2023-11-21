@@ -52,6 +52,7 @@ export default class UserData {
         this.localStorage_setItem("options", JSON.stringify(options));
     }
 
+
     //
     // continue location
     //
@@ -87,6 +88,7 @@ export default class UserData {
         }
     }
 
+    
     //
     // continue state
     //
