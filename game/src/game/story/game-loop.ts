@@ -140,7 +140,7 @@ export class Game implements IGameInstance {
 
                     let first = this.cix == 1;
                     let notLast = this.cix < this.chunks.length;
-                    let goFast = this.gdata.options.fastStory && notLast;
+                    let goFast = this.gdata.options.fastStory// && notLast;
                     if (goFast) {
                         this.ui.addBlurbFast(chunk);
                         await waitforMsecAsync(50);
@@ -182,10 +182,10 @@ export class Game implements IGameInstance {
                 }
             }
             else if (op == Op.BUILD_CHOICES) {
-                this.bc.postMessage({op: "SHOWING_CHOICES" })
                 let moments = this.getAllPossibleMoments();
                 let messages = this.getAllPossibleMessages();
                 let choices = this.buildChoices(moments, messages);
+                this.bc.postMessage({op: "SHOWING_CHOICES", moments, messages, choices })
                 this.updateTimedState();
                 if (choices.length > 0) {
                     const chosen = await this.ui.showChoicesAsync(choices)

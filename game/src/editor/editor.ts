@@ -4,8 +4,7 @@ import * as Misc from "../core/misc.js"
 import { IGameData, IAction, IMoment, Kind } from "../game/igame-data.js"
 import GameData from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
-import { Game } from "../game/story/game-loop.js"
-import { UI } from "../game/story/game-ui.js"
+import { IChoice } from "../game/iui.js"
 
 export const NS = "GED";
 
@@ -13,7 +12,9 @@ export const NS = "GED";
 let gdata: GameData;
 let state = <IGameData>{};
 let editor_url = ""
-let prevState: any = {}
+let current_moment: IMoment;
+let possible_moments: IMoment[]
+let choices: IChoice[]
 
 
 interface GIDs {
@@ -137,7 +138,15 @@ const layoutCol_Situation = () => {
     const scenes = state.scenes.filter(one => one.sitid == sitid)
     const scenelines = scenes.map(one => {
         const selected = one.id == gids.sceneid
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.name}`, `#/${editor_url}/sceneid=${one.id}`)}</li>`
+        const isnext = (choices ?? []).findIndex(choice => choice.id == one.id) != -1
+        const iscurrent = one.id == current_moment?.parentid ?? -1
+
+        const classes: string[] = []
+        if (selected) classes.push("ted-selected")
+        if (isnext) classes.push("ted-isnext")
+        if (iscurrent) classes.push("ted-iscurrent")
+
+        return `<li ${classes.length ? `class="${classes.join(" ")}"` : ""}>${mySelectRow(`${one.name}`, `#/${editor_url}/sceneid=${one.id}`)}</li>`
     })
 
     const actors = state.actors.filter(one => one.sitid == sitid)
@@ -184,15 +193,33 @@ const layoutCol_Scene = () => {
     const moments = gdata.getMomentsOf(scene)
     const momlines = moments.map(one => {
         const selected = one.id == gids.momentid
+        const isnext = (possible_moments ?? []).findIndex(moment => moment.id == one.id) != -1
+        const iscurrent = one.id == current_moment?.id ?? -1
+
+        const classes: string[] = []
+        if (selected) classes.push("ted-selected")
+        if (isnext) classes.push("ted-isnext")
+        if (iscurrent) classes.push("ted-iscurrent")
+
         const commands = GameHelper.getCommands(one.text).join("<br>")
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/momentid=${one.id}`, false, commands)}</li>`
+
+        return `<li ${classes.length ? `class="${classes.join(" ")}"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/momentid=${one.id}`, false, commands)}</li>`
     })
 
     const actions = gdata.getActionsOf(scene)
     const actlines = actions.map(one => {
         const selected = one.id == gids.actionid
+        const isnext = (possible_moments ?? []).findIndex(moment => moment.id == one.id) != -1
+        const iscurrent = one.id == current_moment?.id ?? -1
+
+        const classes: string[] = []
+        if (selected) classes.push("ted-selected")
+        if (isnext) classes.push("ted-isnext")
+        if (iscurrent) classes.push("ted-iscurrent")
+
         const commands = GameHelper.getCommands(one.text).join("<br>")
-        return `<li ${selected ? `class="ted-selected"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/actionid=${one.id}`, false, commands, one.name)}</li>`
+
+        return `<li ${classes.length ? `class="${classes.join(" ")}"` : ""}>${mySelectRow(`${one.when}`, `#/${editor_url}/actionid=${one.id}`, false, commands, one.name)}</li>`
     })
     
     return `
@@ -282,6 +309,7 @@ const layoutCol_Action = () => {
 
 const layoutCol_IDE = () => {
     const state = gdata.state
+    const prevState = JSON.parse(JSON.stringify(gdata.continueState?.state ?? {}))
 
     interface IProp { name: string, prev: any, now: any };
     var all = new Array<IProp>();
@@ -324,6 +352,19 @@ const layoutCol_IDE = () => {
         return `<tr ${classname ? `class="${classname}"` : ""}><td>${one.name}</td><td ${title ? `title="${title}"`: ""}>${now}</td></tr>`
     })
 
+
+    const rows2 = (choices ?? []).map((one, index) => {
+        return `<li><a href="#" onclick="${NS}.onclickChoice(${index});return false">${one.text}</a></li>`
+    })
+
+
+    const rows3 = (possible_moments ?? []).map((one, index) => {
+        return `<li><a href="${getMomentUrl(one)}">${one.when}</a></li>`
+    })
+
+    const current = (current_moment ? `<li><a href="${getMomentUrl(current_moment)}">${current_moment.when}</a></li>` : "")
+
+
     return `
 <div class="page page-ide">
     <div class="content-block-title">
@@ -337,6 +378,30 @@ const layoutCol_IDE = () => {
             </tr>
             ${rows.join("")}
         </table>
+    </div>
+    <div class="content-block-title">
+        <div>Current Moment</div>
+    </div>
+    <div class="content-block">
+        <ul>
+            ${current}
+        </ul>
+    </div>
+    <div class="content-block-title">
+        <div>Possible Moments</div>
+    </div>
+    <div class="content-block">
+        <ul>
+            ${rows3.join("")}
+        </ul>
+    </div>
+    <div class="content-block-title">
+        <div>Next Scenes</div>
+    </div>
+    <div class="content-block">
+        <ul>
+            ${rows2.join("")}
+        </ul>
     </div>
 </div>
 `
@@ -620,6 +685,14 @@ export const saveState = () => {
 }
 
 
+const getMomentUrl = (moment: IMoment) => {
+    const mid = moment.id
+    const kind = (moment.kind == Kind.Moment ? "moment" : "action")
+    return `#/${editor_url}/${kind}id=${mid}`
+
+}
+
+
 const bc = new BroadcastChannel("game-loop")
 bc.onmessage = event => {
 
@@ -629,19 +702,24 @@ bc.onmessage = event => {
     setTimeout(() => {
 
         if (event.data.op == "SHOWING_CHOICES") {
+            possible_moments = event.data.moments ?? []
+            choices = event.data.choices ?? []
             App.render()
-            prevState = JSON.parse(JSON.stringify(gdata.state))
         }
         else if (event.data.op == "GAME_START") {
-            prevState = {}
             App.render()
         }
         else if (event.data.op == "SHOWING_MOMENT") {
-            const moment = event.data.moment as IMoment
-            const mid = moment.id
-            const kind = (moment.kind == Kind.Moment ? "moment" : "action")
-            Router.goto(`#/${editor_url}/${kind}id=${mid}`)
+            current_moment = event.data.moment as IMoment
+            const url = getMomentUrl(current_moment)
+            Router.goto(url)
         }
 
-    }, 1);
+    }, 0);
+}
+
+
+export const onclickChoice = (index: number) => {
+    const channel = new BroadcastChannel("editor")
+    channel.postMessage({ choiceIndex: index})
 }
