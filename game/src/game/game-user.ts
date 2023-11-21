@@ -4,7 +4,7 @@ import { IOptions } from "./igame.js";
 
 export default class UserData {
 
-    constructor (private gameid: string) {
+    constructor (public gameid: string) {
     }
 
 

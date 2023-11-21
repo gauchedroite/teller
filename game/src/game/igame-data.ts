@@ -12,6 +12,7 @@ export enum AKind {
 }
 
 export interface IGameMeta {
+    id: string
     name: string
     initialstate: string
     text: string
@@ -19,7 +20,6 @@ export interface IGameMeta {
 
 export interface ISituation {
     id: number
-    gameid: number
     name: string
     when: string
     text: string

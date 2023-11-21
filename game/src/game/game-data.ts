@@ -1,20 +1,16 @@
-import { isObjectEmpty } from "../utils.js";
 import UserData from "./game-user.js";
 import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, IMessageTo, Kind, AKind, IGameData } from "./igame-data.js"
-import { IOptions } from "./igame.js";
 
 
 export default class GameData extends UserData implements IGameData {
-    id: string;
     game: IGameMeta = <IGameMeta> {};
     situations: Array<ISituation> = [];
     scenes: Array<IScene> = [];
     actors: Array<IActor> = [];
     moments: Array<IMoment> = [];
 
-    constructor(name: string) {
-        super(name);
-        this.id = name;
+    constructor(gameid: string) {
+        super(gameid);
     }
 
     load_Game = (text: string) => {
@@ -44,14 +40,13 @@ export default class GameData extends UserData implements IGameData {
 // situations
 //
     addSituation = () => {
-        const gameid = 0;
         var id = -1;
         var sits = this.situations;
         for (var sit of sits) {
             if (sit.id > id) id = sit.id;
         }
         id++;
-        var sit: ISituation = { id: id, gameid: gameid, name: "", when: "", text: "", sids: [], aids: [], aid: -1 };
+        var sit: ISituation = { id: id, name: "", when: "", text: "", sids: [], aids: [], aid: -1 };
         sits.push(sit);
         this.situations = sits;
         //
@@ -606,7 +601,7 @@ export default class GameData extends UserData implements IGameData {
             return savedtext
         }
 
-        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.id}`
+        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
         const response = await fetch(url)
         const text = await response.text()
         this.localStorage_setItem("_game", text)

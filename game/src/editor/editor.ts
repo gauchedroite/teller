@@ -33,13 +33,13 @@ let state_json: string;
 
 
 
-const myInputRow = (id: string, value: string, label: string | null, ph: string | null = null) => {
+const myInputRow = (id: string, value: string, label: string | null, ph: string | null = null, disabled = false) => {
     return `
     <div class="item-content">
         <div class="item-inner">
             ${label ? `<div class="item-title label">${label}</div>` : ""}
             <div class="item-input">
-                <input type="text" placeholder="${ph ?? ""}" value="${value ?? ""}" id="${NS}_${id}" onchange="${NS}.onchange(this)">
+                <input type="text" placeholder="${ph ?? ""}" value="${value ?? ""}" id="${NS}_${id}" ${disabled ? "disabled" : `onchange="${NS}.onchange(this)"`}>
             </div>
         </div>
     </div>
@@ -79,13 +79,14 @@ const layoutCol_Game = () => {
     <div class="content-block-title">
         <div>Game Info</div>
         <div>
-            <a href="#/story/${gdata.id}"><i title="Save Game" class="fa-regular fa-floppy-disk"></i></a>
+            <a title="Upload Game" href="#" onclick="return false;"><i class="fa-regular fa-cloud-arrow-up"></i></a>
         </div>
     </div>
     <div class="list-block">
         <ul>
-            <li>${myInputRow("game_name", state.game.name, "Name", "Game name", )}</li>
-            <li>${myInputRow("game_initialstate", state.game.initialstate, "State", "Initial state", )}</li>
+        <li>${myInputRow("game_id", state.game.id, "ID", "Game ID", true)}</li>
+        <li>${myInputRow("game_name", state.game.name, "Name", "Game name")}</li>
+        <li>${myInputRow("game_initialstate", state.game.initialstate, "State", "Initial state")}</li>
             <li>${myInputAreaRow("game_text", state.game.text, "details")}</li>
         </ul>
     </div>
@@ -99,22 +100,11 @@ const layoutCol_Game = () => {
         </ul>
     </div>
 
-    <div class="content-block-title">Game Data</div>
-    <div class="list-block">
-        <ul>
-            <li>${myInputAreaRow("state_json", state_json)}</li>
-        </ul>
-    </div>
-    <div style="display:flex; justify-content:flex-end;">
-        <button onclick="${NS}.getState()" style="margin:0.5rem 0;">Get</button>
-        <button onclick="${NS}.saveState()" style="margin:0.5rem 0.75rem;">Save</button>
-    </div>
-
     <div class="content-block-title">
         <div>Game</div>
         <div>
             <a target="_new" href="#/"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
-            <a target="_new" href="#/story/${gdata.id}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
+            <a target="_new" href="#/story/${gdata.gameid}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
         </div>
     </div>
     <div class="content-block-iframe">
@@ -124,7 +114,7 @@ const layoutCol_Game = () => {
 }
 
 const layoutCol_Situations = () => {
-    const sits = state.situations.filter(one => one.gameid == 0)
+    const sits = state.situations
     const lines = sits.map(one => `<li>${mySelectRow(`${one.name}`, `#/${editor_url}/sitid=${one.id}`, false, one.when)}</li>`)
 
     return `
@@ -164,19 +154,19 @@ const layoutCol_Situation = () => {
             
     return `
     <div class="content-block-title">
-        <div><i class="fa-regular fa-video"></i>&nbsp;Situation</div>
+        <div><i class="fa-regular fa-camera-movie"></i>&nbsp;Situation</div>
         <div><a href="#" onclick="${NS}.openModal('sitid');return false;"><i title="Delete Situation" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
         <ul>
-            <li>${myInputRow("sit_name", sit.name, "Name", "Name", )}</li>
-            <li>${myInputRow("sit_when", sit.when, "When", "Condition", )}</li>
+            <li>${myInputRow("sit_name", sit.name, "Name", "Name")}</li>
+            <li>${myInputRow("sit_when", sit.when, "When", "Condition")}</li>
             <li>${myInputAreaRow("sit_text", sit.text, "details")}</li>
         </ul>
     </div>
 
     <div class="content-block-title">
-        <div><i class="fa-regular fa-camera"></i>&nbsp;Scenes</div>
+        <div><i class="fa-regular fa-image"></i>&nbsp;Scenes</div>
         <div><a href="#" onclick="${NS}.addScene();return false;"><i title="New Scene" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
@@ -234,18 +224,18 @@ const layoutCol_Scene = () => {
     
     return `
     <div class="content-block-title">
-        <div><i class="fa-regular fa-camera"></i>&nbsp;Scene</div>
+        <div><i class="fa-regular fa-image"></i>&nbsp;Scene</div>
         <div><a href="#" onclick="${NS}.openModal('sceneid');return false;"><i title="Delete Scene" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
         <ul>
-            <li>${myInputRow("scene_name", scene.name, null, "Game name", )}</li>
+            <li>${myInputRow("scene_name", scene.name, null, "Game name")}</li>
             <li>${myInputAreaRow("scene_text", scene.text, "details")}</li>
         </ul>
     </div>
 
     <div class="content-block-title">
-        <div><i class="fa-regular fa-clock"></i>&nbsp;Moments</div>
+        <div><i class="fa-regular fa-hourglass-clock"></i>&nbsp;Moments</div>
         <div><a href="#" onclick="${NS}.addMoment();return false;"><i title="New Moment" class="fa-regular fa-plus"></i></a></div>
     </div>
     <div class="list-block media-list">
@@ -271,12 +261,12 @@ const layoutCol_Moment = () => {
     
     return `
     <div class="content-block-title">
-        <div><i class="fa-regular fa-clock"></i>&nbsp;Moment</div>
+        <div><i class="fa-regular fa-hourglass-clock"></i>&nbsp;Moment</div>
         <div><a href="#" onclick="${NS}.openModal('momentid');return false;"><i title="Delete Moment" class="fa-regular fa-trash"></i></a></div>
     </div>
     <div class="list-block">
         <ul>
-            <li>${myInputRow("moment_when", moment.when, "When", "Condition", )}</li>
+            <li>${myInputRow("moment_when", moment.when, "When", "Condition")}</li>
         </ul>
     </div>
 
@@ -303,8 +293,8 @@ const layoutCol_Action = () => {
     </div>
     <div class="list-block">
         <ul>
-            <li>${myInputRow("action_when", action.when, "When", "Condition", )}</li>
-            <li>${myInputRow("action_name", action.name, null, "Name", )}</li>
+            <li>${myInputRow("action_when", action.when, "When", "Condition")}</li>
+            <li>${myInputRow("action_name", action.name, null, "Name")}</li>
         </ul>
     </div>
 
@@ -579,7 +569,7 @@ const getFormState = () => {
     clone.game.initialstate = Misc.fromInputText(`${NS}_game_initialstate`, state.game.initialstate)!
     clone.game.text = Misc.fromInputText(`${NS}_game_text`, state.game.text)!
 
-    if (gids.sitid) {
+    if (gids.sitid != undefined) {
         const sit = state.situations.find(one => one.id == gids.sitid)!
         const clone_sit = clone.situations.find(one => one.id == gids.sitid)!
         clone_sit.name = Misc.fromInputText(`${NS}_sit_name`, sit.name)!
@@ -587,21 +577,21 @@ const getFormState = () => {
         clone_sit.text = Misc.fromInputText(`${NS}_sit_text`, sit.text)!
     }
 
-    if (gids.sceneid) {
+    if (gids.sceneid != undefined) {
         const scene = state.scenes.find(one => one.id == gids.sceneid)!
         const clone_scene = clone.scenes.find(one => one.id == gids.sceneid)!
         clone_scene.name = Misc.fromInputText(`${NS}_scene_name`, scene.name)!
         clone_scene.text = Misc.fromInputText(`${NS}_scene_text`, scene.text)!
     }
 
-    if (gids.momentid) {
+    if (gids.momentid != undefined) {
         const moment = state.moments.find(one => one.id == gids.momentid)!
         const clone_moment = clone.moments.find(one => one.id == gids.momentid)!
         clone_moment.when = Misc.fromInputText(`${NS}_moment_when`, moment.when)!
         clone_moment.text = Misc.fromInputText(`${NS}_moment_text`, moment.text)!
     }
 
-    if (gids.actionid) {
+    if (gids.actionid != undefined) {
         const action = state.moments.find(one => one.id == gids.actionid)! as IAction
         const clone_action = clone.moments.find(one => one.id == gids.actionid)! as IAction
         clone_action.when = Misc.fromInputText(`${NS}_action_when`, action.when)!
@@ -675,20 +665,6 @@ export const addMoment = () => {
 export const addAction = () => {
     const id = gdata.addAction(gids.sceneid!)
     Router.goto(`#/${editor_url}/actionid=${id}`)
-}
-
-
-export const getState = () => {
-    state = gdata
-    state_json = JSON.stringify(state);
-    refresh()
-}
-
-export const saveState = () => {
-    const element = document.getElementById(`${NS}_state_json`)! as HTMLInputElement
-    state_json = element.value.replace(/\n/g, "\\n")
-    gdata.load_Game(state_json)
-    refresh()
 }
 
 
