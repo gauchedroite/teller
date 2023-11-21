@@ -2,6 +2,10 @@
     --ged-border-color: #c0c0c0;
     --ged-bgc: #f7f7f8;
     --ged-bgc2: #efeff4;
+    --ged-success: #63c260;
+    --ged-warning: rgb(231, 184, 96);
+    --ged-pw: 260px;
+    --ged-iframeh: 300px;
 }
 
 #ged {
@@ -45,7 +49,7 @@
     }
     
     .page {
-        width: 260px;
+        width: var(--ged-pw);
         height: 100%;
         border-right: 1px solid var(--ged-border-color);
         background-color: var(--ged-bgc2);
@@ -70,7 +74,39 @@
         border-bottom: 1px solid #c8c7cc;
 
         & ul {
+            list-style: none;
             padding-inline-start: 1rem;
+
+            & li::before {
+                display: inline-block;
+                font-weight: bold;
+                width: 1.25rem;
+                margin-left: -1.25rem;
+            }
+
+            & li.ted-iscurrent::before {
+                content: "★";
+                color: var(--ged-success);
+            }
+
+            & li.ted-isnext::before {
+                content: "►";
+                color: var(--ged-warning);
+            }
+        }
+    }
+
+    .content-block-iframe {
+        background-color: var(--ged-bgc);
+        border-top: 1px solid #c8c7cc;
+        border-bottom: 1px solid #c8c7cc;
+        height: var(--ged-iframeh);
+
+        & iframe {
+            width: calc(var(--ged-pw) * 2);
+            height: calc(var(--ged-iframeh) * 2);
+            transform: scale(0.5);
+            transform-origin: 0 0;
         }
     }
 
@@ -158,25 +194,25 @@
         position: relative;
     }
 
-    .list-block li.ted-iscurrent:after {
+    .list-block li.ted-iscurrent::after {
         content: '';
         position: absolute;
         right: 0;
         top: 0;
         height: 100%;
         width: 6px;
-        background-color: #78df6f;
+        background-color: var(--ged-success);
         display: block;
     }
 
-    .list-block li.ted-isnext:after {
+    .list-block li.ted-isnext::after {
         content: '';
         position: absolute;
         right: 0;
         top: 0;
         height: 100%;
         width: 6px;
-        background-color: rgb(231, 229, 96);
+        background-color: var(--ged-warning);
         display: block;
     }
 

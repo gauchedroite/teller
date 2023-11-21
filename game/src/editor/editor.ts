@@ -79,8 +79,7 @@ const layoutCol_Game = () => {
     <div class="content-block-title">
         <div>Game Info</div>
         <div>
-            <a href="#/"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
-            <a href="#/story/${gdata.id}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></i></a>
+            <a href="#/story/${gdata.id}"><i title="Save Game" class="fa-regular fa-floppy-disk"></i></a>
         </div>
     </div>
     <div class="list-block">
@@ -109,6 +108,17 @@ const layoutCol_Game = () => {
     <div style="display:flex; justify-content:flex-end;">
         <button onclick="${NS}.getState()" style="margin:0.5rem 0;">Get</button>
         <button onclick="${NS}.saveState()" style="margin:0.5rem 0.75rem;">Save</button>
+    </div>
+
+    <div class="content-block-title">
+        <div>Game</div>
+        <div>
+            <a target="_new" href="#/"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
+            <a target="_new" href="#/story/${gdata.id}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
+        </div>
+    </div>
+    <div class="content-block-iframe">
+        <iframe title="Game" src="#/story/coudon"></iframe>
     </div>
 `
 }
@@ -353,22 +363,22 @@ const layoutCol_IDE = () => {
     })
 
 
-    const rows2 = (choices ?? []).map((one, index) => {
-        return `<li><a href="#" onclick="${NS}.onclickChoice(${index});return false">${one.text}</a></li>`
+    const current = (current_moment ? `<li class="ted-iscurrent"><a href="${getMomentUrl(current_moment)}">${current_moment.when}</a></li>` : "")
+
+    const nextmoments = (possible_moments ?? []).map((one, index) => {
+        return `<li class="ted-isnext"><a href="${getMomentUrl(one)}">${one.when}</a></li>`
     })
 
-
-    const rows3 = (possible_moments ?? []).map((one, index) => {
-        return `<li><a href="${getMomentUrl(one)}">${one.when}</a></li>`
+    const nextscenes = (choices ?? []).map((one, index) => {
+        return `<li class="ted-isnext"><a href="#" onclick="${NS}.onclickChoice(${index});return false">${one.text}</a></li>`
     })
-
-    const current = (current_moment ? `<li><a href="${getMomentUrl(current_moment)}">${current_moment.when}</a></li>` : "")
 
 
     return `
 <div class="page page-ide">
     <div class="content-block-title">
         <div>State</div>
+        <div><a href="#" onclick="${NS}.refreshGame();return false;"><i class="fa-regular fa-rotate-right"></i></a></div>
     </div>
     <div class="content-block">
         <table>
@@ -380,19 +390,12 @@ const layoutCol_IDE = () => {
         </table>
     </div>
     <div class="content-block-title">
-        <div>Current Moment</div>
+        <div>Moments</div>
     </div>
     <div class="content-block">
         <ul>
             ${current}
-        </ul>
-    </div>
-    <div class="content-block-title">
-        <div>Possible Moments</div>
-    </div>
-    <div class="content-block">
-        <ul>
-            ${rows3.join("")}
+            ${nextmoments.join("")}
         </ul>
     </div>
     <div class="content-block-title">
@@ -400,7 +403,7 @@ const layoutCol_IDE = () => {
     </div>
     <div class="content-block">
         <ul>
-            ${rows2.join("")}
+            ${nextscenes.join("")}
         </ul>
     </div>
 </div>
@@ -722,4 +725,9 @@ bc.onmessage = event => {
 export const onclickChoice = (index: number) => {
     const channel = new BroadcastChannel("editor")
     channel.postMessage({ choiceIndex: index})
+}
+
+export const refreshGame = () => {
+    const channel = new BroadcastChannel("editor2")
+    channel.postMessage({})
 }

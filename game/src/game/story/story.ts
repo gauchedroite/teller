@@ -62,3 +62,9 @@ export const postRender = () => {
         setTimeout(game.startGameAsync, 0)
     }
 }
+
+
+
+const bc2 = new BroadcastChannel("editor2")
+bc2.onmessage = event => setTimeout(() => { location.reload() }, 0);
+
