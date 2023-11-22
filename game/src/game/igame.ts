@@ -82,9 +82,6 @@ export enum Op {
 }
 
 export interface IOptions {
-    skipFileLoad: boolean,
-    skipMenu: boolean,
-    syncEditor: boolean,
     fastStory: boolean
 }
 

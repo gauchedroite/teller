@@ -29,7 +29,6 @@ interface GIDs {
 }
 let gids: GIDs;
 let modalWhat: string | null;
-let state_json: string;
 
 
 
@@ -69,6 +68,14 @@ const mySelectRow = (label: string, url: string, disabled = false, text: string 
             </div>
         </div>
     </a>
+`
+}
+
+const myCheckbox = (id: string, checked: boolean, label: string | null) => {
+    return `
+<label>
+    <input type="checkbox" id="${NS}_${id}" ${checked ? "checked" : ""} onchange="${NS}.onchange(this)"> ${label ?? ""}
+</label>
 `
 }
 
@@ -379,6 +386,7 @@ const layoutCol_IDE = () => {
             ${rows.join("")}
         </table>
     </div>
+
     <div class="content-block-title">
         <div>Moments</div>
     </div>
@@ -388,6 +396,7 @@ const layoutCol_IDE = () => {
             ${nextmoments.join("")}
         </ul>
     </div>
+
     <div class="content-block-title">
         <div>Next Scenes</div>
     </div>
@@ -395,6 +404,13 @@ const layoutCol_IDE = () => {
         <ul>
             ${nextscenes.join("")}
         </ul>
+    </div>
+
+    <div class="content-block-title">
+        <div>Control</div>
+    </div>
+    <div class="content-block">
+        ${myCheckbox("fastStory", gdata.options.fastStory, "Fast Story")}
     </div>
 </div>
 `
@@ -562,6 +578,7 @@ export const postRender = () => {
 }
 
 
+
 const getFormState = () => {
     let clone = Misc.clone(state) as IGameData
 
@@ -599,6 +616,10 @@ const getFormState = () => {
         clone_action.text = Misc.fromInputText(`${NS}_action_text`, action.text)!
     }
 
+    const options = gdata.options
+    options.fastStory = Misc.fromInputCheckbox(`${NS}_fastStory`, options.fastStory)
+    gdata.options = options
+
     return clone;
 };
 
@@ -607,6 +628,7 @@ export const onchange = (input: HTMLInputElement) => {
     gdata.update_Game(state)
     App.render();
 };
+
 
 
 export const openModal = (what: string) => {

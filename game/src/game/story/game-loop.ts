@@ -50,16 +50,7 @@ export class Game implements IGameInstance {
 
     clearAllGameData = () => {
         var options = this.gdata.options;
-        if (options.skipFileLoad) {
-            this.gdata.clearContinueData();
-            this.gdata.clearHistory();
-            this.gdata.clearState();
-            //
-            this.startNewGameAsync();
-        }
-        else {
-            this.gdata.clearStorage();
-        }
+        this.gdata.clearStorage();
         this.gdata.options = options;
     };
 
@@ -71,8 +62,6 @@ export class Game implements IGameInstance {
 
         let options = this.gdata.options;
         if (isObjectEmpty(options)) options = <IOptions>{ 
-            skipFileLoad: false,
-            syncEditor: false,
             fastStory: false
         };
         this.gdata.options = options;
@@ -234,11 +223,8 @@ export class Game implements IGameInstance {
     };
 
     private refreshGameAndAlertAsync = async (text: string) => {
-        let skipFileLoad = (this.gdata.options != undefined && this.gdata.options.skipFileLoad);
-        if (skipFileLoad == false) {
-            const text = await this.gdata.fetchGameFileAsync()
-            if (text != undefined && text.length > 0) this.gdata.load_Game(text);
-        }
+        const json = await this.gdata.fetchGameFileAsync()
+        if (json != undefined && json.length > 0) this.gdata.load_Game(json);
         return this.ui.alertAsync(text); 
     };
 
