@@ -596,9 +596,9 @@ export default class GameData extends UserData implements IGameData {
 // Game File management
 //
     fetchGameFileAsync = async () => {
-        const savedtext = this.localStorage_getItem("_game")
-        if (savedtext) {
-            return savedtext
+        const savedjson = this.localStorage_getItem("_game")
+        if (savedjson) {
+            return savedjson
         }
 
         const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
@@ -608,11 +608,19 @@ export default class GameData extends UserData implements IGameData {
         return text
     }
 
-    publishGameFileAsync = () => {
+    publishGameFileAsync = async () => {
+        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
+        const options = <RequestInit> {
+            method: "post",
+            headers: { "Content-Type": "application/json" },
+            body: this.localStorage_getItem("_game")
+        }
+        const response = await fetch(url, options)
+        const json = await response.json()
+        console.log(json)
     }
 
     persistGame = (data: IGameData) => {
-
         this.localStorage_setItem("_game", JSON.stringify(data))
     }
 }

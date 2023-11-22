@@ -86,7 +86,7 @@ const layoutCol_Game = () => {
     <div class="content-block-title">
         <div>Game Info</div>
         <div>
-            <a title="Upload Game" href="#" onclick="return false;"><i class="fa-regular fa-cloud-arrow-up"></i></a>
+            <a title="Upload Game" href="#" onclick="${NS}.uploadGame();return false;"><i class="fa-regular fa-cloud-arrow-up"></i></a>
         </div>
     </div>
     <div class="list-block">
@@ -694,7 +694,6 @@ const getMomentUrl = (moment: IMoment) => {
     const mid = moment.id
     const kind = (moment.kind == Kind.Moment ? "moment" : "action")
     return `#/${editor_url}/${kind}id=${mid}`
-
 }
 
 
@@ -737,4 +736,11 @@ export const onclickChoice = (index: number) => {
 export const refreshGame = () => {
     const channel = new BroadcastChannel("editor2")
     channel.postMessage({})
+}
+
+export const uploadGame = () => {
+    setTimeout(() => {
+        gdata.publishGameFileAsync()
+        console.log("DONE")
+    }, 0);
 }
