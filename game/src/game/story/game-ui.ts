@@ -28,7 +28,7 @@ export class UI implements IUI {
     private myGame() { return <HTMLElement>document.querySelector(".game") }
 
 
-    constructor () {
+    constructor (private id: string) {
         UX = `${NS}.ux`
     }
 
@@ -347,7 +347,7 @@ export class UI implements IUI {
     <div class="navbar">
         <div class="navbar-inner">
             <div class="goto-menu">
-                <a href="#/"><i class="fa-solid fa-bars"></i></a>
+                <a href="#/home/${this.id}"><i class="fa-solid fa-bars"></i></a>
             </div>
             <div class="title">
                 <div class="title-inner"></div>

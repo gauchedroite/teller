@@ -1,6 +1,6 @@
 
 import * as router from "../core/router.js"
-import * as home from "./home/home.js"
+import * as home from "./story/home.js"
 import * as story from "./story/story.js"
 
 
@@ -11,9 +11,10 @@ import * as story from "./story/story.js"
 
 export const startup = () => {
     router.addRoute("^#/story/?(.*)$", params => story.fetch(params));
+    router.addRoute("^#/home/?(.*)$", params => home.fetch(params));
 
     // Must be the last route because it's a catchall
-    router.addRoute("^#/?(.*)$", params => home.fetch(params));
+    //router.addRoute("^#/?(.*)$", params => home.fetch(params));
 }
 
 export const render = () => {

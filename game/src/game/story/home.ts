@@ -7,16 +7,17 @@ import WebglRunner from "../webgl-runner.js"
 export const NS = "GHOME"
 
 
+let gameid: string = "";
 let runner: WebglRunner | undefined = undefined;
 
 
-const myLayout = () => {
+const myLayout = (id: string) => {
     return `
 <canvas id="canvas" class="full-viewport"></canvas>
 <div id="game_menu">
-    <a href="#/story/moon-limbo" style="color:whitesmoke;">Continuer</a><br>
-    <a href="#/story/moon-limbo/restart" style="color:whitesmoke;">Restart la partie</a><br>
-    <a href="#/editor/moon-limbo" style="color:whitesmoke;">Editeur</a><br>
+    <a href="#/story/${id}" style="color:whitesmoke;">Continuer</a><br>
+    <a href="#/story/${id}/restart" style="color:whitesmoke;">Restart la partie</a><br>
+    <a href="#/editor/${id}" style="color:whitesmoke;">Editeur</a><br>
 </div>
 `
 }
@@ -95,6 +96,7 @@ const fragmentShader = () => {
 
 
 export const fetch = (args: string[] | undefined) => {
+    gameid = (args ? args[0] : "");
     App.prepareRender(NS, "Home", "game_home")
     App.render()
 }
@@ -104,16 +106,18 @@ export const fetch = (args: string[] | undefined) => {
 export const render = () => {
     if (!App.inContext(NS)) return ""
 
-    return myLayout()
+    return myLayout(gameid)
 }
 
 export const postRender = () => {
     if (!App.inContext(NS)) return
 
     if (runner == undefined) {
-        const canvas = <HTMLCanvasElement>document.getElementById("canvas")
-        runner = new WebglRunner()
-        runner.run(canvas, fragmentShader(), vertexShader())
+        setTimeout(() => {
+            const canvas = <HTMLCanvasElement>document.getElementById("canvas")
+            runner = new WebglRunner()
+            runner.run(canvas, fragmentShader(), vertexShader())
+        }, 0);
     }
 }
 
@@ -121,9 +125,9 @@ export const postRender = () => {
 window.addEventListener("hashchange", () => {
     let hash = window.location.hash;
     if (hash.length == 0)
-        hash = "#/";
+        hash = `#/home/${gameid}`;
 
-    if (hash == "#/")
+    if (hash == `#/home/${gameid}`)
         runner?.resume()
     else
         runner?.pause()

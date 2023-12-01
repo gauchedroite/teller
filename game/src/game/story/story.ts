@@ -14,7 +14,7 @@ let game: Game
 
 
 const fetchState = async (id: string) => {
-    ui = new UI()
+    ui = new UI(id)
     game = new Game(id, ui)
     await game.gdata.fetchGameFileAsync()
 }
