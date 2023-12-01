@@ -200,9 +200,9 @@ export class UI implements IUI {
             section.style.transition = "opacity 0.1s ease";
             section.style.animation = "color-cycle 5s infinite";
 
-            let assetName = inline.image.replace(/ /g, "%20").replace(/'/g, "%27");
+            let assetName = inline.image;
             if (assetName.indexOf(".") == -1) assetName += ".jpg";
-            assetName = `assets/${assetName}`;
+            assetName = this.asset(assetName);
             
             let image = new Image();
             image.src = assetName;
@@ -223,7 +223,7 @@ export class UI implements IUI {
             if (chunk.kind == ChunkKind.dialog) {
                 let dialog = <IDialog>chunk;
                 if (dialog.metadata != undefined && dialog.metadata.image != undefined) {
-                    let assetName = "game/assets/" + dialog.metadata.image.replace(/ /g, "%20").replace(/'/g, "%27");
+                    let assetName = this.asset(dialog.metadata.image);
                     if (assetName.indexOf(".") == -1) assetName += ".jpg";
                     let head = <HTMLDivElement>section.getElementsByClassName("head")[0];
 
@@ -404,7 +404,7 @@ export class UI implements IUI {
         if (document.body.classList.contains("portrait")) return;
 
         if (assetName == undefined) return;
-        assetName = assetName.replace(/ /g, "%20").replace(/'/g, "%27");
+        assetName = this.sanitize(assetName);
 
         var solid = this.mySolidInner();
         var zero = <HTMLElement>solid.children[0];
@@ -423,7 +423,7 @@ export class UI implements IUI {
 
         var sceneUrl = assetName;
         if (!assetName.endsWith(".html"))
-            sceneUrl = "teller-image.html?" + assetName;
+            sceneUrl = `repos/game-${this.id}/teller-image.html?${assetName}`;
         
         if (frontFrame.src.indexOf(sceneUrl) != -1) return;
         if (sceneUrl == this.previousSceneUrl) return;
@@ -462,7 +462,7 @@ export class UI implements IUI {
         let game = this.myGame()
         let gameFrame = <HTMLIFrameElement>game.firstElementChild;
 
-        let src = `game/${minigame.url.replace(/ /g, "%20").replace(/'/g, "%27")}`;
+        let src = this.asset(minigame.url);
         gameFrame.setAttribute("src", src);
 
         (<any>window).eventHubAction = (result: any) => {
@@ -574,4 +574,12 @@ export class UI implements IUI {
             if (top < end) setTimeout(scroll, 10);
         }, 10);
     };
+
+    private sanitize = (filename: string) => {
+        return filename.replace(/ /g, "%20").replace(/'/g, "%27")
+    }
+
+    private asset = (assetName: string) => {
+        return `repos/game-${this.id}/assets/${this.sanitize(assetName)}`
+    }
 }
