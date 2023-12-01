@@ -347,7 +347,7 @@ export class UI implements IUI {
     <div class="navbar">
         <div class="navbar-inner">
             <div class="goto-menu">
-                <a href="#/home/${this.id}"><i class="fa-solid fa-bars"></i></a>
+                <a href="#/menu/${this.id}"><i class="fa-solid fa-bars"></i></a>
             </div>
             <div class="title">
                 <div class="title-inner"></div>

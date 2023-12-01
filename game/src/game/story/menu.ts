@@ -4,7 +4,7 @@ import * as Router from "../../core/router.js"
 import * as Misc from "../../core/misc.js"
 import WebglRunner from "../webgl-runner.js"
 
-export const NS = "GHOME"
+export const NS = "GMENU"
 
 
 let gameid: string = "";
@@ -16,7 +16,7 @@ const myLayout = (id: string) => {
 <canvas id="canvas" class="full-viewport"></canvas>
 <div id="game_menu">
     <a href="#/story/${id}" style="color:whitesmoke;">Continuer</a><br>
-    <a href="#/story/${id}/restart" style="color:whitesmoke;">Restart la partie</a><br>
+    <a href="#/story/${id}/restart" style="color:whitesmoke;">Restart</a><br>
     <a href="#/editor/${id}" style="color:whitesmoke;">Editeur</a><br>
 </div>
 `
@@ -97,7 +97,7 @@ const fragmentShader = () => {
 
 export const fetch = (args: string[] | undefined) => {
     gameid = (args ? args[0] : "");
-    App.prepareRender(NS, "Home", "game_home")
+    App.prepareRender(NS, "Menu", "game_menu")
     App.render()
 }
 
@@ -125,9 +125,9 @@ export const postRender = () => {
 window.addEventListener("hashchange", () => {
     let hash = window.location.hash;
     if (hash.length == 0)
-        hash = `#/home/${gameid}`;
+        hash = `#/menu/${gameid}`;
 
-    if (hash == `#/home/${gameid}`)
+    if (hash == `#/menu/${gameid}`)
         runner?.resume()
     else
         runner?.pause()

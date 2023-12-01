@@ -110,7 +110,7 @@ const layoutCol_Game = () => {
     <div class="content-block-title">
         <div>Game</div>
         <div>
-            <a target="_new" href="#/home/${gdata.gameid}"><i title="Home" class="fa-regular fa-bars"></i></a>&nbsp;
+            <a target="_new" href="#/menu/${gdata.gameid}"><i title="Menu" class="fa-regular fa-bars"></i></a>&nbsp;
             <a target="_new" href="#/story/${gdata.gameid}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
         </div>
     </div>
