@@ -19,3 +19,10 @@ body {
   width: 100%;
   overflow-x: hidden;
 }
+
+#gindex {
+
+  #game_menu {
+      position: absolute;
+  }
+}
