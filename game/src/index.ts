@@ -1,5 +1,4 @@
 import * as App from "./core/app.js"
-import * as Layout from "./layout.js"
 import * as router from "./core/router.js"
 //
 import * as GameMain from "./game/main.js"
@@ -33,7 +32,7 @@ export const render = () => {
 
     return `
     <canvas id="index-canvas" class="full-viewport"></canvas>
-    <div id="game_menu">
+    <div id="game_index_menu">
         <div><a href="#/story/moon-limbo" style="color:whitesmoke;">Moon Limbo</a></div>
         <div><a href="#/story/coudon" style="color:whitesmoke;">Coudon</a></div>
     </div>
@@ -56,13 +55,27 @@ export const postRender = () => {
 
 
 
-// Initialize the app and configure routes
-await App.initialize(Layout.render, Layout.postRender, "Teller");
+// Initialize the app
+await App.initialize(
+    () => {
+        return `
+        ${GameMain.render()}
+        ${EditorMain.render()}
+        ${render()}
+    `
+    }, () => {
+        GameMain.postRender();
+        EditorMain.postRender();
+        postRender();
+    }, 
+    "Teller");
+
+    // Configure routes
 EditorMain.startup();
 GameMain.startup();
 
 // Add a catchall route
-router.addRoute("^#/(.*)$", params => fetch(params));
+router.addRoute("^#/?(.*)$", params => fetch(params));
 
 
 
