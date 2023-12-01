@@ -115,7 +115,7 @@ const layoutCol_Game = () => {
         </div>
     </div>
     <div class="content-block-iframe">
-        <iframe title="Game" src="#/story/coudon"></iframe>
+        <iframe title="Game" src="#/story/${state.game.id}"></iframe>
     </div>
 `
 }
@@ -741,6 +741,5 @@ export const refreshGame = () => {
 export const uploadGame = () => {
     setTimeout(() => {
         gdata.publishGameFileAsync()
-        console.log("DONE")
     }, 0);
 }

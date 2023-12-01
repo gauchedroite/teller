@@ -14,10 +14,9 @@ const myLayout = () => {
     return `
 <canvas id="canvas" class="full-viewport"></canvas>
 <div id="game_menu">
-    <a href="#/story/coudon" style="color:whitesmoke;">Continuer</a><br>
-    <a href="#/story/coudon/restart" style="color:whitesmoke;">Restart la partie</a><br>
-    <a href="#/editor/coudon" style="color:whitesmoke;">Editeur</a><br>
-    <a href="#/dsleditor" style="color:whitesmoke;">Editeur DSL</a><br>
+    <a href="#/story/moon-limbo" style="color:whitesmoke;">Continuer</a><br>
+    <a href="#/story/moon-limbo/restart" style="color:whitesmoke;">Restart la partie</a><br>
+    <a href="#/editor/moon-limbo" style="color:whitesmoke;">Editeur</a><br>
 </div>
 `
 }
