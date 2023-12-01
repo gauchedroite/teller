@@ -602,10 +602,15 @@ export default class GameData extends UserData implements IGameData {
         }
 
         const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
-        const response = await fetch(url)
-        const text = await response.text()
-        this.localStorage_setItem("_game", text)
-        return text
+        try {
+            const response = await fetch(url)
+            const text = await response.text()
+            this.localStorage_setItem("_game", text)
+            return text
+        }
+        catch (ex) {
+            return ""
+         }
     }
 
     publishGameFileAsync = async () => {
