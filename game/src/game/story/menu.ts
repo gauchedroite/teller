@@ -13,11 +13,12 @@ let runner: WebglRunner | undefined = undefined;
 
 const myLayout = (id: string) => {
     return `
-<canvas id="canvas" class="full-viewport"></canvas>
+<canvas id="menu_canvas" class="full-viewport"></canvas>
 <div id="game_menu">
     <a href="#/story/${id}" style="color:whitesmoke;">Continuer</a><br>
     <a href="#/story/${id}/restart" style="color:whitesmoke;">Restart</a><br>
     <a href="#/editor/${id}" style="color:whitesmoke;">Editeur</a><br>
+    <a href="#/" style="color:whitesmoke;">Index</a><br>
 </div>
 `
 }
@@ -114,7 +115,7 @@ export const postRender = () => {
 
     if (runner == undefined) {
         setTimeout(() => {
-            const canvas = <HTMLCanvasElement>document.getElementById("canvas")
+            const canvas = <HTMLCanvasElement>document.getElementById("menu_canvas")
             runner = new WebglRunner()
             runner.run(canvas, fragmentShader(), vertexShader())
         }, 0);

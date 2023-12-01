@@ -31,10 +31,10 @@ export const render = () => {
     if (!App.inContext(NS)) return "";
 
     return `
-    <canvas id="index-canvas" class="full-viewport"></canvas>
+    <canvas id="index_canvas" class="full-viewport"></canvas>
     <div id="game_index_menu">
-        <div><a href="#/story/moon-limbo" style="color:whitesmoke;">Moon Limbo</a></div>
-        <div><a href="#/story/coudon" style="color:whitesmoke;">Coudon</a></div>
+        <div><a href="#/menu/moon-limbo" style="color:whitesmoke;">Moon Limbo</a></div>
+        <div><a href="#/menu/coudon" style="color:whitesmoke;">Coudon</a></div>
     </div>
 `
 }
@@ -44,7 +44,7 @@ export const postRender = () => {
 
     if (runner == undefined) {
         setTimeout(() => {
-            const canvas = <HTMLCanvasElement>document.getElementById("index-canvas")
+            const canvas = <HTMLCanvasElement>document.getElementById("index_canvas")
             runner = new WebglRunner()
             runner.run(canvas, fragmentShader(), vertexShader())
         }, 0);
