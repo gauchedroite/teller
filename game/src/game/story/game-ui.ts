@@ -423,7 +423,7 @@ export class UI implements IUI {
 
         var sceneUrl = assetName;
         if (!assetName.endsWith(".html"))
-            sceneUrl = `repos/game-${this.id}/teller-image.html?${assetName}`;
+            sceneUrl = this.doc(`teller-image.html?${assetName}`);
         
         if (frontFrame.src.indexOf(sceneUrl) != -1) return;
         if (sceneUrl == this.previousSceneUrl) return;
@@ -580,6 +580,14 @@ export class UI implements IUI {
     }
 
     private asset = (assetName: string) => {
+        if (this.id == "dev")
+            return `repos_game-dev/assets/${this.sanitize(assetName)}`
         return `repos/game-${this.id}/assets/${this.sanitize(assetName)}`
+    }
+
+    private doc = (assetName: string) => {
+        if (this.id == "dev")
+            return `repos_game-dev/${this.sanitize(assetName)}`
+        return `repos/game-${this.id}/${this.sanitize(assetName)}`
     }
 }
