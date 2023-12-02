@@ -601,7 +601,6 @@ export default class GameData extends UserData implements IGameData {
             return savedjson
         }
 
-        //const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
         const url = this.doc("game-script.json")
         try {
             const response = await fetch(url)
@@ -615,7 +614,7 @@ export default class GameData extends UserData implements IGameData {
     }
 
     publishGameFileAsync = async () => {
-        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
+        const url = `http://localhost:5501/save-game-script/${this.doc("game-script.json")}`
         const options = <RequestInit> {
             method: "post",
             headers: { "Content-Type": "application/json" },
