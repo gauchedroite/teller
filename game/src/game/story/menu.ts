@@ -1,14 +1,10 @@
 
 import * as App from "../../core/app.js"
-import * as Router from "../../core/router.js"
-import * as Misc from "../../core/misc.js"
-import WebglRunner from "../webgl-runner.js"
 
 export const NS = "GMENU"
 
 
 let gameid: string = "";
-let runner: WebglRunner | undefined = undefined;
 
 
 const myLayout = (id: string) => {
@@ -32,10 +28,26 @@ const myLayout = (id: string) => {
 }
 
 
+const addGameCss = (id: string) => {
+    const cssid = `gamecss_${id}`
+    const cssElement = document.getElementById(cssid)
+    if (cssElement != undefined)
+        return
+
+    const link = document.createElement("link")
+    link.id = cssid
+    link.href = (id != "dev" ? `repos/game-${id}/css/index.css` : `repos_game-dev/css/index.css`)
+    link.type = "text/css"
+    link.rel = "stylesheet"
+
+    document.getElementsByTagName("head")[0].appendChild(link)
+}
+
 
 export const fetch = (args: string[] | undefined) => {
     gameid = (args ? args[0] : "");
     App.prepareRender(NS, "Menu", "game_menu")
+    addGameCss(gameid)
     App.render()
 }
 
@@ -50,15 +62,3 @@ export const render = () => {
 export const postRender = () => {
     if (!App.inContext(NS)) return
 }
-
-
-window.addEventListener("hashchange", () => {
-    let hash = window.location.hash;
-    if (hash.length == 0)
-        hash = `#/menu/${gameid}`;
-
-    if (hash == `#/menu/${gameid}`)
-        runner?.resume()
-    else
-        runner?.pause()
-})

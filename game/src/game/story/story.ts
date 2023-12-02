@@ -13,6 +13,21 @@ let game: Game
 
 
 
+const addGameCss = (id: string) => {
+    const cssid = `gamecss_${id}`
+    const cssElement = document.getElementById(cssid)
+    if (cssElement != undefined)
+        return
+
+    const link = document.createElement("link")
+    link.id = cssid
+    link.href = (id != "dev" ? `repos/game-${id}/css/index.css` : `repos_game-dev/css/index.css`)
+    link.type = "text/css"
+    link.rel = "stylesheet"
+
+    document.getElementsByTagName("head")[0].appendChild(link)
+}
+
 const fetchState = async (id: string) => {
     ui = new UI(id)
     game = new Game(id, ui)
@@ -25,6 +40,9 @@ export const fetch = async (args: string[] | undefined) => {
     if (args != undefined && args.length > 0) {
         const name = args[0]
         const action = args[1];
+        
+        addGameCss(name)
+
         if (action == "restart") {
             game?.clearAllGameData()
             storyStarted = false;

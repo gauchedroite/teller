@@ -601,7 +601,8 @@ export default class GameData extends UserData implements IGameData {
             return savedjson
         }
 
-        const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
+        //const url = `https://a9tcbe04zh.execute-api.us-east-1.amazonaws.com/teller/story/${this.gameid}`
+        const url = this.doc("game-script.json")
         try {
             const response = await fetch(url)
             const text = await response.text()
@@ -627,5 +628,11 @@ export default class GameData extends UserData implements IGameData {
 
     persistGame = (data: IGameData) => {
         this.localStorage_setItem("_game", JSON.stringify(data))
+    }
+
+    doc = (assetName: string) => {
+        if (this.gameid == "dev")
+            return `repos_game-dev/${assetName}`
+        return `repos/game-${this.gameid}/${assetName}`
     }
 }

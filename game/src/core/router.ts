@@ -11,6 +11,7 @@ let resumeTo: string;
 let dirtyExit: (() => boolean) | null;
 let onHashChange: (hash: string) => void;
 let beforeCallback: () => Promise<void>;
+let previousRoute: string | null;
 
 
 
@@ -94,12 +95,19 @@ const hashChange = async () => {
                     route.callback([]);
                 else
                     route.callback(parameters[1].split("/"));
+
+                broadcastChange(hash);
             }
         }
         reverting = false;
     }
 };
 
+const broadcastChange = (hash: string) => {
+    const bc = new BroadcastChannel("route-change")
+    bc.postMessage({ previous: previousRoute, current: hash })
+    previousRoute = hash
+}
 
 
 window.addEventListener("hashchange", hashChange);
