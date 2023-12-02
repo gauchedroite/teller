@@ -18,11 +18,11 @@ const myLayout = (id: string) => {
 <div class="solid">
     <iframe title="Menu Background" src="${doc("menu-bg.html")}" class="full-viewport"></iframe>
 </div>
-<div class="solid">
-    <a href="#/story/${id}" style="color:whitesmoke;">Continuer</a><br>
-    <a href="#/story/${id}/restart" style="color:whitesmoke;">Restart</a><br>
-    <a href="#/editor/${id}" style="color:whitesmoke;">Editeur</a><br>
-    <a href="#/" style="color:whitesmoke;">Index</a><br>
+<div class="solid menu-panel">
+    <a href="#/story/${id}">Continuer</a><br>
+    <a href="#/story/${id}/restart">Restart</a><br>
+    <a href="#/editor/${id}">Editeur</a><br>
+    <a href="#/">Index</a><br>
 </div>
 `
 }
@@ -34,11 +34,20 @@ const addGameCss = (id: string) => {
     if (cssElement != undefined)
         return
 
+    // Remove existing game specific css
+    const tags = document.querySelectorAll("[tag=gamecss]")
+    for (let ix = tags.length - 1; ix >= 0; ix--) {
+        const tag = tags[ix]
+        tag.parentNode?.removeChild(tag)
+    }
+
+    // Add game specific css
     const link = document.createElement("link")
     link.id = cssid
     link.href = (id != "dev" ? `repos/game-${id}/css/index.css` : `repos_game-dev/css/index.css`)
     link.type = "text/css"
     link.rel = "stylesheet"
+    link.setAttribute("tag", "gamecss")
 
     document.getElementsByTagName("head")[0].appendChild(link)
 }

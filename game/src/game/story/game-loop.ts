@@ -625,7 +625,7 @@ export class Game implements IGameInstance {
                         let value: any = (parts.length == 2 ? parts[1].trim() : "true");
                         if (value == "true" || value == "false") value = (value == "true");
 
-                        let state = this.gdata.state;
+                        let state = this.gdata.state ?? {};
                         if (value === "undef")
                             delete state[name];
                         else

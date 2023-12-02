@@ -1,3 +1,8 @@
+:root {
+    --story-inner-height: 25%;
+    --story-panel-offset: 0px;
+}
+
 #gstory {
 
     font-family: "Roboto Slab", serif;
@@ -131,6 +136,7 @@
 
         .content-inner {
             padding: 16px 0;
+            margin-bottom: var(--story-panel-offset);
             line-height: 1.4em;
         }
 
@@ -235,7 +241,7 @@
     .choice-panel {
         position: absolute;
         width: 100%;
-        top: 100%;
+        top: calc(100% - var(--story-panel-offset));
         border-top: 3px solid #333;
         background: rgba(255, 255, 255, 0.35);
         transition: top 0.25s;
@@ -509,7 +515,7 @@
         width: 30%;
         min-width: 350px;
         max-width: 450px;
-        height: calc(25% + 0px);
+        height: calc(var(--story-inner-height) + var(--story-panel-offset));
         border-top: 4px solid rgba(255, 255, 255, 0.5);
         background-color: rgba(255, 255, 255, 0.2);
         transition: height 0.15s, border 0.15s, background 0.15s;

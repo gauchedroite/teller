@@ -102,14 +102,12 @@ export class UI implements IUI {
         var content = this.myContent()
         content.classList.add("overlay");
 
-        panel.style.top = "calc(100% - " + panel.offsetHeight + "px)";
+        this.setCssVariable("--story-panel-offset", `${panel.offsetHeight}px`)
 
         let storyInner = this.myStoryInner();
-        storyInner.style.height = "calc(25% + " + panel.offsetHeight + "px)";
         storyInner.classList.remove("minimized");
 
         let text = this.myContentInner();
-        text.style.marginBottom = panel.offsetHeight + "px";
         this.scrollContent(text.parentElement!);
 
         var next = this.myNext()
@@ -153,13 +151,12 @@ export class UI implements IUI {
         content.classList.remove("overlay");
         content.style.pointerEvents = "auto";
 
+        document.body.style.setProperty("--story-panel-offset", "0px")
+        this.setCssVariable("--story-panel-offset", "0px")
+
         // make sure the first blurb will be visible
         var storyInner = this.myStoryInner()
         storyInner.scrollTop = content.offsetTop;
-        storyInner.style.height = "25%";
-
-        var panel = this.myChoicePanel();
-        panel.style.top = "100%";
 
         var text = this.myContentInner()
         text.style.marginBottom = "0";
@@ -589,5 +586,10 @@ export class UI implements IUI {
         if (this.id == "dev")
             return `repos_game-dev/${this.sanitize(assetName)}`
         return `repos/game-${this.id}/${this.sanitize(assetName)}`
+    }
+
+    private setCssVariable = (property: string, value: string) => {
+        //(document.querySelector(":root") as HTMLElement).style.setProperty(property, value)
+        document.body.style.setProperty(property, value)
     }
 }

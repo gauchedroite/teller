@@ -33,11 +33,9 @@ export const render = () => {
     return `
     <canvas id="index_canvas" class="full-viewport"></canvas>
     <div id="game_index_menu">
+        <div><a href="#/menu/billy" style="color:whitesmoke;">Billy</a></div>
         <div><a href="#/menu/dev" style="color:whitesmoke;">Dev Game</a></div>
-        <div><a href="#/menu/moon-limbo" style="color:whitesmoke;">Moon Limbo</a></div>
-        <div><a href="#/menu/coudon" style="color:whitesmoke;">Coudon</a></div>
-    </div>
-`
+    </div>`
 }
 
 export const postRender = () => {

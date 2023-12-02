@@ -18,5 +18,11 @@
     
     #game_menu {
         position: absolute;
+
+        .menu-panel {
+            background-color: whitesmoke;
+            width: auto;
+            height: auto;
+        }
     }
 }
