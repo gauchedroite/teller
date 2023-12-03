@@ -18,11 +18,13 @@ const myLayout = (id: string) => {
 <div class="solid">
     <iframe title="Menu Background" src="${doc("menu-bg.html")}" class="full-viewport"></iframe>
 </div>
-<div class="solid menu-panel">
-    <a href="#/story/${id}">Continuer</a><br>
-    <a href="#/story/${id}/restart">Restart</a><br>
-    <a href="#/editor/${id}">Editeur</a><br>
-    <a href="#/">Index</a><br>
+<div class="menu-panel">
+    <ul>
+        <li><a href="#/story/${id}" data-action="continue">Continuer la partie</a></li>
+        <li><a href="#/story/${id}/restart" data-action="restart">Nouvelle partie</a></li>
+        <li><a href="#/editor/${id}" data-action="editor">Editeur</a></li>
+        <li><a href="#/" data-action="index">Index</a></li>
+    </ul>
 </div>
 `
 }

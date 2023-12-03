@@ -23,7 +23,7 @@ export default class WebglRunner {
     
     run = (canvas: HTMLCanvasElement, fstext: string, vstext: string) => {
         // Get context
-        var gl = <WebGLRenderingContext>canvas.getContext("experimental-webgl");
+        var gl = <WebGLRenderingContext>canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true });
         if (!gl)
             return alert("Your web browser does not support WebGL");
 
@@ -55,6 +55,7 @@ export default class WebglRunner {
         // Lookup uniforms
         var u_resolution = gl.getUniformLocation(prog, "resolution");
         var u_time = gl.getUniformLocation(prog, "time");
+        var u_mouse = gl.getUniformLocation(prog, "mouse");
 
         // Populate the geometry in the buffer
         var arr = [
@@ -98,9 +99,10 @@ export default class WebglRunner {
             gl.clearColor(0, 0, 0, 0.2);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            // Set the resolution and time uniforms
+            // Set the resolution, time, and mouse uniforms
             gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
             gl.uniform1f(u_time, (now - me._paused) * 0.001);
+            gl.uniform2f(u_mouse, 0, 0.95);
 
             // Draw the geometry
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
