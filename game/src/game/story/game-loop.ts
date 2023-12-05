@@ -57,6 +57,7 @@ export class Game implements IGameInstance {
 
     
     private startNewGameAsync = async () => {
+        //console.log("startNewGameAsync")
         this.gdata.history = [];    //init the list of showed moments
         this.gdata.clearContinueData();
 
@@ -85,6 +86,7 @@ export class Game implements IGameInstance {
     };
 
     private continueExistingGameAsync = async () => {
+        //console.log("continueExistingGameAsync")
         this.restoreContinueData();
         this.data = this.gdata;
         await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));

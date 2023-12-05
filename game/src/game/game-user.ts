@@ -1,5 +1,7 @@
 import { isObjectEmpty } from "../utils.js";
+import { IGameData } from "./igame-data.js";
 import { IOptions } from "./igame.js";
+import * as App from "../core/app.js";
 
 
 export default class UserData {
@@ -101,6 +103,10 @@ export default class UserData {
         this.localStorage_setItem("continueState", JSON.stringify(state));
     }
 
+    canResumeGame() {
+        return this.continueState != null
+    }
+
 
     //
     // clear continue location and state
@@ -128,5 +134,42 @@ export default class UserData {
 
     clearStorage = () => {
         localStorage.clear();
+    }
+
+
+    //
+    // game file persistence
+    //
+    fetchGameFileAsync = async () => {
+        const savedjson = this.localStorage_getItem("_game")
+        if (savedjson) {
+            return savedjson
+        }
+
+        const url = this.doc("game-script.json")
+        try {
+            const response = await fetch(url)
+            const text = await response.text()
+            this.localStorage_setItem("_game", text)
+            return text
+        }
+        catch (ex) {
+            return ""
+        }
+    }
+
+    publishGameFileAsync = async () => {
+        const url = `save-game-script/${this.doc("game-script.json")}`
+        await App.POST(url, JSON.parse(this.localStorage_getItem("_game")!))
+    }
+
+    persistGame = (data: IGameData) => {
+        this.localStorage_setItem("_game", JSON.stringify(data))
+    }
+
+    private doc = (assetName: string) => {
+        if (this.gameid == "dev")
+            return `repos_game-dev/${assetName}`
+        return `repos/game-${this.gameid}/${assetName}`
     }
 }

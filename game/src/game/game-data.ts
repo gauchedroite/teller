@@ -1,4 +1,3 @@
-import * as App from "../core/app.js";
 import UserData from "./game-user.js";
 import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, IMessageTo, Kind, AKind, IGameData } from "./igame-data.js"
 
@@ -590,55 +589,5 @@ export default class GameData extends UserData implements IGameData {
             }
         }
         return <Array<IMessageFrom>>moms;
-    }
-
-
-//
-// Game File management
-//
-    fetchGameFileAsync = async () => {
-        const savedjson = this.localStorage_getItem("_game")
-        if (savedjson) {
-            return savedjson
-        }
-
-        const url = this.doc("game-script.json")
-        try {
-            const response = await fetch(url)
-            const text = await response.text()
-            this.localStorage_setItem("_game", text)
-            return text
-        }
-        catch (ex) {
-            return ""
-         }
-    }
-
-    OLD_publishGameFileAsync = async () => {
-        const url = `http://localhost:5501/save-game-script/${this.doc("game-script.json")}`
-        const options = <RequestInit> {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: this.localStorage_getItem("_game")
-        }
-        const response = await fetch(url, options)
-        const json = await response.json()
-        console.log(json)
-    }
-
-    publishGameFileAsync = async () => {
-        const url = `save-game-script/${this.doc("game-script.json")}`
-        const qaz = await App.POST(url, JSON.parse(this.localStorage_getItem("_game")!))
-        console.log(qaz)
-    }
-
-    persistGame = (data: IGameData) => {
-        this.localStorage_setItem("_game", JSON.stringify(data))
-    }
-
-    doc = (assetName: string) => {
-        if (this.gameid == "dev")
-            return `repos_game-dev/${assetName}`
-        return `repos/game-${this.gameid}/${assetName}`
     }
 }

@@ -1,34 +1,70 @@
 
 import * as App from "../../core/app.js"
+import UserData from "../game-user.js";
 
 export const NS = "GMENU"
 
 
-let gameid: string = "";
+let gameid: string = ""
+let showModal = false
 
 
-const myLayout = (id: string) => {
+const myLayout = (id: string, modal: string) => {
     const doc = (assetName: string) => {
         if (id == "dev")
             return `repos_game-dev/${assetName}`
         return `repos/game-${id}/${assetName}`
     }
 
-    const isAdmin = (window as any).APP.admin;
+    const isAdmin = (window as any).APP.admin
+    const canResume = new UserData(gameid).canResumeGame()
 
+    const lines: string[] = [];
+    const add = (line: string) => lines.push(line)
+
+    if (canResume) {
+        add(`<li><a href="#/story/${id}" data-action="continue">Continuer la partie!</a></li>`)
+        add(`<li><a href="#" onclick="${NS}.openmodalNew();return false;">Nouvelle partie...</a></li>`)
+    }
+    else {
+        add(`<li><a href="#/story/${id}" data-action="begin">Commencer une partie!</a></li>`)
+    }
+
+    if (isAdmin) {
+        add(`<li><a href="#/editor/${id}" data-action="editor">Editeur</a></li>`)
+        add(`<li><a href="#/" data-action="index">Index</a></li>`)
+    }
+
+    
     return `
 <div class="solid">
     <iframe title="Menu Background" src="${doc("menu-bg.html")}" class="full-viewport"></iframe>
 </div>
 <div class="menu-panel">
     <ul>
-        <li><a href="#/story/${id}" data-action="continue">Continuer la partie</a></li>
-        <li><a href="#/story/${id}/restart" data-action="restart">Nouvelle partie</a></li>
-${isAdmin ? `
-        <li><a href="#/editor/${id}" data-action="editor">Editeur</a></li>
-        <li><a href="#/" data-action="index">Index</a></li>
-` : ``}
+        ${lines.join("")}
     </ul>
+</div>
+${modal}
+`
+}
+
+const layout_Modal = () => {
+    if (!showModal) return ""
+
+    return `
+<div class="modal">
+    <div class="background" onclick="${NS}.closemodal()"></div>
+    <div class="content">
+        <span class="close" onclick="${NS}.closemodal()">&times;</span>
+        <div class="body">
+            <p>Êtes-vous certain de vouloir commencer une nouvelle partie?</p>
+            <p>Votre partie actuelle sera effacée!</p>
+            <div class="yes">
+                <a href="#/story/${gameid}/restart" data-action="restart">OUI</a>
+            </div>
+        </div>
+    </div>
 </div>
 `
 }
@@ -71,9 +107,22 @@ export const fetch = (args: string[] | undefined) => {
 export const render = () => {
     if (!App.inContext(NS)) return ""
 
-    return myLayout(gameid)
+    const modal = layout_Modal()
+    return myLayout(gameid, modal)
 }
 
 export const postRender = () => {
     if (!App.inContext(NS)) return
+}
+
+
+
+export const openmodalNew = () => {
+    showModal = true
+    App.renderOnNextTick()
+}
+
+export const closemodal = () => {
+    showModal = false
+    App.renderOnNextTick()
 }
