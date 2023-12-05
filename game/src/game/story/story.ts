@@ -1,6 +1,7 @@
 import * as App from "../../core/app.js"
 import { UI } from "./game-ui.js"
 import { Game } from "./game-loop.js"
+import * as router from "../../core/router.js"
 
 export const NS = "GSTORY"
 
@@ -45,9 +46,10 @@ export const fetch = async (args: string[] | undefined) => {
 
         if (action == "restart") {
             game?.clearAllGameData()
-            storyStarted = false;
-            (<any>document).location = `#/story/${name}`;
-            location.reload();
+            storyStarted = false
+            router.goto(`#/story/${name}`, 1)
+            router.reload(10) // this makes sure to "release" any pending wait for click in the previous game instance
+            return
         }
         else {
             await fetchState(name)
@@ -84,5 +86,5 @@ export const postRender = () => {
 
 
 const bc2 = new BroadcastChannel("editor2")
-bc2.onmessage = event => setTimeout(() => { location.reload() }, 0);
+bc2.onmessage = event => setTimeout(() => { router.reload() }, 0);
 

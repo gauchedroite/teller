@@ -16,9 +16,12 @@ let previousRoute: string | null;
 
 
 
-export const reload = () => {
+export const reload = (delay: number | null = null) => {
     dirtyExit = null;
-    location.reload();
+    if (delay == null)
+        location.reload();
+    else
+        setTimeout(() => { location.reload() }, delay)
 };
 
 export const registerDirtyExit = (dirtyExitFunction: (() => boolean) | null) => {

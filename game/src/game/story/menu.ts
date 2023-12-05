@@ -1,5 +1,6 @@
 
 import * as App from "../../core/app.js"
+import * as router from "../../core/router.js";
 import UserData from "../game-user.js";
 
 export const NS = "GMENU"
@@ -23,16 +24,16 @@ const myLayout = (id: string, modal: string) => {
     const add = (line: string) => lines.push(line)
 
     if (canResume) {
-        add(`<li><a href="#/story/${id}" data-action="continue">Continuer la partie!</a></li>`)
+        add(`<li><a href="#/story/${id}">Continuer la partie!</a></li>`)
         add(`<li><a href="#" onclick="${NS}.openmodalNew();return false;">Nouvelle partie...</a></li>`)
     }
     else {
-        add(`<li><a href="#/story/${id}" data-action="begin">Commencer une partie!</a></li>`)
+        add(`<li><a href="#/story/${id}">Commencer une partie!</a></li>`)
     }
 
     if (isAdmin) {
-        add(`<li><a href="#/editor/${id}" data-action="editor">Editeur</a></li>`)
-        add(`<li><a href="#/" data-action="index">Index</a></li>`)
+        add(`<li><a href="#/editor/${id}">Editeur</a></li>`)
+        add(`<li><a href="#/">Index</a></li>`)
     }
 
     
@@ -61,7 +62,7 @@ const layout_Modal = () => {
             <p>Êtes-vous certain de vouloir commencer une nouvelle partie?</p>
             <p>Votre partie actuelle sera effacée!</p>
             <div class="yes">
-                <a href="#/story/${gameid}/restart" data-action="restart">OUI</a>
+                <button type="button" onclick="${NS}.restartgame()">Oui</button>
             </div>
         </div>
     </div>
@@ -125,4 +126,9 @@ export const openmodalNew = () => {
 export const closemodal = () => {
     showModal = false
     App.renderOnNextTick()
+}
+
+export const restartgame = () => {
+    showModal = false
+    router.goto(`#/story/${gameid}/restart`, 1)
 }
