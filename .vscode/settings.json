@@ -3,5 +3,6 @@
     "liveServer.settings.root": "/game/public",
     "liveServer.settings.mount": [
         ["/src", "./game/src"]
-    ]
+    ],
+    "git.repositoryScanMaxDepth": 4
 }
