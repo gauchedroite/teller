@@ -499,4 +499,8 @@
         right: 0; */
         border-left: 1px solid var(--ged-border-color);
     }
+
+    .js-toast-bad {
+        background-color: indianred;
+    }
 }

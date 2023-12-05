@@ -440,7 +440,7 @@ const pageLayout = (map: Map<string, string>, ide: string, modal: string) => {
     const pages: string[] = []
     map.forEach((value, key) => pages.push(`<div class="page page-${key}">${value}</div>`))
     return `
-<div class="pages">
+<div class="pages js-waitable">
     <div class="pages-editor">
         ${pages.join("")}
     </div>
@@ -529,6 +529,7 @@ export const fetch = (args: string[] | undefined) => {
 
     Router.registerDirtyExit(null);
     fetchState(args)
+        .then(App.untransitionUI)
         .then(App.render)
         .catch(App.render)
 };
@@ -739,7 +740,15 @@ export const refreshGame = () => {
 }
 
 export const uploadGame = () => {
+    App.transitionUI();
     setTimeout(() => {
         gdata.publishGameFileAsync()
+        .then(() => {
+            App.untransitionUI()
+        })
+        .catch(() => {
+            App.untransitionUI()
+            Misc.toastFailure("FAILED to update the game file")
+        })
     }, 0);
 }
