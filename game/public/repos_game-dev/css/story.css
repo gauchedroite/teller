@@ -81,7 +81,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-family: "Montserrat", sans-serif;
+            font-family: "Montserrat", sans-serif; /*FIXME*/
             font-weight: bolder;
             font-size: larger;
             letter-spacing: 0.1em;

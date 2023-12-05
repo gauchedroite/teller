@@ -1,3 +1,4 @@
+import * as App from "../core/app.js";
 import UserData from "./game-user.js";
 import { IGameMeta, ISituation, IScene, IActor, IAction, IMoment, IMessageFrom, IMessageTo, Kind, AKind, IGameData } from "./igame-data.js"
 
@@ -613,7 +614,7 @@ export default class GameData extends UserData implements IGameData {
          }
     }
 
-    publishGameFileAsync = async () => {
+    OLD_publishGameFileAsync = async () => {
         const url = `http://localhost:5501/save-game-script/${this.doc("game-script.json")}`
         const options = <RequestInit> {
             method: "post",
@@ -623,6 +624,12 @@ export default class GameData extends UserData implements IGameData {
         const response = await fetch(url, options)
         const json = await response.json()
         console.log(json)
+    }
+
+    publishGameFileAsync = async () => {
+        const url = `save-game-script/${this.doc("game-script.json")}`
+        const qaz = await App.POST(url, JSON.parse(this.localStorage_getItem("_game")!))
+        console.log(qaz)
     }
 
     persistGame = (data: IGameData) => {

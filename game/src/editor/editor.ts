@@ -59,7 +59,7 @@ const myInputAreaRow = (id: string, value: string, ph: string | null = null, sty
 
 const mySelectRow = (label: string, url: string, disabled = false, text: string | null = null, subtitle: string | null = null) => {
     return `
-    <a href="${url}" class="item-link" ${disabled ? "disabled" : ""}>
+    <a href="${url}" title="mySelectRow" class="item-link" ${disabled ? "disabled" : ""}>
         <div class="item-content">
             <div class="item-inner">
                 <div class="item-title">${label}</div>
@@ -375,7 +375,7 @@ const layoutCol_IDE = () => {
 <div class="page page-ide">
     <div class="content-block-title">
         <div>State</div>
-        <div><a href="#" onclick="${NS}.refreshGame();return false;"><i class="fa-regular fa-rotate-right"></i></a></div>
+        <div><a href="#" title="layoutCol_IDE" onclick="${NS}.refreshGame();return false;"><i class="fa-regular fa-rotate-right"></i></a></div>
     </div>
     <div class="content-block">
         <table>

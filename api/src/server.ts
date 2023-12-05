@@ -5,8 +5,15 @@ import cors from "cors";
 import path from "path"
 import * as fs from "fs";
 
+
+
+// Configure CORS to match what App.POST() on the client side is using
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5502",
+    methods: "GET,POST",
+    credentials: true
+}));
 
 
 //

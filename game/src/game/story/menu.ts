@@ -14,6 +14,8 @@ const myLayout = (id: string) => {
         return `repos/game-${id}/${assetName}`
     }
 
+    const isAdmin = (window as any).APP.admin;
+
     return `
 <div class="solid">
     <iframe title="Menu Background" src="${doc("menu-bg.html")}" class="full-viewport"></iframe>
@@ -22,8 +24,10 @@ const myLayout = (id: string) => {
     <ul>
         <li><a href="#/story/${id}" data-action="continue">Continuer la partie</a></li>
         <li><a href="#/story/${id}/restart" data-action="restart">Nouvelle partie</a></li>
+${isAdmin ? `
         <li><a href="#/editor/${id}" data-action="editor">Editeur</a></li>
         <li><a href="#/" data-action="index">Index</a></li>
+` : ``}
     </ul>
 </div>
 `

@@ -1,6 +1,5 @@
-﻿// @ts-nocheck
-
-import { reviver, replacer } from "./misc.js"
+﻿import { reviver, replacer } from "./misc.js"
+import { rootMan } from "./rootMan.js";
 
 export const setUID = (uid: number) => state.uid = uid;
 export const getUID = () => state?.uid;
@@ -24,7 +23,7 @@ interface IState {
 
 
 let context = "---";
-let api = "api";
+let api = "";
 let name: string;
 //
 let title = "";
@@ -40,7 +39,7 @@ let renderRoot = "app_root";
 //
 export let state: IState;
 
-let root = APP.root;
+let root = new rootMan((<any>window).APP.roots);
 
 
 
@@ -158,9 +157,9 @@ const setRenderRoot = (id: string) => {
     renderRoot = id
 
     let pages = [...document.querySelectorAll("#app_root > div")]
-    pages.forEach((page: HTMLElement) => {
+    pages.forEach(page => {
         //page.style.opacity = "0";
-        page.style.display = "none"
+        (page as HTMLElement).style.display = "none"
     })
 
     setTimeout(() => {
@@ -253,7 +252,7 @@ export const uiUpdateRequired = () => {
 
 
 export const apiurl = (url: string) => {
-    return `${root}${api}${url}`;
+    return `${root.getDomain()}${api}${url}`;
 };
 
 export const url = (resource: string) => {
@@ -340,7 +339,7 @@ const catchFetch = (reason: IException | any) => {
     throw reason;
 };
 
-const fetchWithRetry = (url: RequestInfo, options?: RequestInit, retries = 4, delay = 2500) : Promise<Response> => {
+const fetchWithRetry = (url: RequestInfo, options?: RequestInit, retries = 0, delay = 2500) : Promise<Response> => {
     return window.fetch(url, options)
         .then(response => {
             return response;
@@ -482,7 +481,7 @@ export const download = (url: string, name: string, event: Event) => {
                 anchor.rel = "noopener";
                 anchor.download = name;
                 anchor.click();
-                setTimeout(_ => { window.URL.revokeObjectURL(objectUrl) }, 1000);
+                setTimeout(() => { window.URL.revokeObjectURL(objectUrl) }, 1000);
             }
         })
         .catch(render);
@@ -507,7 +506,7 @@ export const view = (url: string, name: string, event: Event) => {
             else {
                 let objectUrl = window.URL.createObjectURL(blob as any);
                 window.open(objectUrl, "_blank");
-                setTimeout(_ => { window.URL.revokeObjectURL(objectUrl) }, 1000);
+                setTimeout(() => { window.URL.revokeObjectURL(objectUrl) }, 1000);
             }
         })
         .catch(render)
