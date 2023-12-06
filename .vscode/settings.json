@@ -4,5 +4,5 @@
     "liveServer.settings.mount": [
         ["/src", "./game/src"]
     ],
-    "git.repositoryScanMaxDepth": 4
+    "git.repositoryScanMaxDepth": 1
 }
