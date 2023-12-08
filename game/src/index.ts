@@ -8,6 +8,12 @@ import WebglRunner from "./game/webgl-runner.js"
 export const NS = "GINDEX";
 
 
+// To allow Safari on my (old) Mac Mini to reach Live Server (port 5502) on my WSL dev environment:
+// Mac Mini: http://<IP of my Windows box>:4999
+// Windows: netsh interface portconfig add v4tov4 listenport=4999 listenaddress=0.0.0.0 connectport=5502 connectaddress=127.0.0.1
+// Windows Firewall: inbound rule to open port 4999
+
+
 declare const FastClick: any;
 FastClick.attach(document.body);
 
