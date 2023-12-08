@@ -49,8 +49,6 @@ export const initialize = (render: () => void, postRender: () => void, appName: 
     name = appName;
 
     state = <IState>{};
-
-    return Promise.resolve()
 };
 
 

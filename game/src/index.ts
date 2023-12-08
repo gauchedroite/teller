@@ -61,7 +61,7 @@ export const postRender = () => {
 
 
 // Initialize the app
-await App.initialize(
+App.initialize(
     () => {
         return `
         ${GameMain.render()}
@@ -79,7 +79,7 @@ await App.initialize(
 EditorMain.startup();
 GameMain.startup();
 
-// Add a catchall route
+// Add a catchall route (in index.ts itself)
 router.addRoute("^#/?(.*)$", params => fetch(params));
 
 
