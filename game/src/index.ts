@@ -95,6 +95,9 @@ const onresize = () => {
 addEventListener("resize", onresize);
 onresize();
 
+// This makes the :active CSS pseudo selector work to style taps on elements.
+document.addEventListener("touchstart", () => {});
+
 
 
 
