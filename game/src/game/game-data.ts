@@ -13,7 +13,7 @@ export default class GameData extends UserData implements IGameData {
         super(gameid);
     }
 
-    load_Game = (text: string) => {
+    parseGameFile = (text: string) => {
         var gdata = <IGameData> JSON.parse(text);
         this.game = gdata.game;
         this.situations = gdata.situations;
@@ -24,7 +24,7 @@ export default class GameData extends UserData implements IGameData {
 
     update_Game = (gdata: IGameData) => {
         const json = JSON.stringify(gdata)
-        this.load_Game(json)
+        this.parseGameFile(json)
 
         this.persistGame(<IGameData>{
             game: this.game,

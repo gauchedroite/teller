@@ -3,7 +3,7 @@ import GameData from "../game-data.js";
 import { IAction, IActor, IGameData, IMessageTo, IMoment, IScene, ISituation, Kind } from "../igame-data.js";
 import { ChoiceKind, IChoice, IUI } from "../iui.js";
 import { ChunkKind, IBackground, IDialog, IDo, IGameResult, IHeading, IInline, IMetadata, IMiniGame, IMomentData, IOptions, ISceneData, IStyle, IText, ITitle, IWaitClick, Op } from "../igame.js";
-import { isObjectEmpty, waitforMsecAsync } from "../../utils.js";
+import { isObjectEmpty, log, waitforMsecAsync } from "../../utils.js";
 
 
 export class Game implements IGameInstance {
@@ -33,22 +33,25 @@ export class Game implements IGameInstance {
         this.bc = new BroadcastChannel("game-loop")
     }
 
-    startGameAsync = async () => {
+    // Called when starting a game cold, or after a new game is created.
+    // Not called when the game is already running and the user just continue the game from the menu screen.
+    runGameAsync = async () => {
         const text = await this.gdata.fetchGameFileAsync();
-        if (text != undefined && text.length > 0) this.gdata.load_Game(text);
+        if (text == undefined || text.length == 0)
+            return;
+
+        this.gdata.parseGameFile(text);
 
         if (this.gdata.state == undefined || isObjectEmpty(this.gdata.state)) {
             return this.startNewGameAsync();
         }
         else {
-            return this.continueExistingGameAsync();
+            return this.resumeGameAsync();
         }
     };
 
-    resumeGame = () => {
-    };
-
-    clearAllGameData = () => {
+    // Called when the user has confirmed a new game.
+    eraseGame = () => {
         var options = this.gdata.options;
         this.gdata.clearStorage();
         this.gdata.options = options;
@@ -57,8 +60,7 @@ export class Game implements IGameInstance {
 
     
     private startNewGameAsync = async () => {
-        this.gdata.history = [];    //init the list of showed moments
-        this.gdata.clearContinueData();
+        this.gdata.eraseAllUserStorage();
 
         let options = this.gdata.options;
         if (isObjectEmpty(options)) options = <IOptions>{ 
@@ -70,31 +72,35 @@ export class Game implements IGameInstance {
         (state as any)[this.gdata.game.initialstate] = true;
         this.gdata.state = state;
 
+        // list of showed moments
+        this.gdata.history = [];
+
         this.bc.postMessage({ op: "GAME_START" })
 
         this.data = this.gdata;
         this.bc.postMessage({ op: "SHOWING_CHOICES" })
         this.currentMoment = Game.selectOne(this.getAllPossibleEverything());
         if (this.currentMoment != null) {
-            await this.updateAsync(Op.START_BLURBING);
+            await this.startGameLoopAsync(Op.START_BLURBING);
         }
         else {
             await this.refreshGameAndAlertAsync("AUCUN POINT DE DEPART POUR LE JEU");
-            await this.updateAsync(Op.BUILD_CHOICES)
+            await this.startGameLoopAsync(Op.BUILD_CHOICES)
         }
     };
 
-    private continueExistingGameAsync = async () => {
+    private resumeGameAsync = async () => {
         this.restoreContinueData();
         this.data = this.gdata;
         await this.ui.initSceneAsync(Game.parseScene(this.currentScene!));
-        await this.updateAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES)
+        await this.startGameLoopAsync(this.currentMoment != null ? Op.START_BLURBING : Op.BUILD_CHOICES)
     };
 
 
 
-    private updateAsync = async (op: Op): Promise<void> => {
+    private startGameLoopAsync = async (op: Op): Promise<void> => {
         this.data = this.gdata;
+        log("startGameLoopAsync")
 
         while (true) {
             if (op == Op.START_BLURBING && !this.started) {
@@ -222,9 +228,11 @@ export class Game implements IGameInstance {
         }
     };
 
+
+
     private refreshGameAndAlertAsync = async (text: string) => {
         const json = await this.gdata.fetchGameFileAsync()
-        if (json != undefined && json.length > 0) this.gdata.load_Game(json);
+        if (json != undefined && json.length > 0) this.gdata.parseGameFile(json);
         return this.ui.alertAsync(text); 
     };
 

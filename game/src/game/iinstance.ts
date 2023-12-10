@@ -2,9 +2,8 @@ import { IMoment } from "./igame-data.js"
 
 
 export interface IGameInstance {
-    startGameAsync: () => void
-    resumeGame: () => void
-    clearAllGameData: () => void
+    runGameAsync: () => void
+    eraseGame: () => void
 }
 
 export interface IEditorInstance {

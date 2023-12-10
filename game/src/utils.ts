@@ -68,16 +68,31 @@ export function emitEvent(name: string, detail?: any) {
     document.dispatchEvent(event);
 }
 
-export function log(...data: any[]) {
-    const timeOnly = new Date().toISOString().substring(11).replace ("Z", " --")
-    console.log(timeOnly, ...data)
+
+
+export interface ILogData {
+    time: string
+    line: string
 }
+
+export function log(...data: any[]) {
+    const timeOnly = new Date().toISOString().substring(11).replace ("Z", "")
+    console.log(timeOnly, " --", ...data)
+
+    const bc = new BroadcastChannel("log")
+    bc.postMessage(<ILogData>{ time: timeOnly, line: data[0] })
+}
+
+const logProxy = new BroadcastChannel("log-proxy")
+logProxy.onmessage = event => {
+    log(event.data.log)
+}
+
+
 
 export function isObjectEmpty (objectName: any) {
     return Object.keys(objectName).length === 0
 }
-
-
 
 export function deepFreeze(object: any) {
     const propNames = Reflect.ownKeys(object);

@@ -5,6 +5,7 @@ import { IGameData, IAction, IMoment, Kind } from "../game/igame-data.js"
 import GameData from "../game/game-data.js"
 import GameHelper from "../game/game-helper.js"
 import { IChoice } from "../game/iui.js"
+import { ILogData } from "../utils.js"
 
 export const NS = "GED";
 
@@ -28,8 +29,9 @@ interface GIDs {
     actionid: number | null
 }
 let gids: GIDs;
-let modalWhat: string | null;
+let modalWhat: string | null
 
+let logs: ILogData[] = []
 
 
 const myInputRow = (id: string, value: string, label: string | null, ph: string | null = null, disabled = false) => {
@@ -370,6 +372,8 @@ const layoutCol_IDE = () => {
         return `<li class="ted-isnext"><a href="#" onclick="${NS}.onclickChoice(${index});return false">${one.text}</a></li>`
     })
 
+    const loglines = logs.map(one => `<div style="margin:6px 0;"><div style="font-size:75%;opacity:0.5;line-height:1;">${one.time}</div><div style="line-height:1;">${one.line}</div></div>`)
+
 
     return `
 <div class="page page-ide">
@@ -411,6 +415,14 @@ const layoutCol_IDE = () => {
     </div>
     <div class="content-block">
         ${myCheckbox("fastStory", gdata.options.fastStory, "Fast Story")}
+    </div>
+
+    <div class="content-block-title">
+        <div>Log</div>
+        <div><a href="#" onclick="${NS}.clearLog();return false;"><i title="Clear Log" class="fa-regular fa-trash"></i></a></div>
+    </div>
+    <div class="content-block">
+        ${loglines.join("")}
     </div>
 </div>
 `
@@ -510,7 +522,7 @@ const fetchState = async (args: string[] | undefined) => {
             editor_url = `editor/${id}`
             gdata = new GameData(id);
             const text = await gdata.fetchGameFileAsync();
-            if (text != undefined && text.length > 0) gdata.load_Game(text);
+            if (text != undefined && text.length > 0) gdata.parseGameFile(text);
         }
     }
 
@@ -700,11 +712,10 @@ const getMomentUrl = (moment: IMoment) => {
 
 
 //
-// Events
+// BroadcastChannel event listeners
 //
-
-const bc = new BroadcastChannel("game-loop")
-bc.onmessage = event => {
+const bcgl = new BroadcastChannel("game-loop")
+bcgl.onmessage = event => {
 
     if (gdata == undefined)
         return
@@ -728,7 +739,15 @@ bc.onmessage = event => {
     }, 0);
 }
 
+const bclog = new BroadcastChannel("log")
+bclog.onmessage = event => {
+    logs.push(event.data)
+}
 
+
+//
+// Other events
+//
 export const onclickChoice = (index: number) => {
     const channel = new BroadcastChannel("editor")
     channel.postMessage({ choiceIndex: index})
@@ -751,4 +770,9 @@ export const uploadGame = () => {
             Misc.toastFailure("FAILED to update the game file")
         })
     }, 0);
+}
+
+export const clearLog = () => {
+    logs = [];
+    App.renderOnNextTick()
 }
