@@ -741,7 +741,12 @@ bcgl.onmessage = event => {
 
 const bclog = new BroadcastChannel("log")
 bclog.onmessage = event => {
+    const data: ILogData = event.data;
     logs.push(event.data)
+
+    //const proxy = event.data.proxy ?? false
+    //if (proxy)
+    //    App.renderOnNextTick()
 }
 
 

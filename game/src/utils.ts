@@ -71,21 +71,33 @@ export function emitEvent(name: string, detail?: any) {
 
 
 export interface ILogData {
+    id: number
     time: string
     line: string
+    proxy: boolean
 }
 
+const bc = new BroadcastChannel("log")
 export function log(...data: any[]) {
     const timeOnly = new Date().toISOString().substring(11).replace ("Z", "")
     console.log(timeOnly, " --", ...data)
 
-    const bc = new BroadcastChannel("log")
-    bc.postMessage(<ILogData>{ time: timeOnly, line: data[0] })
+    bc.postMessage(<ILogData>{ time: timeOnly, line: data[0], id: performance.now() })
 }
+
 
 const logProxy = new BroadcastChannel("log-proxy")
 logProxy.onmessage = event => {
-    log(event.data.log)
+
+    // We get duplicates when the editor is up because it contains an iframe of the game - where the events are coming from.
+    // The duplicates are sent at exactly the same time, as per performance.now().
+    // I haven't found a way to filter out the duplicates.
+    // I will leave the filtering out to the receiving end.
+
+    const timeOnly = new Date().toISOString().substring(11).replace ("Z", "")
+    console.log(timeOnly, " **", event.data)
+
+    bc.postMessage(<ILogData>{ time: timeOnly, line: event.data.line, id: performance.now(), proxy: true })
 }
 
 
@@ -106,4 +118,4 @@ export function deepFreeze(object: any) {
     }
   
     return Object.freeze(object);
-  }
+}
