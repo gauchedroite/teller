@@ -31,7 +31,9 @@ interface GIDs {
 let gids: GIDs;
 let modalWhat: string | null
 
+
 let logs: ILogData[] = []
+let iframeGame = true
 
 
 const myInputRow = (id: string, value: string, label: string | null, ph: string | null = null, disabled = false) => {
@@ -114,11 +116,22 @@ const layoutCol_Game = () => {
         <div>
             <a target="_new" href="#/menu/${gdata.gameid}"><i title="Menu" class="fa-regular fa-bars"></i></a>&nbsp;
             <a target="_new" href="#/story/${gdata.gameid}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
+${iframeGame ? `
+            <a href="#" onclick="${NS}.viewGame(false);return false;"><i title="Hide Game" class="fa-regular fa-eye-slash"></i></a>
+` : `
+            <a href="#" onclick="${NS}.viewGame(true);return false;"><i title="Show Game" class="fa-regular fa-eye"></i></a>
+`}
         </div>
     </div>
+${iframeGame ? `
     <div class="content-block-iframe">
-        <iframe title="Game" src="#/story/${state.game.id}"></iframe>
+    <iframe title="Game" src="#/story/${state.game.id}"></iframe>
     </div>
+` : `
+    <div class="content-block">
+        &nbsp;
+    </div>
+`}
 `
 }
 
@@ -372,7 +385,10 @@ const layoutCol_IDE = () => {
         return `<li class="ted-isnext"><a href="#" onclick="${NS}.onclickChoice(${index});return false">${one.text}</a></li>`
     })
 
-    const loglines = logs.map(one => `<div style="margin:6px 0;"><div style="font-size:75%;opacity:0.5;line-height:1;">${one.time}</div><div style="line-height:1;">${one.line}</div></div>`)
+    // remove duplicates, then map
+    const loglines = logs
+        .filter((one, index) => logs.findIndex(two => (two.id == one.id)) == index)
+        .map(one => `<div style="margin:6px 0;"><div style="font-size:75%;opacity:0.5;line-height:1;">${one.time}</div><div style="line-height:1;">${one.line}</div></div>`)
 
 
     return `
@@ -419,10 +435,15 @@ const layoutCol_IDE = () => {
 
     <div class="content-block-title">
         <div>Log</div>
-        <div><a href="#" onclick="${NS}.clearLog();return false;"><i title="Clear Log" class="fa-regular fa-trash"></i></a></div>
+        <div>
+        <a href="#" onclick="${NS}.refreshLog();return false;" id="refresh_log"><i title="Refresh Log" class="fa-regular fa-rotate-right"></i></a>
+        <a href="#" onclick="${NS}.clearLog();return false;"><i title="Clear Log" class="fa-regular fa-trash"></i></a>
+        </div>
     </div>
-    <div class="content-block">
-        ${loglines.join("")}
+    <div id="log_block" class="content-block" style="max-height: 200px; overflow: auto; padding: 0; font-family: monospace">
+        <div style="padding: 10px 15px;">
+            ${loglines.join("")}
+        </div>
     </div>
 </div>
 `
@@ -579,6 +600,9 @@ export const render = () => {
 
 export const postRender = () => {
     if (!App.inContext(NS)) return;
+
+    const logElement = document.querySelector("#log_block div")
+    logElement?.scrollIntoView(false)
 
     if (modalWhat == undefined)
         return;
@@ -741,12 +765,10 @@ bcgl.onmessage = event => {
 
 const bclog = new BroadcastChannel("log")
 bclog.onmessage = event => {
-    const data: ILogData = event.data;
-    logs.push(event.data)
+    const data: ILogData = JSON.parse(JSON.stringify(event.data));
+    logs.push(data)
 
-    //const proxy = event.data.proxy ?? false
-    //if (proxy)
-    //    App.renderOnNextTick()
+    document.getElementById("refresh_log")?.classList.add("is-dirty")
 }
 
 
@@ -756,6 +778,11 @@ bclog.onmessage = event => {
 export const onclickChoice = (index: number) => {
     const channel = new BroadcastChannel("editor")
     channel.postMessage({ choiceIndex: index})
+}
+
+export const viewGame = (view: boolean) => {
+    iframeGame = view
+    App.renderOnNextTick()
 }
 
 export const refreshGame = () => {
@@ -779,5 +806,9 @@ export const uploadGame = () => {
 
 export const clearLog = () => {
     logs = [];
+    App.renderOnNextTick()
+}
+
+export const refreshLog = () => {
     App.renderOnNextTick()
 }

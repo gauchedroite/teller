@@ -97,7 +97,7 @@ logProxy.onmessage = event => {
     const timeOnly = new Date().toISOString().substring(11).replace ("Z", "")
     console.log(timeOnly, " **", event.data)
 
-    bc.postMessage(<ILogData>{ time: timeOnly, line: event.data.line, id: performance.now(), proxy: true })
+    bc.postMessage(<ILogData>{ time: timeOnly, line: event.data.line, id: event.data.id, proxy: true })
 }
 
 

@@ -48,7 +48,7 @@ export const fetch = async (args: string[] | undefined) => {
             game?.eraseGame()
             storyStarted = false
             router.goto(`#/story/${name}`, 1)
-//            router.reload(1500) // this makes sure to "release" any pending wait for click in the previous game instance
+            router.reload(10) // this makes sure to "release" any pending wait for click in the previous game instance
             return
         }
         else {
