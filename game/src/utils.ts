@@ -77,7 +77,7 @@ export interface ILogData {
     proxy: boolean
 }
 
-const bc = new BroadcastChannel("log")
+const bc = new BroadcastChannel("log:")
 export function log(...data: any[]) {
     const timeOnly = new Date().toISOString().substring(11).replace ("Z", "")
     console.log(timeOnly, " --", ...data)

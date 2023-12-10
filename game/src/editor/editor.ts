@@ -33,7 +33,7 @@ let modalWhat: string | null
 
 
 let logs: ILogData[] = []
-let iframeGame = true
+let showGameFrame = true
 
 
 const myInputRow = (id: string, value: string, label: string | null, ph: string | null = null, disabled = false) => {
@@ -114,16 +114,16 @@ const layoutCol_Game = () => {
     <div class="content-block-title">
         <div>Game</div>
         <div>
-            <a target="_new" href="#/menu/${gdata.gameid}"><i title="Menu" class="fa-regular fa-bars"></i></a>&nbsp;
-            <a target="_new" href="#/story/${gdata.gameid}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
-${iframeGame ? `
+            <a href="#/menu/${gdata.gameid}"><i title="Menu" class="fa-regular fa-bars"></i></a>&nbsp;
+            <a href="#/story/${gdata.gameid}"><i title="Game" class="fa-regular fa-gamepad-modern"></i></a>
+${showGameFrame ? `
             <a href="#" onclick="${NS}.viewGame(false);return false;"><i title="Hide Game" class="fa-regular fa-eye-slash"></i></a>
 ` : `
             <a href="#" onclick="${NS}.viewGame(true);return false;"><i title="Show Game" class="fa-regular fa-eye"></i></a>
 `}
         </div>
     </div>
-${iframeGame ? `
+${showGameFrame ? `
     <div class="content-block-iframe">
     <iframe title="Game" src="#/story/${state.game.id}"></iframe>
     </div>
@@ -738,10 +738,10 @@ const getMomentUrl = (moment: IMoment) => {
 //
 // BroadcastChannel event listeners
 //
-const bcgl = new BroadcastChannel("game-loop")
+const bcgl = new BroadcastChannel("game-loop:")
 bcgl.onmessage = event => {
 
-    if (gdata == undefined)
+    if (gdata == undefined || !App.inContext(NS))
         return
 
     setTimeout(() => {
@@ -763,7 +763,7 @@ bcgl.onmessage = event => {
     }, 0);
 }
 
-const bclog = new BroadcastChannel("log")
+const bclog = new BroadcastChannel("log:")
 bclog.onmessage = event => {
     const data: ILogData = JSON.parse(JSON.stringify(event.data));
     logs.push(data)
@@ -776,17 +776,17 @@ bclog.onmessage = event => {
 // Other events
 //
 export const onclickChoice = (index: number) => {
-    const channel = new BroadcastChannel("editor")
+    const channel = new BroadcastChannel("editor:select-choice")
     channel.postMessage({ choiceIndex: index})
 }
 
 export const viewGame = (view: boolean) => {
-    iframeGame = view
+    showGameFrame = view
     App.renderOnNextTick()
 }
 
 export const refreshGame = () => {
-    const channel = new BroadcastChannel("editor2")
+    const channel = new BroadcastChannel("editor:reload-story")
     channel.postMessage({})
 }
 

@@ -124,10 +124,12 @@ export class UI implements IUI {
             lis[i].classList.remove("hidden");
         }
 
-        const bc = new BroadcastChannel("editor")
+        const bc = new BroadcastChannel("editor:select-choice")
         bc.onmessage = event => indexClicked = event.data.choiceIndex;
 
         await waitforValueAsync(() => indexClicked)
+
+        bc.close()
 
         var li: Element;
         for (var i = 0; i < lis.length; i++) {

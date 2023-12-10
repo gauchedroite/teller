@@ -85,6 +85,6 @@ export const postRender = () => {
 
 
 
-const bc2 = new BroadcastChannel("editor2")
+const bc2 = new BroadcastChannel("editor:reload-story")
 bc2.onmessage = event => setTimeout(() => { router.reload() }, 0);
 

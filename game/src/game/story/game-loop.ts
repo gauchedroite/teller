@@ -30,7 +30,7 @@ export class Game implements IGameInstance {
         this.gameWindows = new Array<IGameInstance>();
         this.started = false;
 
-        this.bc = new BroadcastChannel("game-loop")
+        this.bc = new BroadcastChannel("game-loop:")
     }
 
     // Called when starting a game cold, or after a new game is created.

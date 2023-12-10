@@ -116,7 +116,7 @@
         }, 0);
 
         // Pause the shader if it's not visible
-        const bc = new BroadcastChannel("route-change")
+        const bc = new BroadcastChannel("router:route-change")
         bc.onmessage = event => {
             if (event.data.current.startsWith("#/menu"))
                 runner?.resume()
