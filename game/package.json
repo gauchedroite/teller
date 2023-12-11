@@ -8,9 +8,9 @@
   "scripts": {
     "dev": "tsc -w",
     "dist": "npm run dist:files && npm run dist:ts",
-    "dist:files": "rm -rf ./dist/* && cp -R ./public/* ./dist && rm -rf ./dist/repos_game-dev && rm -rf ./dist/repos/*/.git && rm -rf ./dist/js && rm -rf ./dist/index-dev.html",
+    "dist:files": "rm -rf ./dist/* && cp -R ./public/* ./dist && cp ./public/.nojekyll ./dist && rm -rf ./dist/repos_game-dev && rm -rf ./dist/repos/*/.git && rm -rf ./dist/js && rm -rf ./dist/index-dev.html",
     "dist:ts": "tsc --build ./tsconfig.dist.json --force",
-    "publish": "cp -R ./dist/* ../../teller-games"
+    "publish": "cp -R ./dist/* ../../teller-games && cp ./dist/.nojekyll ../../teller-games/.nojekyll"
   },
   "devDependencies": {
     "typescript": "^5.1.6"
