@@ -2,6 +2,7 @@
     "liveServer.settings.port": 5502,
     "liveServer.settings.root": "/game/public",
     "liveServer.settings.mount": [
+        ["/teller-games", "./game/public"],
         ["/src", "./game/src"]
     ],
     "git.repositoryScanMaxDepth": 1
