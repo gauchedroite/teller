@@ -29,7 +29,7 @@ const myLayout = (id: string, modal: string) => {
 
     if (isAdmin) {
         add(`<li><a href="#/editor/${id}">Editeur</a></li>`)
-        add(`<li><a href="#/">Index</a></li>`)
+        add(`<li><a href="./">Index</a></li>`)
     }
 
     
