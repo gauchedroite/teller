@@ -3,7 +3,7 @@
     "compilerOptions": {
       
       // Settings for the compiler
-      "outDir": "./live/js",
+      "outDir": "../live/js",
       "sourceMap": false,
       "target": "es2017",
       "module": "ESNext",
