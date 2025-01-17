@@ -2,9 +2,9 @@
     "liveServer.settings.port": 5502,
     "liveServer.settings.root": "/game/public",
     "liveServer.settings.mount": [
-        ["/teller-games", "./game/public"],
         ["/src", "./game/src"],
-        ["/game-billy", "../game-billy"]
+        ["/game-billy", "../game-billy"],
+        ["/game-dev", "../game-dev"]
     ],
     "git.repositoryScanMaxDepth": 1
 }

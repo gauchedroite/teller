@@ -53,7 +53,7 @@ export class Game implements IGameInstance {
     // Called when the user has confirmed a new game.
     eraseGame = () => {
         var options = this.gdata.options;
-        this.gdata.clearStorage();
+        this.gdata.eraseAllUserStorage();
         this.gdata.options = options;
     };
 

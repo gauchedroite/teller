@@ -24,7 +24,7 @@ export class Game {
         };
         this.eraseGame = () => {
             var options = this.gdata.options;
-            this.gdata.clearStorage();
+            this.gdata.eraseAllUserStorage();
             this.gdata.options = options;
         };
         this.startNewGameAsync = async () => {
