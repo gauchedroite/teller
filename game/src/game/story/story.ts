@@ -20,9 +20,11 @@ const addGameCss = (id: string) => {
     if (cssElement != undefined)
         return
 
+    const doc = (assetName: string) => `game-${id}/${assetName}`;
+
     const link = document.createElement("link")
     link.id = cssid
-    link.href = (id != "dev" ? `repos/game-${id}/css/index.css` : `repos_game-dev/css/index.css`)
+    link.href = doc("css/index.css")
     link.type = "text/css"
     link.rel = "stylesheet"
 

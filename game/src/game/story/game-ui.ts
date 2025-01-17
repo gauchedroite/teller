@@ -579,15 +579,11 @@ export class UI implements IUI {
     }
 
     private asset = (assetName: string) => {
-        if (this.id == "dev")
-            return `repos_game-dev/assets/${this.sanitize(assetName)}`
-        return `repos/game-${this.id}/assets/${this.sanitize(assetName)}`
+        return `game-${this.id}/assets/${this.sanitize(assetName)}`
     }
 
     private doc = (assetName: string) => {
-        if (this.id == "dev")
-            return `repos_game-dev/${this.sanitize(assetName)}`
-        return `repos/game-${this.id}/${this.sanitize(assetName)}`
+        return `game-${this.id}/${this.sanitize(assetName)}`
     }
 
     private setCssVariable = (property: string, value: string) => {

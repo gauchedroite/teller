@@ -170,8 +170,6 @@ export default class UserData {
     }
 
     private doc = (assetName: string) => {
-        if (this.gameid == "dev")
-            return `repos_game-dev/${assetName}`
-        return `repos/game-${this.gameid}/${assetName}`
+        return `game-${this.gameid}/${assetName}`
     }
 }

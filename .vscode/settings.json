@@ -3,7 +3,8 @@
     "liveServer.settings.root": "/game/public",
     "liveServer.settings.mount": [
         ["/teller-games", "./game/public"],
-        ["/src", "./game/src"]
+        ["/src", "./game/src"],
+        ["/game-billy", "../game-billy"]
     ],
     "git.repositoryScanMaxDepth": 1
 }
