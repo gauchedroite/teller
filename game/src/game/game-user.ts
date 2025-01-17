@@ -170,6 +170,6 @@ export default class UserData {
     }
 
     private doc = (assetName: string) => {
-        return `game-${this.gameid}/${assetName}`
+        return `/game-${this.gameid}/${assetName}`
     }
 }

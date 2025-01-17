@@ -5,7 +5,7 @@ export const NS = "GMENU";
 let gameid = "";
 let showModal = false;
 const myLayout = (id, modal) => {
-    const doc = (assetName) => `game-${id}/${assetName}`;
+    const doc = (assetName) => `/game-${id}/${assetName}`;
     const isAdmin = window.APP.admin;
     const canResume = new UserData(gameid).canResumeGame();
     const lines = [];

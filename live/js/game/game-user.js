@@ -42,7 +42,7 @@ export default class UserData {
             this.localStorage_setItem("_game", JSON.stringify(data));
         };
         this.doc = (assetName) => {
-            return `game-${this.gameid}/${assetName}`;
+            return `/game-${this.gameid}/${assetName}`;
         };
     }
     get state() {

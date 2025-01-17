@@ -11,7 +11,7 @@ let showModal = false
 
 
 const myLayout = (id: string, modal: string) => {
-    const doc = (assetName: string) => `game-${id}/${assetName}`;
+    const doc = (assetName: string) => `/game-${id}/${assetName}`;
 
     const isAdmin = (window as any).APP.admin
     const canResume = new UserData(gameid).canResumeGame()

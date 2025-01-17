@@ -494,10 +494,10 @@ export class UI {
             return filename.replace(/ /g, "%20").replace(/'/g, "%27");
         };
         this.asset = (assetName) => {
-            return `game-${this.id}/assets/${this.sanitize(assetName)}`;
+            return `/game-${this.id}/assets/${this.sanitize(assetName)}`;
         };
         this.doc = (assetName) => {
-            return `game-${this.id}/${this.sanitize(assetName)}`;
+            return `/game-${this.id}/${this.sanitize(assetName)}`;
         };
         this.setCssVariable = (property, value) => {
             document.body.style.setProperty(property, value);

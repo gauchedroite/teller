@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "tsc -w",
     "live": "npm run live:files && npm run live:ts",
-    "live:files": "rm -rf ../live/* && cp -R ./public/* ../live && rm -rf ../live/js && cp ./public/.nojekyll ../live",
+    "live:files": "rm -rf ../live/* && cp -R ./public/* ../live && cp ./public/.nojekyll ../live && rm -rf ../live/js",
     "live:ts": "tsc --build ./tsconfig.live.json --force"
   },
   "devDependencies": {
