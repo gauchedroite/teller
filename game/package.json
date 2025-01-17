@@ -1,13 +1,15 @@
 {
   "name": "teller",
   "version": "0.1.0",
-  "description": "Teller - the game telling machine",
+  "description": "Teller - a game telling machine",
   "author": "GaucheDroite",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "tsc -w",
-    "dist:ts": "tsc --build ./tsconfig.dist.json --force"
+    "live": "npm run live:files && npm run live:ts",
+    "live:files": "rm -rf ./live/* && cp -R ./public/* ./live && cp ./public/.nojekyll ./live",
+    "live:ts": "tsc --build ./tsconfig.live.json --force"
   },
   "devDependencies": {
     "typescript": "^5.1.6"
