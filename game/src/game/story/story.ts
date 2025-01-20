@@ -20,7 +20,7 @@ const addGameCss = (id: string) => {
     if (cssElement != undefined)
         return
 
-    const doc = (assetName: string) => `/game-${id}/${assetName}`;
+    const doc = (assetName: string) => `/tellergame-${id}/${assetName}`;
 
     const link = document.createElement("link")
     link.id = cssid

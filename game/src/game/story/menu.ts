@@ -11,7 +11,7 @@ let showModal = false
 
 
 const myLayout = (id: string, modal: string) => {
-    const doc = (assetName: string) => `/game-${id}/${assetName}`;
+    const doc = (assetName: string) => `/tellergame-${id}/${assetName}`;
 
     const isAdmin = (window as any).APP.admin
     const canResume = new UserData(gameid).canResumeGame()
@@ -83,7 +83,7 @@ const addGameCss = (id: string) => {
     // Add game specific css
     const link = document.createElement("link")
     link.id = cssid
-    link.href = `/game-${id}/css/index.css`
+    link.href = `/tellergame-${id}/css/index.css`
     link.type = "text/css"
     link.rel = "stylesheet"
     link.setAttribute("tag", "gamecss")

@@ -579,11 +579,11 @@ export class UI implements IUI {
     }
 
     private asset = (assetName: string) => {
-        return `/game-${this.id}/assets/${this.sanitize(assetName)}`
+        return `/tellergame-${this.id}/assets/${this.sanitize(assetName)}`
     }
 
     private doc = (assetName: string) => {
-        return `/game-${this.id}/${this.sanitize(assetName)}`
+        return `/tellergame-${this.id}/${this.sanitize(assetName)}`
     }
 
     private setCssVariable = (property: string, value: string) => {

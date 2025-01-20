@@ -3,8 +3,9 @@
     "liveServer.settings.root": "/game/public",
     "liveServer.settings.mount": [
         ["/src", "./game/src"],
-        ["/game-billy", "../game-billy"],
-        ["/game-dev", "../game-dev"]
+        ["/tellergame-billy", "../tellergame-billy"],
+        ["/tellergame-prophetie", "../tellergame-prophetie"],
+        ["/tellergame-dev", "../tellergame-dev"]
     ],
     "git.repositoryScanMaxDepth": 1
 }
