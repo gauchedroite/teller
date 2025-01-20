@@ -18,7 +18,8 @@ export const render = () => {
     <canvas id="index_canvas" class="full-viewport"></canvas>
     <div id="game_index_menu">
         <div><a href="#/menu/billy" style="color:whitesmoke;">Billy</a></div>
-        <div><a href="#/menu/dev" style="color:whitesmoke;">Dev Game</a></div>
+        <div><a href="#/menu/prophetie" style="color:whitesmoke;">Prophetie</a></div>
+        <div><a href="#/menu/dev" style="color:whitesmoke;">Dev</a></div>
     </div>`;
 };
 export const postRender = () => {

@@ -11,7 +11,7 @@ const addGameCss = (id) => {
     const cssElement = document.getElementById(cssid);
     if (cssElement != undefined)
         return;
-    const doc = (assetName) => `/game-${id}/${assetName}`;
+    const doc = (assetName) => `/tellergame-${id}/${assetName}`;
     const link = document.createElement("link");
     link.id = cssid;
     link.href = doc("css/index.css");

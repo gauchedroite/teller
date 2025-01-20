@@ -5,7 +5,7 @@ export const NS = "GMENU";
 let gameid = "";
 let showModal = false;
 const myLayout = (id, modal) => {
-    const doc = (assetName) => `/game-${id}/${assetName}`;
+    const doc = (assetName) => `/tellergame-${id}/${assetName}`;
     const isAdmin = window.APP.admin;
     const canResume = new UserData(gameid).canResumeGame();
     const lines = [];
@@ -65,7 +65,7 @@ const addGameCss = (id) => {
     }
     const link = document.createElement("link");
     link.id = cssid;
-    link.href = `/game-${id}/css/index.css`;
+    link.href = `/tellergame-${id}/css/index.css`;
     link.type = "text/css";
     link.rel = "stylesheet";
     link.setAttribute("tag", "gamecss");
